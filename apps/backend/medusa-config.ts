@@ -22,7 +22,7 @@ module.exports = defineConfig({
   },
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
-    redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
+    redisUrl: process.env.REDIS_URL,
     cookieOptions: {
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
