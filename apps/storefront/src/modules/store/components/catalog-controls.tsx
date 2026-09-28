@@ -1,0 +1,55 @@
+"use client"
+
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useState, useTransition } from "react"
+
+type Choice = { id: string; label: string }
+type Props = { count: number; categories: Choice[]; collections: Choice[]; facets: { sizes: string[]; colors: string[]; fabrics: string[] } }
+export default function CatalogControls({ count, categories, collections, facets }: Props) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const params = useSearchParams()
+  const [pending, startTransition] = useTransition()
+  const [open, setOpen] = useState(false)
+  const update = (key: string, value: string) => {
+    const next = new URLSearchParams(params.toString())
+    if (value) next.set(key, value)
+    else next.delete(key)
+    next.delete("page")
+    startTransition(() => router.replace(pathname + "?" + next, { scroll: false }))
+  }
+  const groups = [
+    { key: "category", title: "Category", choices: categories },
+    { key: "collection", title: "Collection", choices: collections },
+    { key: "size", title: "Size", choices: facets.sizes.map(value => ({ id: value, label: value })) },
+    { key: "color", title: "Colour", choices: facets.colors.map(value => ({ id: value, label: value })) },
+    { key: "fabric", title: "Fabric", choices: facets.fabrics.map(value => ({ id: value, label: value })) },
+  ]
+  const filterKeys = ["category", "collection", "size", "color", "fabric", "min", "max", "stock", "sale"]
+  const active = filterKeys.filter(key => params.has(key)).length
+  const clear = () => {
+    const next = new URLSearchParams(params.toString())
+    filterKeys.concat("page").forEach(key => next.delete(key))
+    startTransition(() => router.replace(pathname + "?" + next, { scroll: false }))
+  }
+  const filters = <div className="space-y-6">
+    <div className="flex justify-between items-center"><h2 className="text-sm uppercase tracking-[0.15em]">Refine your edit</h2>{active > 0 && <button onClick={clear} className="text-xs underline text-stone-500">Clear all</button>}</div>
+    {groups.filter(group => group.choices.length > 0).map(group => <details open key={group.key} className="border-b border-stone-200 pb-5"><summary className="cursor-pointer text-sm font-medium mb-4">{group.title}</summary><div className="space-y-3 max-h-56 overflow-auto pr-2">{group.choices.map(choice => {
+      const selected = (params.get(group.key) || "").split(",").filter(Boolean)
+      return <label key={choice.id} className="flex items-center gap-3 text-sm text-stone-600 cursor-pointer"><input type="checkbox" disabled={pending} checked={selected.includes(choice.id)} onChange={() => update(group.key, (selected.includes(choice.id) ? selected.filter(value => value !== choice.id) : [...selected, choice.id]).join(","))} className="accent-stone-900 w-4 h-4" />{choice.label}</label>
+    })}</div></details>)}
+    <form key={params.get("min") + ":" + params.get("max")} onSubmit={event => { event.preventDefault(); const data = new FormData(event.currentTarget); const next = new URLSearchParams(params.toString()); for (const key of ["min", "max"]) { const value = String(data.get(key) || ""); if (value) next.set(key, value); else next.delete(key) } next.delete("page"); startTransition(() => router.replace(pathname + "?" + next, { scroll: false })) }} className="border-b border-stone-200 pb-5 space-y-3">
+      <h3 className="text-sm font-medium">Price range (PKR)</h3><div className="flex gap-2"><input aria-label="Minimum price" name="min" type="number" min="0" defaultValue={params.get("min") || ""} placeholder="Min" className="w-1/2 min-w-0 bg-white border border-stone-300 p-2 text-sm" /><input aria-label="Maximum price" name="max" type="number" min="0" defaultValue={params.get("max") || ""} placeholder="Max" className="w-1/2 min-w-0 bg-white border border-stone-300 p-2 text-sm" /></div><button disabled={pending} className="w-full border border-stone-800 py-2 text-xs uppercase tracking-wider">Apply price</button>
+    </form>
+    {[{ key: "stock", label: "In stock only" }, { key: "sale", label: "On sale" }].map(item => <label key={item.key} className="flex items-center gap-3 text-sm"><input type="checkbox" className="accent-stone-900 w-4 h-4" disabled={pending} checked={params.get(item.key) === "1"} onChange={event => update(item.key, event.target.checked ? "1" : "")} />{item.label}</label>)}
+  </div>
+  return <>
+    <div className="col-span-full flex items-center justify-between gap-4 border-y border-stone-200 py-4">
+      <div className="flex items-center gap-4"><button className="lg:hidden text-xs uppercase tracking-widest border border-stone-300 px-4 py-2" onClick={() => setOpen(true)}>Filters {active > 0 ? "(" + active + ")" : ""}</button><p role="status" className="text-xs sm:text-sm text-stone-500">{pending ? "Updating your edit..." : count + (count === 1 ? " piece" : " pieces")}</p></div>
+      <label className="flex items-center gap-2 text-xs"><span className="hidden sm:inline text-stone-500">Sort by</span><select aria-label="Sort products" disabled={pending} value={params.get("sortBy") || "newest"} onChange={e => update("sortBy", e.target.value)} className="border border-stone-300 bg-white py-2 px-3"><option value="newest">Newest arrivals</option><option value="popular">Popular this month</option><option value="best-selling">Best selling</option><option value="recommended">Recommended</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="title-asc">Name: A to Z</option></select></label>
+    </div>
+    <aside className="hidden lg:block lg:sticky lg:top-40 self-start">{filters}</aside>
+    <Dialog open={open} onClose={setOpen} className="relative z-[100]"><div className="fixed inset-0 bg-black/50" aria-hidden="true" /><div className="fixed inset-0 flex justify-end"><DialogPanel className="h-[100dvh] w-[min(90vw,420px)] bg-[#faf8f5] flex flex-col"><div className="flex justify-between p-6 border-b"><DialogTitle className="font-serif text-2xl">Filters</DialogTitle><button aria-label="Close filters" onClick={() => setOpen(false)} className="text-2xl">&times;</button></div><div className="p-6 flex-1 min-h-0 overflow-auto">{filters}</div><button onClick={() => setOpen(false)} className="m-5 p-4 bg-stone-900 text-white text-sm">View {count} pieces</button></DialogPanel></div></Dialog>
+  </>
+}

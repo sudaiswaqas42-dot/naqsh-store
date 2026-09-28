@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg_men_unstitched_3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1B3022" />
+      <stop offset="50%" stop-color="#2B4A36" />
+      <stop offset="100%" stop-color="#08120E" />
+    </linearGradient>
+    <linearGradient id="gold_men_unstitched_3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#B6975A" stop-opacity="0.2" />
+      <stop offset="50%" stop-color="#B6975A" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#B6975A" stop-opacity="0.2" />
+    </linearGradient>
+    <pattern id="motif_men_unstitched_3" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M30 5 L35 25 L55 30 L35 35 L30 55 L25 35 L5 30 L25 25 Z" fill="none" stroke="#B6975A" stroke-width="0.5" stroke-opacity="0.12" />
+      <circle cx="30" cy="30" r="3" fill="#B6975A" fill-opacity="0.08" />
+    </pattern>
+  </defs>
+
+  <rect width="600" height="800" fill="url(#bg_men_unstitched_3)" />
+  <rect width="600" height="800" fill="url(#motif_men_unstitched_3)" />
+
+  <rect x="24" y="24" width="552" height="752" fill="none" stroke="#B6975A" stroke-width="1" stroke-opacity="0.4" />
+  <rect x="32" y="32" width="536" height="736" fill="none" stroke="#B6975A" stroke-width="0.5" stroke-opacity="0.2" />
+
+  <path d="M24 48 L48 24 M576 48 L552 24 M24 752 L48 776 M576 752 L552 776" stroke="#B6975A" stroke-width="1" stroke-opacity="0.6" />
+
+  <g transform="translate(300, 360)">
+    <circle cx="0" cy="-20" r="160" fill="#B6975A" fill-opacity="0.07" />
+    <path d="M -80 -120 Q -40 -140 0 -135 Q 40 -140 80 -120 L 110 40 L 80 180 L -80 180 L -110 40 Z" fill="none" stroke="#B6975A" stroke-width="2" stroke-opacity="0.75" />
+    <path d="M 0 -135 L 0 50" stroke="#B6975A" stroke-width="1.5" stroke-dasharray="3,3" stroke-opacity="0.8" />
+    <path d="M -20 -130 L 0 -105 L 20 -130" fill="none" stroke="#B6975A" stroke-width="2" />
+    <circle cx="0" cy="-85" r="2" fill="#B6975A" />
+    <circle cx="0" cy="-60" r="2" fill="#B6975A" />
+    <circle cx="0" cy="-35" r="2" fill="#B6975A" />
+    <circle cx="0" cy="-10" r="2" fill="#B6975A" />
+    <circle cx="0" cy="15" r="2" fill="#B6975A" />
+    <path d="M -70 160 Q 0 140 70 160" fill="none" stroke="#B6975A" stroke-width="1.5" stroke-opacity="0.85" />
+    <path d="M -60 170 Q 0 152 60 170" fill="none" stroke="#B6975A" stroke-width="1" stroke-opacity="0.6" />
+  </g>
+
+  <text x="300" y="90" text-anchor="middle" font-family="Cinzel, 'Playfair Display', serif" font-size="24" letter-spacing="6" fill="#FAF9F6">NAQSH</text>
+  <text x="300" y="115" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-size="9" letter-spacing="4" fill="#B6975A" font-weight="bold">WHERE IDENTITY BEGINS</text>
+  <line x1="220" y1="128" x2="380" y2="128" stroke="url(#gold_men_unstitched_3)" stroke-width="1" />
+
+  <g transform="translate(300, 600)">
+    <rect x="-100" y="-14" width="200" height="28" rx="14" fill="#08120E" stroke="#B6975A" stroke-width="1" stroke-opacity="0.8" />
+    <text x="0" y="4" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-size="10" letter-spacing="2" fill="#B6975A" font-weight="bold">PREMIUM LATHA</text>
+  </g>
+
+  <text x="300" y="670" text-anchor="middle" font-family="Cinzel, 'Playfair Display', serif" font-size="20" fill="#FAF9F6" font-weight="normal">HERITAGE WHITE LATHA</text>
+  <text x="300" y="700" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" fill="#CFC8BD" letter-spacing="1">HANDCRAFTED ATELIER EDITION</text>
+</svg>
