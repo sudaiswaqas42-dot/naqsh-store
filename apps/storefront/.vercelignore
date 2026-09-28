@@ -1,6 +1,7 @@
-.vercel
-.env*
 .next
 .next-*
 node_modules
 *.tsbuildinfo
+.env*
+.env.local
+.git
