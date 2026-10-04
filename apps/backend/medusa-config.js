@@ -1,11 +1,11 @@
-import { loadEnv, defineConfig } from '@medusajs/framework/utils'
-import path from "node:path"
+const { loadEnv, defineConfig } = require('@medusajs/framework/utils');
+const path = require("node:path");
 
-loadEnv(process.env.NODE_ENV || 'development', process.cwd())
+loadEnv(process.env.NODE_ENV || 'development', process.cwd());
 
 module.exports = defineConfig({
   admin: {
-    vite: (config: any = {}) => ({
+    vite: (config = {}) => ({
       ...config,
       server: {
         ...config?.server,
@@ -55,4 +55,4 @@ module.exports = defineConfig({
       resolve: path.resolve(__dirname, "src/modules/returns"),
     },
   ]
-})
+});
