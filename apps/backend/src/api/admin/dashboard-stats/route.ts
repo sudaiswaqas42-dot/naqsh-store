@@ -5,8 +5,18 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+    const readAll = async (request: any) => {
+      const data: any[] = []
+      while (true) {
+        const result = await query.graph({ ...request, pagination: { ...request.pagination, take: 200, skip: data.length } })
+        data.push(...result.data)
+        if (result.data.length < 200) break
+      }
+      return { data }
+    }
+
     // 1. Fetch Orders
-    const { data: orders } = await query.graph({
+    const { data: orders } = await readAll({
       entity: "order",
       fields: [
         "id",
@@ -23,6 +33,8 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         "metadata",
         "fulfillments.*",
         "items.*",
+        "payment_collections.*",
+        "payment_collections.payments.*",
       ],
       pagination: {
         take: 500,
@@ -31,44 +43,26 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     })
 
     // 2. Fetch Customers
-    const { data: customers } = await query.graph({
+    const { data: customers } = await readAll({
       entity: "customer",
       fields: ["id", "email", "created_at"],
       pagination: { take: 500 },
     })
 
     // 3. Fetch Inventory items & levels + map to products
-    const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
     const inventoryProductMap: Record<string, { product_id: string; title: string }> = {}
     const productTitleMap: Record<string, string> = {}
-
-    try {
-      if (pgConnection) {
-        const invRes = await pgConnection.raw(`
-          SELECT pvii.inventory_item_id, pv.product_id, p.title as product_title
-          FROM product_variant_inventory_item pvii
-          JOIN product_variant pv ON pv.id = pvii.variant_id
-          JOIN product p ON p.id = pv.product_id
-        `)
-        for (const row of invRes.rows || []) {
-          inventoryProductMap[row.inventory_item_id] = {
-            product_id: row.product_id,
-            title: row.product_title,
-          }
-        }
-
-        const prodRes = await pgConnection.raw("SELECT id, title FROM product")
-        for (const row of prodRes.rows || []) {
-          productTitleMap[row.title] = row.id
-        }
+    const { data: products } = await readAll({ entity: "product", fields: ["id", "title", "variants.inventory_items.inventory_item_id"] })
+    for (const product of products) {
+      productTitleMap[product.title] = product.id
+      for (const variant of product.variants || []) for (const item of variant.inventory_items || []) {
+        inventoryProductMap[item.inventory_item_id] = { product_id: product.id, title: product.title }
       }
-    } catch {
-      // safe fallback
     }
 
     let lowStockProducts: any[] = []
     try {
-      const { data: inventoryLevels } = await query.graph({
+      const { data: inventoryLevels } = await readAll({
         entity: "inventory_level",
         fields: [
           "id",
@@ -126,6 +120,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     }
 
     const resolveStatus = (orderObj: any): string => {
+      if (orderObj.status === "canceled") return "Cancelled"
       if (orderObj.metadata?.custom_status) return orderObj.metadata.custom_status as string
 
       const fuls = Array.isArray(orderObj.fulfillments) ? orderObj.fulfillments : []
@@ -160,6 +155,60 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       return "Pending"
     }
 
+    const resolvePaymentStatus = (ord: any): string => {
+      // 1. Direct explicit status
+      const raw = (ord.payment_status || "").toLowerCase().trim()
+      if (raw === "captured" || raw === "authorized" || raw === "refunded" || raw === "partially_refunded") {
+        return raw
+      }
+
+      // 2. Check payment_collections & payments
+      const pcs = Array.isArray(ord.payment_collections) ? ord.payment_collections : []
+      const payments = pcs.flatMap((pc: any) => pc.payments || [])
+
+      if (payments.some((p: any) => p.status === "captured") || pcs.some((pc: any) => pc.status === "captured" || pc.status === "completed")) {
+        return "captured"
+      }
+
+      if (payments.some((p: any) => p.status === "refunded") || pcs.some((pc: any) => pc.status === "refunded")) {
+        return "refunded"
+      }
+
+      if (payments.some((p: any) => p.status === "partially_refunded") || pcs.some((pc: any) => pc.status === "partially_refunded")) {
+        return "partially_refunded"
+      }
+
+      if (payments.some((p: any) => p.status === "authorized") || pcs.some((pc: any) => pc.status === "authorized")) {
+        return "authorized"
+      }
+
+      if (payments.some((p: any) => p.status === "awaiting" || p.status === "pending") || pcs.some((pc: any) => pc.status === "awaiting")) {
+        return "awaiting"
+      }
+
+      // 3. Metadata check
+      if (ord.metadata?.payment_status) {
+        return String(ord.metadata.payment_status).toLowerCase()
+      }
+
+      // 4. Fulfillment delivery implies payment captured (e.g. COD delivered)
+      const fuls = Array.isArray(ord.fulfillments) ? ord.fulfillments : []
+      const isDelivered = fuls.some((f: any) => f.delivered_at && !f.canceled_at) ||
+        ord.fulfillment_status === "delivered" ||
+        ord.metadata?.stage === "Delivered"
+
+      if (isDelivered) {
+        return "captured"
+      }
+
+      // 5. Default active confirmed order
+      if (ord.status === "pending" || ord.status === "completed" || ord.status === "confirmed") {
+        return "authorized"
+      }
+
+      return raw || "authorized"
+    }
+
     orders.forEach((ord: any) => {
       const ordDate = new Date(ord.created_at)
       const ordTime = ordDate.getTime()
@@ -182,7 +231,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       }
 
       const customStatus = resolveStatus(ord)
-      if (customStatus === "returned" || customStatus === "Refunded") {
+      if (customStatus === "Returned" || customStatus === "Refunded") {
         returnedCount++
       } else if (ord.status === "canceled" || customStatus === "Cancelled") {
         cancelledCount++
@@ -193,7 +242,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       }
 
       // Aggregate product sales
-      if (Array.isArray(ord.items)) {
+      if (ord.status !== "canceled" && Array.isArray(ord.items)) {
         ord.items.forEach((item: any) => {
           const key = item.title || item.product_title || "Item"
           if (!productSalesMap[key]) {
@@ -227,37 +276,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       const fuls = Array.isArray(ord.fulfillments) ? ord.fulfillments : []
       const its = Array.isArray(ord.items) ? ord.items : []
 
-      let st = (ord.metadata?.custom_status as string) || ""
-      if (!st) {
-        if (
-          fuls.some((f: any) => f.delivered_at && !f.canceled_at) ||
-          its.some((it: any) => (it.detail?.delivered_quantity || 0) > 0) ||
-          ord.fulfillment_status === "delivered" ||
-          ord.fulfillment_status === "partially_delivered" ||
-          ord.status === "completed"
-        ) {
-          st = "Delivered"
-        } else if (
-          fuls.some((f: any) => f.shipped_at && !f.canceled_at) ||
-          its.some((it: any) => (it.detail?.shipped_quantity || 0) > 0) ||
-          ord.fulfillment_status === "shipped" ||
-          ord.fulfillment_status === "partially_shipped"
-        ) {
-          st = "Shipped"
-        } else if (
-          fuls.some((f: any) => (f.packed_at || f.id) && !f.canceled_at) ||
-          its.some((it: any) => (it.detail?.fulfilled_quantity || 0) > 0) ||
-          ord.fulfillment_status === "fulfilled"
-        ) {
-          st = "Packed"
-        } else if (ord.status === "canceled") {
-          st = "Cancelled"
-        } else if (ord.payment_status === "captured" || ord.status === "pending") {
-          st = "Confirmed"
-        } else {
-          st = "Pending"
-        }
-      }
+      const st = resolveStatus(ord)
 
       return {
         id: ord.id,
@@ -301,7 +320,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         total: ord.total,
         currency_code: ord.currency_code,
         status: resolveStatus(ord),
-        payment_status: ord.payment_status || "captured",
+        payment_status: resolvePaymentStatus(ord),
         created_at: ord.created_at,
         is_today: ordTime >= todayStart,
         is_this_month: ordTime >= monthStart,

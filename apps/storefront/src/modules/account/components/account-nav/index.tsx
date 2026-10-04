@@ -12,6 +12,8 @@ import MapPin from "@modules/common/icons/map-pin"
 import Package from "@modules/common/icons/package"
 import User from "@modules/common/icons/user"
 
+import { useState } from "react"
+
 const AccountNav = ({
   customer,
 }: {
@@ -19,9 +21,16 @@ const AccountNav = ({
 }) => {
   const route = usePathname()
   const { countryCode } = useParams() as { countryCode: string }
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
 
-  const handleLogout = async () => {
+  const handleConfirmLogout = async () => {
+    setLoggingOut(true)
     await signout(countryCode)
+  }
+
+  const handleLogoutClick = () => {
+    setShowConfirm(true)
   }
 
   return (
@@ -92,7 +101,7 @@ const AccountNav = ({
                   <button
                     type="button"
                     className="flex items-center justify-between py-4 border-b border-gray-200 px-8 w-full"
-                    onClick={handleLogout}
+                    onClick={handleLogoutClick}
                     data-testid="logout-button"
                   >
                     <div className="flex items-center gap-x-2">
@@ -153,8 +162,9 @@ const AccountNav = ({
               <li className="text-grey-700">
                 <button
                   type="button"
-                  onClick={handleLogout}
+                  onClick={handleLogoutClick}
                   data-testid="logout-button"
+                  className="hover:text-black transition-colors"
                 >
                   Log out
                 </button>
@@ -163,6 +173,45 @@ const AccountNav = ({
           </div>
         </div>
       </div>
+
+      {/* Site-Styled Logout Reconfirmation Modal (Task 1) */}
+      {showConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl border border-stone-200 text-center animate-fadeIn">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 text-[#0F2D22]">
+              <ArrowRightOnRectangle className="w-6 h-6" />
+            </div>
+            <h3 className="font-serif text-xl font-medium text-[#0F2D22]">
+              Log Out of Your Account?
+            </h3>
+            <p className="mt-2 text-xs text-stone-600 leading-relaxed max-w-xs mx-auto">
+              Are you sure you want to log out? Your shopping bag items and wishlist will remain saved for your next visit.
+            </p>
+            <div className="mt-6 flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowConfirm(false)}
+                disabled={loggingOut}
+                className="flex-1 rounded-full border border-stone-300 py-2.5 px-4 text-xs font-semibold uppercase tracking-wider text-stone-700 hover:bg-stone-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmLogout}
+                disabled={loggingOut}
+                className="flex-1 rounded-full bg-[#0F2D22] hover:bg-black py-2.5 px-4 text-xs font-semibold uppercase tracking-wider text-white transition-colors shadow-sm disabled:opacity-50"
+              >
+                {loggingOut ? "Logging out..." : "Yes, Log Out"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -7,7 +7,7 @@ export async function GET() {
   try {
     const response = await fetch(`${backend}/store/instagram/reels`, {
       headers: { "x-publishable-api-key": key },
-      next: { revalidate: 60 }, signal: AbortSignal.timeout(8000),
+      cache: "no-store", signal: AbortSignal.timeout(60000),
     })
     if (!response.ok) throw new Error("Reels unavailable")
     return NextResponse.json(await response.json())

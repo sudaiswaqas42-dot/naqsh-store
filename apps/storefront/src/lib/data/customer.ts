@@ -89,11 +89,34 @@ export async function signup(
   formData: FormData
 ): Promise<CustomerAuthState> {
   const password = formData.get("password") as string
+  const rawEmail = formData.get("email") as string
   const customerForm = {
-    email: formData.get("email") as string,
-    first_name: formData.get("first_name") as string,
-    last_name: formData.get("last_name") as string,
-    phone: formData.get("phone") as string,
+    email: rawEmail?.trim().toLowerCase() || "",
+    first_name: (formData.get("first_name") as string)?.trim() || "",
+    last_name: (formData.get("last_name") as string)?.trim() || "",
+    phone: (formData.get("phone") as string)?.trim() || "",
+  }
+
+  // Pre-check if email already has a registered account
+  try {
+    const checkRes = await sdk.client.fetch<{ exists: boolean }>("/store/auth/check-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+          ? { "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }
+          : {}),
+      },
+      body: { email: customerForm.email },
+    })
+    if (checkRes?.exists) {
+      return {
+        state: "error",
+        error: "An account with this email address already exists. Please sign in instead.",
+      }
+    }
+  } catch {
+    // Continue to auth.register
   }
 
   try {
@@ -101,17 +124,25 @@ export async function signup(
       email: customerForm.email,
       password,
     })
-  } catch (error) {
+  } catch (error: any) {
     const fetchError = error as FetchError
-    // An existing identity (for example, an admin user with the same email) is
-    // expected and handled: the customer can still log in to link a customer
-    // record. Any other error is surfaced.
+    const msg = (error?.message || fetchError?.message || "").toLowerCase()
+    
+    // Explicitly reject if account/identity already exists
     if (
-      fetchError.statusText !== "Unauthorized" ||
-      fetchError.message !== "Identity with email already exists"
+      msg.includes("already exists") ||
+      msg.includes("identity with email") ||
+      fetchError?.statusText === "Unauthorized" ||
+      (fetchError as any)?.status === 400 ||
+      (fetchError as any)?.status === 409
     ) {
-      return { state: "error", error: String(error) }
+      return {
+        state: "error",
+        error: "An account with this email address already exists. Please sign in instead.",
+      }
     }
+
+    return { state: "error", error: error?.message || String(error) }
   }
 
   // Persist the extra signup fields. The customer record is created during
@@ -378,4 +409,75 @@ export const updateCustomerAddress = async (
     .catch((err) => {
       return { success: false, error: err.toString() }
     })
+}
+
+function getPublishableHeaders() {
+  const pk = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+  return {
+    "Content-Type": "application/json",
+    ...(pk ? { "x-publishable-api-key": pk } : {}),
+  }
+}
+
+function parseApiError(err: any, fallback: string): string {
+  if (!err) return fallback
+  if (typeof err === "string") return err
+  if (err.message && typeof err.message === "string") {
+    try {
+      const parsed = JSON.parse(err.message)
+      if (parsed.message) return parsed.message
+    } catch {}
+    return err.message
+  }
+  if (err.data?.message) return err.data.message
+  if (err.response?.data?.message) return err.response.data.message
+  return fallback
+}
+
+export async function sendPasswordResetOtp(email: string) {
+  try {
+    const data = await sdk.client.fetch<{ success: boolean; message: string }>(
+      "/store/auth/forgot-password/send-otp",
+      {
+        method: "POST",
+        headers: getPublishableHeaders(),
+        body: { email },
+      }
+    )
+    return { success: true, message: data.message }
+  } catch (err: any) {
+    return { success: false, message: parseApiError(err, "Failed to send verification code. Please check your email.") }
+  }
+}
+
+export async function verifyPasswordResetOtp(email: string, otp: string) {
+  try {
+    const data = await sdk.client.fetch<{ success: boolean; message: string }>(
+      "/store/auth/forgot-password/verify-otp",
+      {
+        method: "POST",
+        headers: getPublishableHeaders(),
+        body: { email, otp },
+      }
+    )
+    return { success: true, message: data.message }
+  } catch (err: any) {
+    return { success: false, message: parseApiError(err, "Invalid verification code.") }
+  }
+}
+
+export async function resetPasswordWithOtp(email: string, otp: string, new_password: string) {
+  try {
+    const data = await sdk.client.fetch<{ success: boolean; message: string }>(
+      "/store/auth/forgot-password/reset",
+      {
+        method: "POST",
+        headers: getPublishableHeaders(),
+        body: { email, otp, new_password },
+      }
+    )
+    return { success: true, message: data.message }
+  } catch (err: any) {
+    return { success: false, message: parseApiError(err, "Failed to reset password. Please check your verification code.") }
+  }
 }

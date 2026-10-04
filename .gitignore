@@ -68,3 +68,9 @@ env/
 ehthumbs.db
 Thumbs.db
 **/.DS_Store
+
+output/
+tmp/
+*.bat
+STORE_REQUIREMENTS_AUDIT_REPORT.md
+Store_Requirements_and_Basic_Features_Audit.pdf

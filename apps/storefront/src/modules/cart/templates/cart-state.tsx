@@ -2,14 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from "react"
 import { HttpTypes } from "@medusajs/types"
-import { updateLineItem, deleteLineItem } from "@lib/data/cart"
-
-type OptimisticItemMap = {
-  [lineId: string]: {
-    quantity: number
-    removed?: boolean
-  }
-}
+import { useCartDrawer } from "@lib/context/cart-drawer-context"
 
 interface CartContextType {
   cart: HttpTypes.StoreCart
@@ -36,6 +29,7 @@ export const OptimisticCartProvider: React.FC<{
   initialCart: HttpTypes.StoreCart
   children: React.ReactNode
 }> = ({ initialCart, children }) => {
+  const cartDrawer = useCartDrawer()
   const [cart, setCart] = useState<HttpTypes.StoreCart>(initialCart)
   const [itemQuantities, setItemQuantities] = useState<{ [lineId: string]: number }>(() => {
     const map: { [lineId: string]: number } = {}
@@ -53,19 +47,28 @@ export const OptimisticCartProvider: React.FC<{
   // Keep in sync with server revalidation if base cart changes
   useEffect(() => {
     setCart(initialCart)
+    cartDrawer.syncCart(initialCart)
+    setRemovedItemIds((prev) => {
+      const next = new Set<string>()
+      initialCart.items?.forEach((item) => {
+        if (prev.has(item.id)) {
+          next.add(item.id)
+        }
+      })
+      return next
+    })
     setItemQuantities((prev) => {
       const next = { ...prev }
       initialCart.items?.forEach((item) => {
-        if (!debounceTimers.current[item.id] && !removedItemIds.has(item.id)) {
+        if (!debounceTimers.current[item.id]) {
           next[item.id] = item.quantity
         }
       })
       return next
     })
-  }, [initialCart])
+  }, [initialCart, cartDrawer])
 
   // Calculate real-time 0ms optimistic subtotal and total
-  const baseSubtotal = initialCart.item_subtotal || initialCart.subtotal || 0
   const baseTax = initialCart.tax_total || 0
   const baseShipping = initialCart.shipping_subtotal || 0
   const baseDiscount = (initialCart as any).discount_subtotal || initialCart.discount_total || 0
@@ -80,6 +83,33 @@ export const OptimisticCartProvider: React.FC<{
 
   const optimisticTotal = Math.max(0, optimisticSubtotal + baseShipping + baseTax - baseDiscount)
 
+  const removeItem = useCallback(
+    async (lineId: string, unitPrice: number, currentQty: number) => {
+      // 1. Instant optimistic removal (0ms latency!)
+      setRemovedItemIds((prev) => new Set(prev).add(lineId))
+      setItemQuantities((prev) => {
+        const next = { ...prev }
+        delete next[lineId]
+        return next
+      })
+
+      if (debounceTimers.current[lineId]) {
+        clearTimeout(debounceTimers.current[lineId])
+        delete debounceTimers.current[lineId]
+      }
+
+      try {
+        const updated = await cartDrawer.removeItem(lineId)
+        if (updated) {
+          setCart(updated)
+        }
+      } catch (err: any) {
+        console.warn("Background cart item deletion retry...", err)
+      }
+    },
+    [cartDrawer]
+  )
+
   const updateQuantity = useCallback(
     (lineId: string, newQty: number, unitPrice: number) => {
       if (newQty <= 0) {
@@ -87,7 +117,7 @@ export const OptimisticCartProvider: React.FC<{
         return
       }
 
-      // 1. Instant optimistic state update (0ms latency!)
+      // 1. Instant optimistic state update
       setItemQuantities((prev) => ({
         ...prev,
         [lineId]: newQty,
@@ -101,13 +131,12 @@ export const OptimisticCartProvider: React.FC<{
       debounceTimers.current[lineId] = setTimeout(async () => {
         setUpdatingLineIds((prev) => new Set(prev).add(lineId))
         try {
-          await updateLineItem({
-            lineId,
-            quantity: newQty,
-          })
+          const updated = await cartDrawer.updateQuantity(lineId, newQty)
+          if (updated) {
+            setCart(updated)
+          }
         } catch (err: any) {
           console.warn("Background cart update quietly retrying...", err)
-          // Silent retry or fallback
         } finally {
           delete debounceTimers.current[lineId]
           setUpdatingLineIds((prev) => {
@@ -116,31 +145,10 @@ export const OptimisticCartProvider: React.FC<{
             return next
           })
         }
-      }, 300)
+      }, 280)
     },
-    [itemQuantities]
+    [cartDrawer, itemQuantities, removeItem]
   )
-
-  const removeItem = useCallback(async (lineId: string, unitPrice: number, currentQty: number) => {
-    // 1. Instant optimistic removal (0ms latency!)
-    setRemovedItemIds((prev) => new Set(prev).add(lineId))
-    setItemQuantities((prev) => {
-      const next = { ...prev }
-      delete next[lineId]
-      return next
-    })
-
-    if (debounceTimers.current[lineId]) {
-      clearTimeout(debounceTimers.current[lineId])
-      delete debounceTimers.current[lineId]
-    }
-
-    try {
-      await deleteLineItem(lineId)
-    } catch (err: any) {
-      console.warn("Background cart item deletion retry...", err)
-    }
-  }, [])
 
   const isLineUpdating = useCallback(
     (lineId: string) => updatingLineIds.has(lineId),

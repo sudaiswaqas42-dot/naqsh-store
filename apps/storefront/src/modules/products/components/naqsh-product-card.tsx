@@ -1,5 +1,7 @@
 "use client"
 
+import ProductAttributes from "@modules/products/components/product-attributes"
+
 import { productPrice, variantAvailable } from "@lib/util/catalog"
 import Image from "next/image"
 import React, { useState } from "react"
@@ -8,8 +10,7 @@ import SvgProductImage from "@modules/common/components/svg-product-image"
 import { useWishlist } from "@lib/context/wishlist-context"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { useToast } from "@lib/context/toast-context"
-import { addToCart } from "@lib/data/cart"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 
 interface ProductCardProps {
   product: any
@@ -18,30 +19,6 @@ interface ProductCardProps {
   discountPercent?: number
   customSalePrice?: number
   customOriginalPrice?: number
-}
-
-function getRealisticPrice(title: string = "", id: string = ""): number {
-  const lower = title.toLowerCase()
-  if (lower.includes("formal") || lower.includes("organza") || lower.includes("ensemble")) return 12500
-  if (lower.includes("lawn") || lower.includes("embroidered") || lower.includes("3-piece")) return 4950
-  if (lower.includes("co-ord") || lower.includes("silk")) return 6400
-  if (lower.includes("kurta") || lower.includes("pret")) return 4450
-  if (lower.includes("pant") || lower.includes("trousers")) return 2800
-  if (lower.includes("t-shirt") || lower.includes("shirt") || lower.includes("short")) return 2800
-  if (lower.includes("sweat")) return 4950
-  const hash = id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-  const choices = [2850, 4950, 6400, 8200, 12500]
-  return choices[hash % choices.length]
-}
-
-function getProductReviewData(id: string = "") {
-  const hash = id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-  const reviewCounts = [95, 131, 49, 132, 88, 64, 112]
-  const discounts = [34, 22, 20, 25, 30, 28]
-  return {
-    count: reviewCounts[hash % reviewCounts.length],
-    discount: discounts[hash % discounts.length],
-  }
 }
 
 export function formatPrice(amount?: number | null, currency = "pkr") {
@@ -53,15 +30,12 @@ export function formatPrice(amount?: number | null, currency = "pkr") {
 export default function NaqshProductCard({
   product,
   priority = false,
-  showSale = false,
-  discountPercent: propDiscount,
-  customSalePrice,
-  customOriginalPrice,
 }: ProductCardProps) {
   const { isInWishlist, toggleWishlist } = useWishlist()
-  const { openCart } = useCartDrawer()
+  const { addItem } = useCartDrawer()
   const { showToast } = useToast()
   const params = useParams()
+  const router = useRouter()
   const countryCode = (params?.countryCode as string) || "pk"
 
   const [addingVariantId, setAddingVariantId] = useState<string | null>(null)
@@ -77,26 +51,17 @@ export default function NaqshProductCard({
   // Determine price from metadata or variants
   const variants = product.variants || []
   const firstVariant = variants[0]
-  const dbSalePrice = product.metadata?.sale_price_pkr ? Number(product.metadata.sale_price_pkr) : null
-  const dbOriginalPrice = product.metadata?.original_price_pkr ? Number(product.metadata.original_price_pkr) : null
 
   const calculatedPrice = productPrice(product)
-  const rawPrice = (calculatedPrice && calculatedPrice > 100)
-    ? calculatedPrice
-    : (dbSalePrice || getRealisticPrice(product.title, product.id))
+  const rawPrice = calculatedPrice
   const formattedPrice = formatPrice(rawPrice)
+  const salePrice = rawPrice
+  const pricedVariant = variants.find((variant: any) => variant.calculated_price?.calculated_amount === rawPrice)
+  const originalPrice = pricedVariant?.calculated_price?.original_amount ?? rawPrice
+  const discountPercent = originalPrice && salePrice != null && originalPrice > salePrice
+    ? Math.round((1 - salePrice / originalPrice) * 100) : 0
 
-  // Sale and original pricing
-  const { count: reviewCount, discount: defaultDiscount } = getProductReviewData(product.id || "")
-  const discountPercent = propDiscount !== undefined ? propDiscount : (product.metadata?.discount_percent ? Number(product.metadata.discount_percent) : defaultDiscount)
-  const salePrice =
-    customSalePrice !== undefined
-      ? customSalePrice
-      : (dbSalePrice || rawPrice)
-  const originalPrice =
-    customOriginalPrice !== undefined
-      ? customOriginalPrice
-      : (dbOriginalPrice || Math.round(salePrice / (1 - discountPercent / 100)))
+  const showSale = discountPercent > 0
 
   // Category or fabric label
   const categoryName = product.categories?.[0]?.name || product.collection?.title || "Luxury Pret"
@@ -115,13 +80,14 @@ export default function NaqshProductCard({
 
     setAddingVariantId(variantId)
     try {
-      await addToCart({
+      await addItem({
         variantId,
         quantity: 1,
         countryCode,
+        preview: { title: product.title, thumbnail: product.thumbnail || product.images?.[0]?.url, unit_price: variant?.calculated_price?.calculated_amount ?? rawPrice ?? 0 },
       })
       showToast(`Added ${product.title} ${sizeTitle ? `(${sizeTitle})` : ""} to your bag!`, "success")
-      openCart()
+
     } catch (err: any) {
       console.error(err)
       showToast(err?.message || "Failed to add to bag. Please try again.", "error")
@@ -151,7 +117,7 @@ export default function NaqshProductCard({
     >
       {/* Image Container */}
       <div className="relative aspect-[3/4] w-full bg-stone-100 overflow-hidden">
-        <LocalizedClientLink href={`/products/${product.handle}`} prefetch={true} className="block w-full h-full">
+        <LocalizedClientLink href={`/products/${product.handle}`} className="block w-full h-full">
           {primaryImage ? (
             <SvgProductImage
               src={hovered && secondaryImage ? secondaryImage : primaryImage}
@@ -256,26 +222,20 @@ export default function NaqshProductCard({
           {product.title}
         </LocalizedClientLink>
 
-        {/* 5-Star Ratings with Review Count matching Image 3 */}
-        {showSale && (
-          <div className="flex items-center gap-1.5 mb-1 text-[11px] text-amber-500">
-            <span>★★★★★</span>
-            <span className="text-stone-400 text-[10px] font-sans">({reviewCount})</span>
-          </div>
-        )}
+        <ProductAttributes product={product} />
 
         {/* Pricing Layout matching Image 3 */}
         {showSale ? (
           <div className="mt-auto flex items-baseline gap-2 flex-wrap pt-0.5">
             <span className="text-xs sm:text-sm font-bold text-stone-900 tracking-tight">
-              Rs {salePrice.toLocaleString()}
+              {formatPrice(salePrice)}
             </span>
-            <span className="text-[11px] text-stone-400 line-through">
-              Rs {originalPrice.toLocaleString()}
-            </span>
-            <span className="text-[11px] font-bold text-red-600">
+            {discountPercent > 0 && <span className="text-[11px] text-stone-400 line-through">
+              {formatPrice(originalPrice)}
+            </span>}
+            {discountPercent > 0 && <span className="text-[11px] font-bold text-red-600">
               -{discountPercent}%
-            </span>
+            </span>}
           </div>
         ) : (
           <div className="mt-auto flex items-center justify-between pt-1">
@@ -295,7 +255,7 @@ export default function NaqshProductCard({
             onClick={(e) => {
               e.preventDefault()
               e.stopPropagation()
-              handleQuickAdd(firstVariant?.id || "", firstVariant?.title)
+              variants.length > 1 ? router.push(`/${countryCode}/products/${product.handle}`) : handleQuickAdd(firstVariant?.id || "", firstVariant?.title)
             }}
             disabled={!firstVariant || !!addingVariantId}
             className={`w-full mt-3 py-2.5 ${
@@ -308,7 +268,7 @@ export default function NaqshProductCard({
               ? "Adding..."
               : firstVariant && !variantAvailable(firstVariant)
               ? "Out of Stock"
-              : "Add to Cart"}
+              : variants.length > 1 ? "Choose Options" : "Add to Cart"}
           </button>
         )}
       </div>

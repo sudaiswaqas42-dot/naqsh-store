@@ -25,7 +25,7 @@ export default async function Nav() {
       <AnnouncementBar />
 
       {/* Main Header */}
-      <header className="relative bg-[#FAF9F6] border-b border-[#EBE1D6] shadow-2xs transition-all duration-200">
+      <header className="relative bg-white border-b border-[#EBE1D6] shadow-2xs transition-all duration-200">
         <div className="content-container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20 sm:h-22 gap-4">
             {/* Left: Mobile Menu & Quick Catalog Link */}

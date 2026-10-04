@@ -1,3 +1,4 @@
+import BrandLogo from "../../components/brand-logo"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { ChartBar, ArrowPath, ExclamationCircle, Sparkles } from "@medusajs/icons"
 import { Container, Heading, Text, Badge, Button, Table } from "@medusajs/ui"
@@ -82,7 +83,8 @@ const DashboardPage = () => {
       (o.display_id && String(o.display_id).includes(term)) ||
       (o.id && o.id.toLowerCase().includes(term)) ||
       (o.email && o.email.toLowerCase().includes(term)) ||
-      (o.status && o.status.toLowerCase().includes(term))
+      (o.status && o.status.toLowerCase().includes(term)) ||
+      (o.payment_status && o.payment_status.toLowerCase().includes(term))
     )
   })
 
@@ -97,6 +99,7 @@ const DashboardPage = () => {
 
   return (
     <div style={{ padding: "24px 32px", width: "100%", maxWidth: "100%", margin: "0 auto", display: "flex", flexDirection: "column", gap: "20px", boxSizing: "border-box" }}>
+      <BrandLogo />
       {/* Top Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
@@ -368,9 +371,21 @@ const DashboardPage = () => {
                     </Badge>
                   </Table.Cell>
                   <Table.Cell>
-                    <Badge color={ord.payment_status === "captured" ? "green" : "grey"}>
-                      {ord.payment_status || "paid"}
-                    </Badge>
+                    {(() => {
+                      const pStatus = (ord.payment_status || "authorized").toLowerCase()
+                      const isCaptured = pStatus === "captured" || pStatus === "paid"
+                      const isAuthorized = pStatus === "authorized"
+                      const isRefunded = pStatus.includes("refund")
+
+                      const badgeColor = isCaptured ? "green" : isAuthorized ? "orange" : isRefunded ? "purple" : "grey"
+                      const label = isCaptured ? "Captured" : isAuthorized ? "Authorized" : isRefunded ? "Refunded" : "Pending"
+
+                      return (
+                        <Badge color={badgeColor as any}>
+                          {label}
+                        </Badge>
+                      )
+                    })()}
                   </Table.Cell>
                   <Table.Cell style={{ fontWeight: "700", fontSize: "13px", color: "#111827" }}>
                     Rs. {Number(ord.total).toLocaleString()}

@@ -81,7 +81,7 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
 
   // Dynamic categories from Admin if configured, else default to curated list
   const categories: FabricCategory[] =
-    section?.settings?.cards && section.settings.cards.length > 0
+    Array.isArray(section?.settings?.cards)
       ? section.settings.cards.map((c: any) => ({
           title: c.title,
           subtitle: c.subtitle || "",
@@ -178,14 +178,14 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
               <span className="text-[11px] font-semibold uppercase tracking-[0.25em] text-accent">
-                Shop By Fabric & Pieces
+                {section?.settings?.eyebrow ?? "Shop By Fabric & Pieces"}
               </span>
             </div>
             <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-brand font-medium mt-1">
-              {section?.title || "Curated Seasonal Categories"}
+              {section?.title ?? "Curated Seasonal Categories"}
             </h2>
             <p className="text-xs text-stone-500 font-light mt-1 max-w-md hidden sm:block">
-              {section?.subtitle || "Explore pure Pima lawn, artisanal formals, and handloom wraps tailored for modern celebrations."}
+              {section?.subtitle ?? "Explore pure Pima lawn, artisanal formals, and handloom wraps tailored for modern celebrations."}
             </p>
           </div>
 
@@ -279,7 +279,7 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
                       </div>
                     )}
 
-                    <Image
+                    <Image unoptimized
                       src={cat.image}
                       alt={cat.title}
                       fill
@@ -315,6 +315,7 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
             ))}
           </div>
         </div>
+        {section?.cta_text && <div className="mt-8 text-center"><LocalizedClientLink href={section.cta_link || "/store"} className="text-sm underline">{section.cta_text}</LocalizedClientLink></div>}
       </div>
     </section>
   )

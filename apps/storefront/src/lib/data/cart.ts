@@ -1,5 +1,6 @@
 "use server"
 
+import { addressFieldError, cleanAddressValue, readCheckoutAddress } from "@lib/util/address-validation"
 import { sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
@@ -34,10 +35,6 @@ export async function retrieveCart(cartId?: string, fields?: string) {
     ...(await getAuthHeaders()),
   }
 
-  const next = {
-    ...(await getCacheOptions("carts")),
-  }
-
   return await sdk.client
     .fetch<HttpTypes.StoreCartResponse>(`/store/carts/${id}`, {
       method: "GET",
@@ -45,8 +42,7 @@ export async function retrieveCart(cartId?: string, fields?: string) {
         fields,
       },
       headers,
-      next,
-      cache: "force-cache",
+      cache: "no-store",
     })
     .then(({ cart }: { cart: HttpTypes.StoreCart }) => cart)
     .catch(() => null)
@@ -137,24 +133,48 @@ export async function addToCart({
     ...(await getAuthHeaders()),
   }
 
-  await sdk.store.cart
-    .createLineItem(
+  const fields =
+    "*items, *region, *items.product, *items.variant, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name"
+
+  let result
+  try {
+    result = await sdk.store.cart.createLineItem(
       cart.id,
       {
         variant_id: variantId,
         quantity,
       },
-      {},
+      { fields },
       headers
     )
-    .then(async () => {
-      const cartCacheTag = await getCacheTag("carts")
-      revalidateTag(cartCacheTag)
+  } catch (err: any) {
+    // If the cart cookie pointed to a stale or missing cart, clear cookie, recreate cart, and retry
+    const isNotFound = err?.status === 404 || String(err?.message || "").toLowerCase().includes("not found")
+    if (isNotFound) {
+      await removeCartId()
+      const newCart = await getOrSetCart(countryCode)
+      result = await sdk.store.cart.createLineItem(
+        newCart.id,
+        {
+          variant_id: variantId,
+          quantity,
+        },
+        { fields },
+        headers
+      ).catch(medusaError)
+    } else {
+      medusaError(err)
+    }
+  }
 
-      const fulfillmentCacheTag = await getCacheTag("fulfillment")
-      revalidateTag(fulfillmentCacheTag)
-    })
-    .catch(medusaError)
+  // Invalidate cache so future server-side fetches pick up the change
+  revalidateTag("carts")
+  const cartCacheTag = await getCacheTag("carts")
+  if (cartCacheTag) revalidateTag(cartCacheTag)
+  const fulfillmentCacheTag = await getCacheTag("fulfillment")
+  if (fulfillmentCacheTag) revalidateTag(fulfillmentCacheTag)
+
+  return result.cart
 }
 
 export async function updateLineItem({
@@ -181,13 +201,18 @@ export async function updateLineItem({
   await sdk.store.cart
     .updateLineItem(cartId, lineId, { quantity }, {}, headers)
     .then(async () => {
-      const cartCacheTag = await getCacheTag("carts")
-      revalidateTag(cartCacheTag)
+      try {
+        revalidateTag("carts")
+        const cartCacheTag = await getCacheTag("carts")
+        if (cartCacheTag) revalidateTag(cartCacheTag)
 
-      const fulfillmentCacheTag = await getCacheTag("fulfillment")
-      revalidateTag(fulfillmentCacheTag)
+        const fulfillmentCacheTag = await getCacheTag("fulfillment")
+        if (fulfillmentCacheTag) revalidateTag(fulfillmentCacheTag)
+      } catch {}
     })
     .catch(medusaError)
+
+  return await retrieveCart(cartId)
 }
 
 export async function deleteLineItem(lineId: string) {
@@ -208,13 +233,18 @@ export async function deleteLineItem(lineId: string) {
   await sdk.store.cart
     .deleteLineItem(cartId, lineId, {}, headers)
     .then(async () => {
-      const cartCacheTag = await getCacheTag("carts")
-      revalidateTag(cartCacheTag)
+      try {
+        revalidateTag("carts")
+        const cartCacheTag = await getCacheTag("carts")
+        if (cartCacheTag) revalidateTag(cartCacheTag)
 
-      const fulfillmentCacheTag = await getCacheTag("fulfillment")
-      revalidateTag(fulfillmentCacheTag)
+        const fulfillmentCacheTag = await getCacheTag("fulfillment")
+        if (fulfillmentCacheTag) revalidateTag(fulfillmentCacheTag)
+      } catch {}
     })
     .catch(medusaError)
+
+  return await retrieveCart(cartId)
 }
 
 export async function setShippingMethod({
@@ -344,43 +374,17 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
     if (!formData) {
       throw new Error("No form data found when setting addresses")
     }
-    const cartId = getCartId()
-    if (!cartId) {
-      throw new Error("No existing cart found when setting addresses")
-    }
-
+    const cartId = await getCartId()
+    if (!cartId) throw new Error("No existing cart found when setting addresses")
+    const email = cleanAddressValue(formData.get("email"))
+    const emailError = addressFieldError("email", email)
+    if (emailError) throw new Error(emailError)
+    const shippingAddress = readCheckoutAddress(formData, "shipping_address")
     const data = {
-      shipping_address: {
-        first_name: formData.get("shipping_address.first_name"),
-        last_name: formData.get("shipping_address.last_name"),
-        address_1: formData.get("shipping_address.address_1"),
-        address_2: "",
-        company: formData.get("shipping_address.company"),
-        postal_code: formData.get("shipping_address.postal_code"),
-        city: formData.get("shipping_address.city"),
-        country_code: (formData.get("shipping_address.country_code") as string) || "pk",
-        province: (formData.get("shipping_address.province") as string) || "",
-        phone: formData.get("shipping_address.phone"),
-      },
-      email: formData.get("email"),
-    } as any
-
-    const sameAsBilling = formData.get("same_as_billing")
-    if (sameAsBilling === "on") data.billing_address = data.shipping_address
-
-    if (sameAsBilling !== "on")
-      data.billing_address = {
-        first_name: formData.get("billing_address.first_name"),
-        last_name: formData.get("billing_address.last_name"),
-        address_1: formData.get("billing_address.address_1"),
-        address_2: "",
-        company: (formData.get("billing_address.company") as string) || "",
-        postal_code: (formData.get("billing_address.postal_code") as string) || "",
-        city: formData.get("billing_address.city"),
-        country_code: (formData.get("billing_address.country_code") as string) || "pk",
-        province: (formData.get("billing_address.province") as string) || "",
-        phone: formData.get("billing_address.phone"),
-      }
+      email,
+      shipping_address: shippingAddress,
+      billing_address: formData.get("same_as_billing") === "on" ? shippingAddress : readCheckoutAddress(formData, "billing_address"),
+    }
     await updateCart(data)
   } catch (e: any) {
     return e.message
@@ -422,7 +426,7 @@ export async function placeOrder(cartId?: string) {
     const orderCacheTag = await getCacheTag("orders")
     revalidateTag(orderCacheTag)
 
-    removeCartId()
+    await removeCartId()
     redirect(`/${countryCode}/order/${cartRes?.order.id}/confirmed`)
   }
 

@@ -182,3 +182,57 @@
   animation: pulseSubtle 3s ease-in-out infinite;
 }
 
+/* Hide Next.js Dev Indicator Badge ("N" button) */
+nextjs-portal,
+[data-nextjs-toast],
+div[data-nextjs-dialog] {
+  /* keep error dialogs visible if any, but hide portal toasts / indicator buttons */
+}
+
+nextjs-portal {
+  display: none !important;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-5px);
+  }
+  40%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+

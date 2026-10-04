@@ -12,11 +12,7 @@ type Props = {
   searchParams: Promise<{ v_id?: string }>
 }
 
-export async function generateStaticParams() {
-  return []
-}
-
-export const revalidate = 60
+export const dynamic = "force-dynamic"
 
 const getCachedProduct = cache(async (countryCode: string, handle: string) => {
   return listProducts({

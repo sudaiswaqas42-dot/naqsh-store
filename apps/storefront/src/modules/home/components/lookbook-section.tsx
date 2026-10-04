@@ -34,25 +34,25 @@ const lookbookItems = [
   },
 ]
 
-export default function LookbookSection() {
+export default function LookbookSection({ section }: { section?: any }) {
   return (
     <section className="py-20 bg-white border-t border-stone-100 font-sans">
       <div className="content-container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-xl mx-auto mb-14">
           <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-accent">
-            Style Inspiration
+            {section?.settings?.eyebrow ?? "Style Inspiration"}
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl text-brand font-medium mt-1">
-            #NAQSHWoman Community
+            {section?.title ?? "#NAQSHWoman Community"}
           </h2>
           <p className="text-xs sm:text-sm text-stone-500 mt-2 font-light">
-            Seen on tastemakers across Pakistan — timeless elegance for every festive celebration and daily statement.
+            {section?.subtitle ?? "Seen on tastemakers across Pakistan."}
           </p>
         </div>
 
         {/* 4-Column Instagram-Style Interactive Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-          {lookbookItems.map((item, idx) => (
+          {(section?.settings?.cards?.map((card: any) => ({ image: card.image_url, name: card.title, city: card.subtitle, price: card.price == null || card.price === "" ? "" : `Rs. ${Number(card.price).toLocaleString()}`, link: card.link || "/store" })) ?? lookbookItems).map((item: typeof lookbookItems[number], idx: number) => (
             <LocalizedClientLink
               key={idx}
               href={item.link}
@@ -90,24 +90,8 @@ export default function LookbookSection() {
           ))}
         </div>
 
-        {/* Trust Badges Strip */}
-        <div className="mt-16 pt-10 border-t border-stone-100 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center text-xs text-stone-600">
-          <div className="flex flex-col items-center">
-            <span className="text-accent text-lg mb-1">★★★★★</span>
-            <span className="font-semibold text-brand text-sm">4.9 / 5 Rating</span>
-            <span className="text-stone-400 text-[11px] mt-0.5">Loved by 15,000+ Pakistani shoppers</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="text-accent text-lg mb-1">✦</span>
-            <span className="font-semibold text-brand text-sm">100% Original Fabrics</span>
-            <span className="text-stone-400 text-[11px] mt-0.5">Pure Bemberg Chiffon, Lawn & Raw Silk</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="text-accent text-lg mb-1">⚡</span>
-            <span className="font-semibold text-brand text-sm">2-4 Days Express Dispatch</span>
-            <span className="text-stone-400 text-[11px] mt-0.5">Karachi, Lahore, Islamabad & Nationwide</span>
-          </div>
-        </div>
+
+        {section?.cta_text && <div className="mt-8 text-center"><LocalizedClientLink href={section.cta_link || "/store"} className="text-sm underline">{section.cta_text}</LocalizedClientLink></div>}
       </div>
     </section>
   )

@@ -19,6 +19,7 @@ export interface CustomCardItem {
 }
 
 interface DynamicCardsGridProps {
+  eyebrow?: string
   title?: string
   subtitle?: string
   cta_text?: string
@@ -30,6 +31,7 @@ interface DynamicCardsGridProps {
 
 export default function DynamicCardsGrid({
   title,
+  eyebrow,
   subtitle,
   cta_text,
   cta_link,
@@ -54,7 +56,7 @@ export default function DynamicCardsGrid({
         {(title || subtitle) && (
           <div className="text-center max-w-xl mx-auto mb-10">
             <span className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#B6975A]">
-              NAQSH Curations
+              {eyebrow ?? "NAQSH Curations"}
             </span>
             {title && (
               <h2 className="font-serif text-3xl sm:text-4xl text-[#0F2D22] font-medium mt-1">
@@ -95,11 +97,9 @@ export default function DynamicCardsGrid({
 
             if (hasCustomCards) {
               const card = item as CustomCardItem
-              const discount = card.discount_percent || 20
-              const salePrice = card.price ? Number(card.price) : 4950
-              const origPrice = card.original_price
-                ? Number(card.original_price)
-                : Math.round(salePrice / (1 - discount / 100))
+              const salePrice = card.price !== undefined && card.price !== "" ? Number(card.price) : null
+              const origPrice = card.original_price !== undefined && card.original_price !== "" ? Number(card.original_price) : null
+              const discount = salePrice !== null && origPrice && origPrice > salePrice ? Math.round((1 - salePrice / origPrice) * 100) : 0
 
               return (
                 <div
@@ -110,7 +110,7 @@ export default function DynamicCardsGrid({
                   <div className="relative aspect-[3/4] w-full bg-stone-100 overflow-hidden">
                     <LocalizedClientLink href={card.link || "/store"} className="block w-full h-full">
                       {card.image_url ? (
-                        <Image
+                        <Image unoptimized
                           src={card.image_url}
                           alt={card.title || "NAQSH Product"}
                           fill
@@ -127,7 +127,7 @@ export default function DynamicCardsGrid({
                     {/* Red SALE Badge */}
                     <div className="absolute top-3 left-3 flex flex-col gap-1 z-10">
                       <span className="bg-[#991b1b] text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 shadow-xs">
-                        {card.badge || "SALE"}
+                        {card.badge}
                       </span>
                     </div>
                   </div>
@@ -146,22 +146,16 @@ export default function DynamicCardsGrid({
                       {card.title}
                     </LocalizedClientLink>
 
-                    {/* Star Rating */}
-                    <div className="flex items-center gap-1.5 mb-1 text-[11px] text-amber-500">
-                      <span>★★★★★</span>
-                      <span className="text-stone-400 text-[10px] font-sans">(98)</span>
-                    </div>
-
                     {/* Pricing */}
                     <div className="mt-auto flex items-baseline gap-2 flex-wrap pt-0.5">
                       <span className="text-xs sm:text-sm font-bold text-stone-900 tracking-tight">
-                        Rs {salePrice.toLocaleString()}
+                        {salePrice !== null ? `Rs ${salePrice.toLocaleString()}` : ""}
                       </span>
                       <span className="text-[11px] text-stone-400 line-through">
-                        Rs {origPrice.toLocaleString()}
+                        {discount > 0 ? `Rs ${origPrice?.toLocaleString()}` : ""}
                       </span>
                       <span className="text-[11px] font-bold text-red-600">
-                        -{discount}%
+                        {discount > 0 ? `-${discount}%` : ""}
                       </span>
                     </div>
 
@@ -170,7 +164,7 @@ export default function DynamicCardsGrid({
                       href={card.link || "/store"}
                       className="w-full mt-3 py-2.5 bg-black hover:bg-stone-800 text-white text-[11px] sm:text-xs font-bold uppercase tracking-widest transition-all duration-200 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center gap-1.5 shadow-sm active:scale-98 text-center"
                     >
-                      Add to Cart
+                      View details
                     </LocalizedClientLink>
                   </div>
                 </div>

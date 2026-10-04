@@ -1,6 +1,5 @@
 "use client"
 
-import { addToCart } from "@lib/data/cart"
 import { useIntersection } from "@lib/hooks/use-in-view"
 import { HttpTypes } from "@medusajs/types"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
@@ -12,6 +11,8 @@ import MobileActions from "./mobile-actions"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { useToast } from "@lib/context/toast-context"
 import { useWishlist } from "@lib/context/wishlist-context"
+import ProductAttributes from "../product-attributes"
+import { publicValue } from "@lib/util/product-details"
 import SizeGuideModal from "@modules/products/components/size-guide-modal"
 
 type ProductActionsProps = {
@@ -37,7 +38,7 @@ export default function ProductActions({
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const { openCart } = useCartDrawer()
+  const { addItem } = useCartDrawer()
   const { showToast } = useToast()
   const { isInWishlist, toggleWishlist } = useWishlist()
 
@@ -72,15 +73,41 @@ export default function ProductActions({
     } catch {}
   }, [product])
 
-  // If there is only 1 variant, preselect the options
+  const prevProductIdRef = useRef(product.id)
+  const isInitialMount = useRef(true)
+  const [validationShake, setValidationShake] = useState(false)
+
+  // Preselect from URL params on initial mount, or if single variant
   useEffect(() => {
-    if (product.variants?.length === 1) {
-      const variantOptions = optionsAsKeymap(product.variants[0].options)
-      setOptions(variantOptions ?? {})
-    } else {
-      setOptions({})
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      const vId = searchParams.get("v_id")
+      if (vId && product.variants?.length) {
+        const found = product.variants.find((v) => v.id === vId)
+        if (found) {
+          setOptions(optionsAsKeymap(found.options) ?? {})
+          return
+        }
+      }
+      if (product.variants?.length === 1) {
+        const variantOptions = optionsAsKeymap(product.variants[0].options)
+        setOptions(variantOptions ?? {})
+      }
     }
-  }, [product.variants])
+  }, [searchParams, product.variants])
+
+  // Only reset options when navigating to a DIFFERENT product
+  useEffect(() => {
+    if (prevProductIdRef.current !== product.id) {
+      prevProductIdRef.current = product.id
+      if (product.variants?.length === 1) {
+        const variantOptions = optionsAsKeymap(product.variants[0].options)
+        setOptions(variantOptions ?? {})
+      } else {
+        setOptions({})
+      }
+    }
+  }, [product.id, product.variants])
 
   const selectedVariant = useMemo(() => {
     if (!product.variants || product.variants.length === 0) {
@@ -109,30 +136,59 @@ export default function ProductActions({
     })
   }, [product.variants, options])
 
+  // Options validation: all options configured on product must be chosen
+  const productOptions = useMemo(() => product.options || [], [product.options])
+  const missingOptions = useMemo(() => {
+    return productOptions.filter((opt) => !options[opt.id])
+  }, [productOptions, options])
+  const allOptionsSelected = productOptions.length === 0 || missingOptions.length === 0
+
+  // Update URL search params safely without triggering Next.js RSC re-fetch
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString())
+    if (typeof window === "undefined") return
     const value = isValidVariant ? selectedVariant?.id : null
+    const url = new URL(window.location.href)
+    const current = url.searchParams.get("v_id")
 
-    if (params.get("v_id") === value) {
-      return
+    if (current !== (value || null)) {
+      if (value) {
+        url.searchParams.set("v_id", value)
+      } else {
+        url.searchParams.delete("v_id")
+      }
+      window.history.replaceState(null, "", url.toString())
     }
-
-    if (value) {
-      params.set("v_id", value)
-    } else {
-      params.delete("v_id")
-    }
-
-    router.replace(pathname + "?" + params.toString())
   }, [selectedVariant, isValidVariant])
 
-  // check if an individual option value is in stock
+  // Context-aware option value stock checking:
+  // When Color is selected, checks if Size is in stock for that specific Color
   const isOptionValueInStock = (optionId: string, val: string) => {
+    const otherSelected = Object.entries(options).filter(
+      ([key, v]) => key !== optionId && !!v
+    )
+
     const matchingVariants = product.variants?.filter((v) => {
-      return v.options?.some((o) => o.option_id === optionId && o.value === val)
+      const hasVal = v.options?.some((o) => o.option_id === optionId && o.value === val)
+      if (!hasVal) return false
+
+      if (otherSelected.length > 0) {
+        return otherSelected.every(([otherId, otherVal]) =>
+          v.options?.some((o) => o.option_id === otherId && o.value === otherVal)
+        )
+      }
+      return true
     }) || []
 
-    if (matchingVariants.length === 0) return false
+    if (matchingVariants.length === 0) {
+      const anyMatching = product.variants?.filter((v) =>
+        v.options?.some((o) => o.option_id === optionId && o.value === val)
+      ) || []
+      return anyMatching.some((v) => {
+        if (!v.manage_inventory) return true
+        if (v.allow_backorder) return true
+        return (v.inventory_quantity || 0) > 0
+      })
+    }
 
     return matchingVariants.some((v) => {
       if (!v.manage_inventory) return true
@@ -144,7 +200,6 @@ export default function ProductActions({
   // check if the currently selected variant is in stock
   const inStock = useMemo(() => {
     if (!selectedVariant) {
-      // If no variant selected, check if any variant is in stock
       return product.variants?.some((v) => {
         if (!v.manage_inventory) return true
         if (v.allow_backorder) return true
@@ -175,21 +230,30 @@ export default function ProductActions({
 
   // add the selected variant to the cart
   const handleAddToCart = async () => {
+    if (!allOptionsSelected) {
+      const missingTitles = missingOptions.map((o) => o.title || "Option").join(" and ")
+      showToast(`Please select ${missingTitles} before adding to bag.`, "info")
+      setValidationShake(true)
+      setTimeout(() => setValidationShake(false), 500)
+      return null
+    }
+
     if (!selectedVariant?.id) {
-      showToast("Please select a size / variant first.", "info")
+      showToast("Please select valid options first.", "info")
       return null
     }
 
     setIsAdding(true)
 
     try {
-      await addToCart({
+      await addItem({
         variantId: selectedVariant.id,
         quantity: 1,
         countryCode,
+        preview: { title: product.title, thumbnail: product.thumbnail || product.images?.[0]?.url, unit_price: selectedVariant.calculated_price?.calculated_amount ?? 0 },
       })
       showToast(`Added ${product.title} to your bag!`, "success")
-      openCart()
+
     } catch (err: any) {
       showToast(err?.message || "Failed to add to bag.", "error")
     } finally {
@@ -197,6 +261,11 @@ export default function ProductActions({
     }
   }
 
+  const detailRows = [
+    ["Shirt fabric", product.metadata?.shirt_fabric],
+    ["Dupatta", product.metadata?.dupatta],
+    ["Trouser", product.metadata?.trouser],
+  ].filter(([, value]) => publicValue(value))
   const isFavorited = isInWishlist(product.id)
 
   const handleWishlistToggle = () => {
@@ -225,6 +294,7 @@ export default function ProductActions({
         <h1 className="text-2xl sm:text-3xl font-serif font-medium tracking-tight text-stone-900">
           {product.title}
         </h1>
+        {product.subtitle && <p className="text-sm text-stone-600">{product.subtitle}</p>}
 
         {/* 2. Product Price (Matching Image 1) */}
         <div className="text-xl sm:text-2xl font-serif text-stone-900 -mt-1">
@@ -238,7 +308,8 @@ export default function ProductActions({
           {(product.options || []).map((option) => (
             <div key={option.id} className="mb-3">
               <OptionSelect
-                option={option}
+                option={{ ...option, values: option.values?.length ? option.values :
+                  (product.variants || []).flatMap((variant) => (variant.options || []).filter((value) => value.option_id === option.id)) }}
                 current={options[option.id]}
                 updateOption={setOptionValue}
                 title={option.title ?? ""}
@@ -250,9 +321,12 @@ export default function ProductActions({
           ))}
         </div>
 
-        {/* 5. Action Buttons (Exact Match to Image 1: OUT OF STOCK gray button + Heart circle + NOTIFY ME button) */}
+        <ProductAttributes product={product} />
+
+        {/* 5. Action Buttons with Dynamic Enabled/Disabled State & Validation Animation */}
         <div className="space-y-3 pt-1">
-          {!inStock ? (
+          {/* If all options are chosen and that specific variant is out of stock */}
+          {allOptionsSelected && selectedVariant && !inStock ? (
             <>
               {/* Row: Gray OUT OF STOCK button + Heart circle */}
               <div className="flex items-center gap-3">
@@ -295,35 +369,78 @@ export default function ProductActions({
               </button>
             </>
           ) : (
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                disabled={isAdding || !!disabled || !isValidVariant || !inStock}
-                className="flex-1 h-12 bg-stone-950 hover:bg-black text-white text-xs font-bold uppercase tracking-widest rounded-full transition-all duration-200 shadow-xs flex items-center justify-center active:scale-[0.99]"
-              >
-                {isAdding ? "ADDING TO BAG..." : "ADD TO BAG"}
-              </button>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-3">
+                {/* 
+                  When both/all options are NOT selected:
+                  - Background: White (bg-white)
+                  - Text: Dark Black (text-stone-950)
+                  - Border: 2px dark border (border-2 border-stone-800)
+                  - State: Disabled with cursor-not-allowed
+                  - Clicking triggers validation toast & shake animation
 
-              <button
-                type="button"
-                onClick={handleWishlistToggle}
-                aria-label="Save to Wishlist"
-                className="w-12 h-12 rounded-full border border-stone-400 hover:border-black flex items-center justify-center text-stone-700 hover:text-black transition-colors flex-shrink-0"
-              >
-                <svg
-                  className={`w-5 h-5 ${isFavorited ? "fill-red-500 text-red-500" : "fill-none"}`}
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
+                  When both/all options ARE selected:
+                  - Background: Dark (bg-stone-950 hover:bg-black)
+                  - Text: White (text-white)
+                  - Border: Dark (border-2 border-stone-950)
+                  - State: Enabled with active scale & shadow
+                */}
+                <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  disabled={isAdding || !!disabled}
+                  aria-disabled={!allOptionsSelected}
+                  className={`flex-1 h-12 rounded-full font-bold text-xs uppercase tracking-widest transition-all duration-300 ease-out flex items-center justify-center ${
+                    validationShake ? "animate-shake ring-2 ring-red-400" : ""
+                  } ${
+                    allOptionsSelected && isValidVariant && inStock
+                      ? "bg-stone-950 hover:bg-black text-white border-2 border-stone-950 shadow-md hover:shadow-lg cursor-pointer active:scale-[0.99]"
+                      : "bg-white text-stone-950 border-2 border-stone-800/80 shadow-xs cursor-not-allowed hover:bg-stone-50"
+                  }`}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              </button>
+                  {isAdding ? (
+                    "ADDING TO BAG..."
+                  ) : allOptionsSelected ? (
+                    "ADD TO BAG"
+                  ) : (
+                    "ADD TO BAG"
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleWishlistToggle}
+                  aria-label="Save to Wishlist"
+                  className="w-12 h-12 rounded-full border border-stone-400 hover:border-black flex items-center justify-center text-stone-700 hover:text-black transition-colors flex-shrink-0"
+                >
+                  <svg
+                    className={`w-5 h-5 ${isFavorited ? "fill-red-500 text-red-500" : "fill-none"}`}
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Validation helper badge when options are still pending */}
+              {!allOptionsSelected && (
+                <div className="flex items-center gap-1.5 text-[11px] text-stone-600 transition-all duration-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  <span>
+                    Please select{" "}
+                    <strong className="text-stone-900 font-semibold">
+                      {missingOptions.map((o) => o.title).join(" & ")}
+                    </strong>{" "}
+                    to enable Add to Bag
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -352,21 +469,12 @@ export default function ProductActions({
 
             {openAccordion === "desc" && (
               <div className="p-4 bg-white text-xs text-stone-600 leading-relaxed space-y-3 animate-fadeIn">
-                <p>{product.description || "Crafted from Pakistan's most premium textile mills, this ensemble features artisanal motifs, bespoke needlework, and fine drape finish."}</p>
-                <div className="divide-y divide-stone-100 border-t border-stone-100 pt-2 text-[11px]">
-                  <div className="py-1 flex justify-between">
-                    <span className="font-medium text-stone-500">Shirt Fabric:</span>
-                    <span className="text-stone-800 font-medium">3.0m Embroidered Fine Lawn / Cotton</span>
-                  </div>
-                  <div className="py-1 flex justify-between">
-                    <span className="font-medium text-stone-500">Dupatta:</span>
-                    <span className="text-stone-800 font-medium">2.5m Pure Silk / Chiffon with Printed Borders</span>
-                  </div>
-                  <div className="py-1 flex justify-between">
-                    <span className="font-medium text-stone-500">Trouser:</span>
-                    <span className="text-stone-800 font-medium">2.5m Dyed Cambric Cotton</span>
-                  </div>
-                </div>
+                <p>{product.description}</p>
+                {detailRows.length > 0 && <dl className="divide-y divide-stone-100 border-t border-stone-100 pt-2 text-[11px]">
+                  {detailRows.map(([label, value]) => <div key={String(label)} className="py-1 flex justify-between gap-4">
+                    <dt>{String(label)}:</dt><dd className="text-stone-800">{publicValue(value)}</dd>
+                  </div>)}
+                </dl>}
               </div>
             )}
           </div>
@@ -388,13 +496,13 @@ export default function ProductActions({
 
             {openAccordion === "care" && (
               <div className="p-4 bg-white text-xs text-stone-600 leading-relaxed space-y-2 animate-fadeIn text-[11px]">
-                <ul className="list-disc pl-4 space-y-1">
+                {publicValue(product.metadata?.care_instructions) ? <p className="whitespace-pre-line">{publicValue(product.metadata?.care_instructions)}</p> : <ul className="list-disc pl-4 space-y-1">
                   <li>Dry clean recommended for embellished & delicate fabrics.</li>
                   <li>Do not use any type of bleach or stain-removing chemicals.</li>
                   <li>Iron the clothes at moderate temperature.</li>
                   <li>Do not dry fabric in direct sunlight to maintain vibrant color fastness.</li>
                   <li>Wash colored and white fabrics separately.</li>
-                </ul>
+                </ul>}
               </div>
             )}
           </div>

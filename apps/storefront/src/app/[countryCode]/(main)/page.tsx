@@ -38,166 +38,7 @@ export default async function Home(props: {
   })
   const collectionsPromise = listCollections()
 
-  // Default section blueprints if database has none
-  const defaultSections: HomepageSection[] = [
-    {
-      id: "sec-hero",
-      key: "hero",
-      type: "hero_slider",
-      title: "Dressed in Quiet Luxury",
-      subtitle: "Handcrafted fabrics. Refined silhouettes. Elegance that whispers rather than shouts.",
-      cta_text: "Explore Collection",
-      cta_link: "/store",
-      collection_id: null,
-      rank: 0,
-      is_active: true,
-      settings: null,
-    },
-    {
-      id: "sec-features",
-      key: "features",
-      type: "features_strip",
-      title: "Our Guarantees",
-      subtitle: "The NAQSH shopping experience",
-      cta_text: null,
-      cta_link: null,
-      collection_id: null,
-      rank: 1,
-      is_active: true,
-      settings: null,
-    },
-    {
-      id: "sec-categories",
-      key: "categories",
-      type: "featured_categories",
-      title: "Find Your Perfect Style",
-      subtitle: "From unstitched luxury fabrics to ready-to-wear kurtas",
-      cta_text: null,
-      cta_link: null,
-      collection_id: null,
-      rank: 2,
-      is_active: true,
-      settings: null,
-    },
-    {
-      id: "sec-curated",
-      key: "curated",
-      type: "product_carousel",
-      title: "Curated for You",
-      subtitle: "Hand-selected pieces from our latest designer collections",
-      cta_text: "View All Products",
-      cta_link: "/store",
-      collection_id: null,
-      rank: 3,
-      is_active: true,
-      settings: null,
-    },
-    {
-      id: "sec-gala-banner",
-      key: "gala_banner",
-      type: "sale_banner",
-      title: "Flat 20% Off Ready-to-Wear & Luxury Pret",
-      subtitle: "Hand-spun pashmina wraps, pure chiffon dupattas, and intricate zari embroideries. Applicable at checkout.",
-      cta_text: "Shop The Gala →",
-      cta_link: "/store",
-      collection_id: null,
-      rank: 4,
-      is_active: true,
-      settings: {
-        badge: "Limited Time Festive Gala",
-        promo_code: "LUXE20",
-        hours: 5,
-        minutes: 41,
-        seconds: 12,
-      },
-    },
-    {
-      id: "sec-banners",
-      key: "banners",
-      type: "promo_banner",
-      title: "Seasonal Spotlights",
-      subtitle: "Exclusive limited drops",
-      cta_text: null,
-      cta_link: null,
-      collection_id: null,
-      rank: 5,
-      is_active: true,
-      settings: null,
-    },
-    {
-      id: "sec-lookbook",
-      key: "lookbook",
-      type: "lookbook",
-      title: "The NAQSH Lookbook",
-      subtitle: "Effortless styling across every season",
-      cta_text: null,
-      cta_link: null,
-      collection_id: null,
-      rank: 6,
-      is_active: true,
-      settings: null,
-    },
-    {
-      id: "sec-reviews",
-      key: "reviews",
-      type: "customer_reviews",
-      title: "Loved by Thousands",
-      subtitle: "Real feedback from verified shoppers across Pakistan who trust NAQSH for celebratory moments.",
-      cta_text: null,
-      cta_link: null,
-      collection_id: null,
-      rank: 7,
-      is_active: true,
-      settings: null,
-    },
-    {
-      id: "sec-fabric",
-      key: "fabric",
-      type: "fabric_strip",
-      title: "Curated Fabric Strips",
-      subtitle: null,
-      cta_text: null,
-      cta_link: null,
-      collection_id: null,
-      rank: 8,
-      is_active: true,
-      settings: null,
-    },
-    {
-      id: "sec-instagram",
-      key: "instagram",
-      type: "instagram_feed",
-      title: "Follow Our Journey",
-      subtitle: "@itx_shk_selfish",
-      cta_text: null,
-      cta_link: null,
-      collection_id: null,
-      rank: 9,
-      is_active: true,
-      settings: null,
-    },
-  ]
-
-  // Use backend sections connected to admin panel. Fallback to default sections only if backend has zero sections.
-  let allSections: HomepageSection[] = []
-  if (backendSections && backendSections.length > 0) {
-    allSections = [...backendSections]
-  } else {
-    allSections = [...defaultSections]
-  }
-
-  // Deduplicate strictly: each section type should only appear once on the homepage
-  const seenTypes = new Set<string>()
-  allSections = allSections.filter((sec) => {
-    if (sec.type === "cards_grid" || sec.type === "custom_cards") {
-      return true
-    }
-    if (seenTypes.has(sec.type)) {
-      return false // Remove doubling!
-    }
-    seenTypes.add(sec.type)
-    return true
-  })
+  const allSections: HomepageSection[] = [...backendSections]
 
   // Sort strictly by rank ASC
   allSections.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
@@ -218,21 +59,25 @@ export default async function Home(props: {
             return <CategoryGrid key={sec.id} section={sec} />
 
           case "sale_banner":
-          case "flash_sale":
+          case "flash_sale": {
+            const endsAt: string | null = sec.settings?.ends_at || null
+            if (!endsAt || new Date(endsAt).getTime() <= Date.now()) {
+              return null
+            }
             return (
               <FlashSaleCountdown
                 key={sec.id}
-                badge={sec.settings?.badge || "Limited Time Festive Gala"}
-                headline={sec.title || "Flat 20% Off Ready-to-Wear & Luxury Pret"}
-                subtitle={sec.subtitle || "Hand-spun pashmina wraps, pure chiffon dupattas, and intricate zari embroideries. Applicable at checkout."}
-                code={sec.settings?.promo_code || "LUXE20"}
-                ctaText={sec.cta_text || "Shop The Gala →"}
+                badge={sec.settings?.badge ?? "Limited Time Festive Gala"}
+                headline={sec.title ?? "Flat 20% Off Ready-to-Wear & Luxury Pret"}
+                subtitle={sec.subtitle ?? "Hand-spun pashmina wraps, pure chiffon dupattas, and intricate zari embroideries. Applicable at checkout."}
+                code={sec.settings?.promo_code ?? "LUXE20"}
+                ctaText={sec.cta_text ?? "Shop The Gala"}
                 ctaLink={sec.cta_link || "/store"}
-                initialHours={sec.settings?.hours || 5}
-                initialMinutes={sec.settings?.minutes || 41}
-                initialSeconds={sec.settings?.seconds || 12}
+                endsAt={endsAt}
+                imageUrl={sec.settings?.image_url}
               />
             )
+          }
 
           case "cards_grid":
           case "custom_cards":
@@ -240,8 +85,9 @@ export default async function Home(props: {
               <DynamicCardsGrid
                 key={sec.id}
                 title={sec.title}
-                subtitle={sec.subtitle || undefined}
-                cta_text={sec.cta_text || undefined}
+                eyebrow={sec.settings?.eyebrow}
+                subtitle={sec.subtitle ?? undefined}
+                cta_text={sec.cta_text ?? undefined}
                 cta_link={sec.cta_link || undefined}
                 cards={sec.settings?.cards || []}
               />
@@ -250,7 +96,7 @@ export default async function Home(props: {
           case "product_carousel":
             return (
               <Suspense key={sec.id} fallback={<div className="h-96 bg-stone-50 animate-pulse" aria-label="Loading collection" />}>
-                <CuratedSection section={sec} productsPromise={productsPromise} collectionsPromise={collectionsPromise} />
+                <CuratedSection section={sec} countryCode={countryCode} productsPromise={productsPromise} collectionsPromise={collectionsPromise} />
               </Suspense>
             )
 
@@ -258,10 +104,10 @@ export default async function Home(props: {
             return <PromoBanners key={sec.id} section={sec} />
 
           case "lookbook":
-            return <LookbookSection key={sec.id} />
+            return <LookbookSection key={sec.id} section={sec} />
 
           case "customer_reviews":
-            return <CustomerReviews key={sec.id} />
+            return <CustomerReviews key={sec.id} section={sec} />
 
           case "fabric_strip":
             return <FabricCategoryStrip key={sec.id} section={sec} />
@@ -276,8 +122,9 @@ export default async function Home(props: {
                 <DynamicCardsGrid
                   key={sec.id}
                   title={sec.title}
-                  subtitle={sec.subtitle || undefined}
-                  cta_text={sec.cta_text || undefined}
+                eyebrow={sec.settings?.eyebrow}
+                  subtitle={sec.subtitle ?? undefined}
+                  cta_text={sec.cta_text ?? undefined}
                   cta_link={sec.cta_link || undefined}
                   cards={sec.settings.cards}
                 />
@@ -295,12 +142,16 @@ export default async function Home(props: {
 
 import { getSalesConfig } from "@lib/data/sales"
 
-async function CuratedSection({ section, productsPromise, collectionsPromise }: {
+async function CuratedSection({ section, countryCode, productsPromise, collectionsPromise }: {
   section: HomepageSection
+  countryCode: string
   productsPromise: ReturnType<typeof listProducts>
   collectionsPromise: ReturnType<typeof listCollections>
 }) {
-  const [products, collections, sales] = await Promise.all([productsPromise, collectionsPromise, getSalesConfig()])
+  const ids: string[] | undefined = section.settings?.product_ids
+  const selectedPromise = ids ? (ids.length ? listProducts({ countryCode, queryParams: { id: ids, limit: ids.length } }) : Promise.resolve({ response: { products: [] } })) : section.collection_id ? listProducts({ countryCode, queryParams: { collection_id: [section.collection_id], limit: 100 } }) : productsPromise
+  const [products, collections, sales] = await Promise.all([selectedPromise, collectionsPromise, getSalesConfig()])
+  if (ids) products.response.products.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id))
   return <CuratedProductTabs section={section} products={products.response.products} collections={collections.collections} sales={sales} />
 }
 

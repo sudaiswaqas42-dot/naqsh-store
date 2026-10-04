@@ -45,7 +45,7 @@ export default function PageLayout({ children }: { children: React.ReactNode }) 
       </Suspense>
       <Suspense fallback={null}><CartNotices /></Suspense>
       {children}
-      <Footer />
+      <Suspense fallback={<div className="min-h-40 bg-[#0F2D22]" />}><Footer /></Suspense>
       <WhatsAppFloatingButton />
     </>
   )

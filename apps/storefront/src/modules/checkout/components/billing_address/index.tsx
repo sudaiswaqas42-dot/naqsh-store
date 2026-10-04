@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import Input from "@modules/common/components/input"
+import Input from "../address-input"
 import React, { useState } from "react"
 
 const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
@@ -37,10 +37,10 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           label="First name"
           name="billing_address.first_name"
           autoComplete="given-name"
+          maxLength={60}
           value={formData["billing_address.first_name"]}
           onChange={handleChange}
           required
-          pattern="^[A-Za-z\s]{2,}$"
           title="First name must contain at least 2 letters"
           data-testid="billing-first-name-input"
         />
@@ -48,10 +48,10 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           label="Last name"
           name="billing_address.last_name"
           autoComplete="family-name"
+          maxLength={60}
           value={formData["billing_address.last_name"]}
           onChange={handleChange}
           required
-          pattern="^[A-Za-z\s]{2,}$"
           title="Last name must contain at least 2 letters"
           data-testid="billing-last-name-input"
         />
@@ -62,6 +62,7 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           label="Billing Address / House No."
           name="billing_address.address_1"
           autoComplete="address-line1"
+          maxLength={200}
           value={formData["billing_address.address_1"]}
           onChange={handleChange}
           required
@@ -91,6 +92,8 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           label="Postal code (Optional)"
           name="billing_address.postal_code"
           autoComplete="postal-code"
+          inputMode="numeric"
+          maxLength={5}
           value={formData["billing_address.postal_code"]}
           onChange={handleChange}
           data-testid="billing-postal-input"
@@ -102,8 +105,9 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           label="Phone (03XX XXXXXXX)"
           name="billing_address.phone"
           autoComplete="tel"
+          type="tel"
+          maxLength={20}
           placeholder="03001234567"
-          pattern="^(?:\+92|0)?3[0-9]{9}$"
           title="Please enter a valid 11-digit Pakistani mobile number"
           value={formData["billing_address.phone"]}
           onChange={handleChange}

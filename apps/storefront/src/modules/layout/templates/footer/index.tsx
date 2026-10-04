@@ -59,11 +59,11 @@ export default async function Footer() {
       <div className="content-container mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
         {/* Top Newsletter & Brand Statement */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-16 border-b border-white/10">
-          <div className="lg:col-span-5 space-y-4">
-            <LocalizedClientLink href="/" className="inline-block">
-              <NaqshLogo variant="light" size="lg" />
+          <div className="lg:col-span-5 flex flex-col items-start gap-2">
+            <LocalizedClientLink href="/" className="inline-block transition-opacity hover:opacity-90 -ml-1">
+              <NaqshLogo variant="light" size="md" />
             </LocalizedClientLink>
-            <p className="text-xs sm:text-sm text-stone-300 font-light leading-relaxed max-w-sm">
+            <p className="text-xs sm:text-sm text-stone-300/90 font-light leading-relaxed max-w-sm">
               Premium men's and women's fashion in Pakistan. An homage to timeless heritage craftsmanship, reimagined for the contemporary wardrobe.
             </p>
 

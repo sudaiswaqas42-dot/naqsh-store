@@ -1,16 +1,26 @@
 "use client"
 
-import React from "react"
+import React, { useEffect } from "react"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { HttpTypes } from "@medusajs/types"
 
 export default function CartTriggerButton({
-  cart,
+  cart: initialCart,
 }: {
   cart: HttpTypes.StoreCart | null
 }) {
-  const { openCart } = useCartDrawer()
-  const totalItems = cart?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0
+  const { openCart, latestCart, pendingItems, syncCart } = useCartDrawer()
+
+  useEffect(() => {
+    if (initialCart) {
+      syncCart(initialCart)
+    }
+  }, [initialCart, syncCart])
+
+  const activeCart = latestCart !== null ? latestCart : initialCart
+  const itemsCount = (activeCart?.items || []).reduce((acc, item) => acc + item.quantity, 0)
+  const pendingCount = pendingItems.reduce((sum, item) => sum + item.quantity, 0)
+  const totalItems = itemsCount + pendingCount
 
   return (
     <button
@@ -32,7 +42,7 @@ export default function CartTriggerButton({
         />
       </svg>
       {totalItems > 0 && (
-        <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 bg-stone-950 text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-white shadow-xs">
+        <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 bg-stone-950 text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-white shadow-xs animate-in fade-in zoom-in duration-150">
           {totalItems}
         </span>
       )}

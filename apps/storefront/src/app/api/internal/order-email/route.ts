@@ -11,7 +11,9 @@ export async function POST(request: Request) {
   if (!secret || actual.length !== expected.length || !timingSafeEqual(actual, expected)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
+  const emailUser = process.env.EMAIL_USER || process.env.SMTP_USER
+  const emailPass = process.env.EMAIL_PASS || process.env.SMTP_PASSWORD
+  if (!emailUser || !emailPass) {
     return NextResponse.json({ error: "Email delivery is not configured" }, { status: 503 })
   }
   let message
@@ -27,13 +29,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid message" }, { status: 400 })
   }
   const transport = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || "smtp.gmail.com", port: Number(process.env.SMTP_PORT || 465),
-    secure: (process.env.SMTP_PORT || "465") === "465",
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD },
+    service: "gmail",
+    auth: { user: emailUser, pass: emailPass.replace(/\s/g, "") },
     connectionTimeout: 10000, socketTimeout: 20000,
   })
   try {
-    const result = await transport.sendMail({ from: process.env.SMTP_FROM || process.env.SMTP_USER,
+    const result = await transport.sendMail({ from: process.env.SMTP_FROM || emailUser,
       to: message.to, subject: message.subject, text: message.text, html: message.html })
     return NextResponse.json({ id: result.messageId })
   } catch {

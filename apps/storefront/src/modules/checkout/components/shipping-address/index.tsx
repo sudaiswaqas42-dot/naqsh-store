@@ -1,7 +1,7 @@
 import { HttpTypes } from "@medusajs/types"
 import { Container } from "@modules/common/components/ui"
 import Checkbox from "@modules/common/components/checkbox"
-import Input from "@modules/common/components/input"
+import Input from "../address-input"
 import { mapKeys } from "lodash"
 import React, { useEffect, useMemo, useState } from "react"
 import AddressSelect from "../address-select"
@@ -122,10 +122,10 @@ const ShippingAddress = ({
           label="First name"
           name="shipping_address.first_name"
           autoComplete="given-name"
+          maxLength={60}
           value={formData["shipping_address.first_name"]}
           onChange={handleChange}
           required
-          pattern="^[A-Za-z\s]{2,}$"
           title="First name must contain at least 2 letters"
           data-testid="shipping-first-name-input"
         />
@@ -133,10 +133,10 @@ const ShippingAddress = ({
           label="Last name"
           name="shipping_address.last_name"
           autoComplete="family-name"
+          maxLength={60}
           value={formData["shipping_address.last_name"]}
           onChange={handleChange}
           required
-          pattern="^[A-Za-z\s]{2,}$"
           title="Last name must contain at least 2 letters"
           data-testid="shipping-last-name-input"
         />
@@ -147,6 +147,7 @@ const ShippingAddress = ({
           label="Street Address / House No."
           name="shipping_address.address_1"
           autoComplete="address-line1"
+          maxLength={200}
           value={formData["shipping_address.address_1"]}
           onChange={handleChange}
           required
@@ -176,6 +177,8 @@ const ShippingAddress = ({
           label="Postal code (Optional)"
           name="shipping_address.postal_code"
           autoComplete="postal-code"
+          inputMode="numeric"
+          maxLength={5}
           value={formData["shipping_address.postal_code"]}
           onChange={handleChange}
           data-testid="shipping-postal-code-input"
@@ -198,8 +201,9 @@ const ShippingAddress = ({
           label="Mobile Phone (03XX XXXXXXX)"
           name="shipping_address.phone"
           autoComplete="tel"
+          type="tel"
+          maxLength={20}
           placeholder="03001234567"
-          pattern="^(?:\+92|0)?3[0-9]{9}$"
           title="Please enter a valid 11-digit Pakistani mobile number (e.g. 03001234567)"
           value={formData["shipping_address.phone"]}
           onChange={handleChange}

@@ -3,7 +3,7 @@ import Form from "next/form"
 import { getCatalog, CatalogQuery } from "@lib/data/catalog"
 import { listCategories } from "@lib/data/categories"
 import { listCollections } from "@lib/data/collections"
-import { getSalesConfig, computeDiscountForProduct } from "@lib/data/sales"
+import { getSalesConfig } from "@lib/data/sales"
 import CatalogGridView from "../components/catalog-grid-view"
 import CategoryShowcaseGrid from "../components/category-showcase-grid"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -242,22 +242,14 @@ async function AsyncCatalogProducts({
   isSalePage?: boolean
 }) {
   const [result, categories, collections, sales] = await Promise.all([
-    getCatalog(countryCode, query, { categoryIds, collectionId }),
+    getCatalog(countryCode, query, { categoryIds, collectionId, isSalePage }),
     listCategories(),
     listCollections(),
     getSalesConfig(),
   ])
 
-  // If on End of Season Sale page, show on-sale products
-  let displayProducts = result.products
-  let displayCount = result.count
-  if (isSalePage && sales && sales.active) {
-    const saleProducts = result.products.filter((p) => computeDiscountForProduct(p, sales).isSale)
-    if (saleProducts.length > 0) {
-      displayProducts = saleProducts
-      displayCount = saleProducts.length
-    }
-  }
+  const displayProducts = result.products
+  const displayCount = result.count
 
   const pages = Math.ceil(displayCount / 12) || 1
 

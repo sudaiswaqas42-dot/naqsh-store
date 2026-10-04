@@ -2,6 +2,7 @@ import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { ChatBubbleLeftRight, PencilSquare, Check, XMark, Eye, EyeSlash, Trash, Plus, Star } from "@medusajs/icons"
 import { Container, Heading, Text, Badge, Button, Input } from "@medusajs/ui"
 import { useEffect, useState } from "react"
+import ConfirmDialog from "../../components/confirm-dialog"
 
 interface Review {
   id: string
@@ -23,6 +24,7 @@ const ReviewsAdminPage = () => {
   const [sectionSubtitle, setSectionSubtitle] = useState("Real feedback from verified shoppers across Pakistan who trust NAQSH for celebratory moments.")
   const [isActive, setIsActive] = useState(true)
   const [message, setMessage] = useState<string | null>(null)
+  const [reviewToDelete, setReviewToDelete] = useState<string | null>(null)
 
   // Edit State
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -102,8 +104,10 @@ const ReviewsAdminPage = () => {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to permanently delete this review?")) return
+  const confirmDeleteReview = async () => {
+    if (!reviewToDelete) return
+    const id = reviewToDelete
+    setReviewToDelete(null)
     try {
       const res = await fetch("/admin/reviews", {
         method: "POST",
@@ -462,7 +466,7 @@ const ReviewsAdminPage = () => {
                     <Button
                       variant="danger"
                       size="small"
-                      onClick={() => handleDelete(r.id)}
+                      onClick={() => setReviewToDelete(r.id)}
                     >
                       <Trash />
                     </Button>
@@ -533,6 +537,15 @@ const ReviewsAdminPage = () => {
           })
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={!!reviewToDelete}
+        title="Delete Customer Review?"
+        description="Are you sure you want to permanently delete this customer review? It will be removed from both the admin dashboard and the live storefront."
+        confirmLabel="Delete Review"
+        onConfirm={confirmDeleteReview}
+        onCancel={() => setReviewToDelete(null)}
+      />
     </div>
   )
 }

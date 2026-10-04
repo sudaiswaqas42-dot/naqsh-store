@@ -15,85 +15,10 @@ interface Review {
   date: string
 }
 
-const initialReviews: Review[] = [
-  {
-    id: "1",
-    quote:
-      "The fabric quality is absolutely outstanding. I ordered the embroidered lawn and it arrived beautifully packaged. The stitching detail is exquisite — I've received so many compliments wearing it.",
-    name: "Sana Amir",
-    city: "Lahore",
-    initials: "SA",
-    rating: 5,
-    category: "lawn",
-    verified: true,
-    date: "Verified Purchase • 3 days ago",
-  },
-  {
-    id: "2",
-    quote:
-      "Fast delivery, exactly as described, and the cash on delivery option made me feel completely safe shopping online for the first time. Will definitely order again.",
-    name: "Maryam Rehman",
-    city: "Islamabad",
-    initials: "MR",
-    rating: 5,
-    category: "pret",
-    verified: true,
-    date: "Verified Purchase • 1 week ago",
-  },
-  {
-    id: "3",
-    quote:
-      "The co-ord set I bought fits perfectly. Love how the colours are true to the photos. The return process was also incredibly smooth when I needed to exchange a size.",
-    name: "Nadia Zahid",
-    city: "Karachi",
-    initials: "NZ",
-    rating: 5,
-    category: "formals",
-    verified: true,
-    date: "Verified Purchase • 2 weeks ago",
-  },
-  {
-    id: "4",
-    quote:
-      "NAQSH has become my go-to fashion brand. The lawn quality is on par with Sapphire and Khaadi, but the bespoke hand-embroidery makes it feel truly high-end and exclusive.",
-    name: "Ayesha Malik",
-    city: "Faisalabad",
-    initials: "AM",
-    rating: 5,
-    category: "lawn",
-    verified: true,
-    date: "Verified Purchase • 5 days ago",
-  },
-  {
-    id: "5",
-    quote:
-      "Ordered stitched pret for Eid. The master tailoring, neckline piping and sleeve finishing were flawless. Saved me a trip to the local darzi!",
-    name: "Zainab Shah",
-    city: "Peshawar",
-    initials: "ZS",
-    rating: 5,
-    category: "pret",
-    verified: true,
-    date: "Verified Purchase • 2 weeks ago",
-  },
-  {
-    id: "6",
-    quote:
-      "The raw silk formal outfit was the highlight of my cousin's wedding. Rich zari work and the organza dupatta had heavy embroidered borders. Pure luxury.",
-    name: "Hira Farooq",
-    city: "Multan",
-    initials: "HF",
-    rating: 5,
-    category: "formals",
-    verified: true,
-    date: "Verified Purchase • 3 weeks ago",
-  },
-]
-
-export default function CustomerReviews() {
+export default function CustomerReviews({ section }: { section?: any }) {
   const { showToast } = useToast()
   const [selectedFilter, setSelectedFilter] = useState<"all" | "lawn" | "pret" | "formals">("all")
-  const [reviews, setReviews] = useState<Review[]>(initialReviews)
+  const [reviews, setReviews] = useState<Review[]>([])
   const [sectionTitle, setSectionTitle] = useState("Loved by Thousands")
   const [sectionSubtitle, setSectionSubtitle] = useState("Real feedback from verified shoppers across Pakistan who trust NAQSH for celebratory moments.")
   const [isActive, setIsActive] = useState(true)
@@ -108,7 +33,7 @@ export default function CustomerReviews() {
     fetch("/api/reviews")
       .then((res) => res.json())
       .then((data) => {
-        if (data.reviews && Array.isArray(data.reviews) && data.reviews.length > 0) {
+        if (data.reviews && Array.isArray(data.reviews)) {
           setReviews(data.reviews)
         }
         if (data.title) setSectionTitle(data.title)
@@ -118,7 +43,7 @@ export default function CustomerReviews() {
       .catch((err) => console.error("Error loading reviews:", err))
   }, [])
 
-  if (!isActive) {
+  if (!section && !isActive) {
     return null
   }
 
@@ -128,7 +53,7 @@ export default function CustomerReviews() {
       : reviews.filter((r) => r.category === selectedFilter || r.category === "all")
 
   // Take top 3 for exact match to Image 5, or show filtered
-  const displayReviews = filtered.slice(0, 3)
+  const displayReviews = filtered
 
   const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -138,7 +63,7 @@ export default function CustomerReviews() {
     }
 
     try {
-      await fetch("/api/reviews", {
+      const response = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -149,7 +74,11 @@ export default function CustomerReviews() {
           category: selectedFilter === "all" ? "lawn" : selectedFilter,
         }),
       })
-    } catch {}
+      if (!response.ok) throw new Error("Review submission failed")
+    } catch {
+      showToast("Your review could not be submitted. Please try again.", "error")
+      return
+    }
 
     setShowModal(false)
     setNewName("")
@@ -170,19 +99,19 @@ export default function CustomerReviews() {
         {/* Header: WHAT CUSTOMERS SAY / Loved by Thousands */}
         <div className="text-center max-w-xl mx-auto mb-10 sm:mb-14">
           <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.35em] text-[#B6975A]">
-            What Customers Say
+            {section?.settings?.eyebrow ?? "What Customers Say"}
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-[#0F2D22] mt-1.5 drop-shadow-2xs">
-            {sectionTitle}
+            {section?.title ?? sectionTitle}
           </h2>
           <p className="text-xs sm:text-sm text-stone-600 mt-2 font-light">
-            {sectionSubtitle}
+            {section?.subtitle ?? sectionSubtitle}
           </p>
 
           {/* Interactive Category Filter Pills */}
           <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
             {[
-              { id: "all", label: "All Reviews (150+)" },
+              { id: "all", label: `All Reviews (${reviews.length})` },
               { id: "lawn", label: "Festive Lawn" },
               { id: "pret", label: "Stitched Pret" },
               { id: "formals", label: "Luxury Formals" },
@@ -233,14 +162,14 @@ export default function CustomerReviews() {
                     <h4 className="font-serif font-semibold text-xs sm:text-sm text-[#0F2D22] truncate">
                       {rev.name}
                     </h4>
-                    <span className="text-[#B6975A] text-xs">★★★★★</span>
+                    <span className="text-[#B6975A] text-xs" aria-label={`${rev.rating} out of 5`}>{"★".repeat(Math.min(5, Math.max(0, Math.round(rev.rating))))}</span>
                   </div>
 
                   <div className="flex items-center gap-2 text-[10px] text-stone-500 mt-0.5">
                     <span>{rev.city}</span>
                     <span>•</span>
                     <span className="text-[#0F2D22] font-semibold flex items-center gap-1">
-                      <span>✓</span> Verified Buyer
+                      {rev.verified ? "Verified Buyer" : "Customer review"}
                     </span>
                   </div>
                 </div>

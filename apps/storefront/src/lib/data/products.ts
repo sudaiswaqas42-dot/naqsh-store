@@ -69,9 +69,8 @@ export const listProducts = async ({
           limit,
           offset,
           region_id: region?.id,
-          fields:
-            "*variants.calculated_price,+variants.inventory_quantity,*variants.images,*variants.options,*options,*options.values,+metadata,+tags",
           ...queryParams,
+          fields: [queryParams?.fields, "*variants.calculated_price,+variants.inventory_quantity,*variants.images,*variants.options,*options,*options.values,+metadata,*tags,+material,+subtitle"].filter(Boolean).join(","),
         },
         headers,
         next,

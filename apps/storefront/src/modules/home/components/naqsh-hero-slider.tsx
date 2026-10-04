@@ -67,17 +67,17 @@ const pakistaniHeroSlides: Slide[] = [
 
 export default function NaqshHeroSlider({ section }: HeroSliderProps) {
   // Always guarantee high-res Pakistani fashion photography even if DB only had text/gradients
-  const rawSlides = section?.settings?.slides?.length ? section.settings.slides : pakistaniHeroSlides
+  const rawSlides = section?.settings?.slides ?? pakistaniHeroSlides.map((slide, index) => index ? slide : { ...slide, title: section?.title ?? slide.title, sub: section?.subtitle ?? slide.sub, cta_text: section?.cta_text ?? slide.cta_text, cta_link: section?.cta_link ?? slide.cta_link })
   const slides: Slide[] = rawSlides.map((s: any, idx: number) => {
     const fallback = pakistaniHeroSlides[idx % pakistaniHeroSlides.length]
-    const validImage = typeof s.image === "string" && s.image.trim().startsWith("http") ? s.image : fallback.image
+    const validImage = typeof s.image === "string" && /^(https?:\/\/|\/(?!\/))/.test(s.image.trim()) ? s.image : fallback.image
     return {
-      tag: s.tag || fallback.tag,
-      eyebrow: s.eyebrow || fallback.eyebrow,
-      title: s.title || fallback.title,
-      sub: s.sub || fallback.sub,
-      cta_text: s.cta_text || fallback.cta_text,
-      cta_link: s.cta_link || fallback.cta_link,
+      tag: s.tag ?? fallback.tag,
+      eyebrow: s.eyebrow ?? fallback.eyebrow,
+      title: s.title ?? fallback.title,
+      sub: s.sub ?? fallback.sub,
+      cta_text: s.cta_text ?? fallback.cta_text,
+      cta_link: s.cta_link ?? fallback.cta_link,
       image: validImage,
     }
   })
@@ -90,7 +90,7 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
 
   // Smooth auto-sliding with live progress timer (6.5 seconds per slide)
   useEffect(() => {
-    if (isPaused) return
+    if (isPaused || !slides.length) return
 
     const slideDuration = 6500
     const intervalStep = 50
@@ -142,6 +142,8 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
       prevSlide()
     }
   }
+
+  if (!slides.length) return null
 
   return (
     <div className="relative w-full overflow-hidden select-none bg-stone-900 font-sans">

@@ -26,10 +26,10 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     const homepageService = req.scope.resolve(HOMEPAGE_MODULE) as any
     const body = req.body as any
     const socialLinks = {
-      facebook: body.facebook || defaultLinks.facebook,
-      instagram: body.instagram || defaultLinks.instagram,
-      tiktok: body.tiktok || defaultLinks.tiktok,
-      pinterest: body.pinterest || defaultLinks.pinterest,
+      facebook: body.facebook ?? defaultLinks.facebook,
+      instagram: body.instagram ?? defaultLinks.instagram,
+      tiktok: body.tiktok ?? defaultLinks.tiktok,
+      pinterest: body.pinterest ?? defaultLinks.pinterest,
     }
 
     const sections = await homepageService.listHomepageSections({ key: "social_links" })

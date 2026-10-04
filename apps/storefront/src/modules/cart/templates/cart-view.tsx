@@ -15,7 +15,8 @@ const CartInner = ({
   customer: HttpTypes.StoreCustomer | null
 }) => {
   const { cart, optimisticSubtotal, removedItemIds } = useOptimisticCart()
-  const activeItemCount = (cart.items?.length || 0) - removedItemIds.size
+  const activeItems = (cart.items || []).filter((item) => !removedItemIds.has(item.id))
+  const activeItemCount = activeItems.length
 
   const freeShippingThreshold = 4999
   const amountNeeded = Math.max(0, freeShippingThreshold - optimisticSubtotal)
@@ -23,6 +24,11 @@ const CartInner = ({
 
   if (activeItemCount <= 0) {
     return <EmptyCartMessage />
+  }
+
+  const activeCart = {
+    ...cart,
+    items: activeItems,
   }
 
   return (
@@ -68,13 +74,13 @@ const CartInner = ({
               <Divider />
             </>
           )}
-          <ItemsTemplate cart={cart} />
+          <ItemsTemplate cart={activeCart} />
         </div>
         <div className="relative">
           <div className="flex flex-col gap-y-8 sticky top-12">
-            {cart && cart.region && (
+            {activeCart && activeCart.region && (
               <div className="bg-white py-6">
-                <Summary cart={cart} />
+                <Summary cart={activeCart} />
               </div>
             )}
           </div>

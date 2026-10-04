@@ -13,6 +13,7 @@ const S3_PATHNAME = process.env.MEDUSA_CLOUD_S3_PATHNAME
  */
 const nextConfig = {
   reactStrictMode: true,
+  devIndicators: false,
   distDir: process.env.NEXT_BUILD_DIR || ".next",
   logging: {
     fetches: {

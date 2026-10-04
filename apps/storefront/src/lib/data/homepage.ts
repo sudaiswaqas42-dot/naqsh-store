@@ -35,7 +35,7 @@ export async function getHomepageSections(): Promise<HomepageSection[]> {
     return sections
   } catch (err) {
     console.error("Failed to fetch homepage sections:", err)
-    return []
+    throw new Error("Homepage content is temporarily unavailable. Please try again.")
   }
 }
 

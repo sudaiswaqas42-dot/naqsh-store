@@ -2,7 +2,13 @@
 
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
-import React from "react"
+import React, { useEffect } from "react"
+
+/**
+ * Module-level cache to deduplicate router.prefetch() calls.
+ * Prevents the same href from being prefetched more than once every 30 seconds.
+ */
+const recentlyPrefetched = new Map<string, number>()
 
 /**
  * High-performance localized link that automatically prefetches on mount, hover, touch, and focus
@@ -34,23 +40,22 @@ const LocalizedClientLink = ({
       ? href
       : `/${countryCode || "pk"}${href.startsWith("/") ? href : `/${href}`}`
 
-  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (typeof targetHref === "string" && !targetHref.startsWith("http") && !targetHref.startsWith("#")) {
-      try {
-        router.prefetch(targetHref)
-      } catch {}
-    }
-    if (onMouseEnter) {
-      onMouseEnter(e)
-    }
-  }
+  // Eagerly prefetch on mount so pages are ready before user even hovers
+  useEffect(() => {
+    if (prefetch === false || !targetHref.startsWith("/")) return
+    const now = Date.now()
+    if (now - (recentlyPrefetched.get(targetHref) || 0) < 30000) return
+    if (recentlyPrefetched.size > 100) recentlyPrefetched.clear()
+    recentlyPrefetched.set(targetHref, now)
+    router.prefetch(targetHref)
+  }, [targetHref, prefetch, router])
 
-  const handlePrefetch = () => {
-    if (typeof targetHref === "string" && !targetHref.startsWith("http") && !targetHref.startsWith("#")) {
-      try {
-        router.prefetch(targetHref)
-      } catch {}
+  const handleMouseEnter = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    // Re-prefetch on hover in case the cache expired
+    if (prefetch !== false && targetHref.startsWith("/")) {
+      router.prefetch(targetHref)
     }
+    onMouseEnter?.(event)
   }
 
   return (
@@ -58,8 +63,8 @@ const LocalizedClientLink = ({
       href={targetHref}
       prefetch={prefetch}
       onMouseEnter={handleMouseEnter}
-      onTouchStart={handlePrefetch}
-      onFocus={handlePrefetch}
+      onTouchStart={() => { if (prefetch !== false && targetHref.startsWith("/")) router.prefetch(targetHref) }}
+      onFocus={() => { if (prefetch !== false && targetHref.startsWith("/")) router.prefetch(targetHref) }}
       {...props}
     >
       {children}

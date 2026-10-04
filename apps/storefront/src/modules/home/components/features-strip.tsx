@@ -1,8 +1,14 @@
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import React from "react"
 
 interface FeaturesStripProps {
   section?: {
+    cta_text?: string | null
+    cta_link?: string | null
+    title?: string
+    subtitle?: string | null
     settings?: {
+      eyebrow?: string
       items?: Array<{
         title: string
         desc: string
@@ -55,8 +61,11 @@ export default function FeaturesStrip({ section }: FeaturesStripProps) {
   return (
     <section className="bg-surface/50 border-y border-stone-200/70 py-10">
       <div className="content-container mx-auto px-4 sm:px-6 lg:px-8">
+        {section?.settings?.eyebrow && <p className="text-xs text-center uppercase mb-2">{section.settings.eyebrow}</p>}
+        {section?.title && <h2 className="font-serif text-2xl text-center mb-2">{section.title}</h2>}
+        {section?.subtitle && <p className="text-sm text-center mb-6">{section.subtitle}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {defaultItems.map((item, idx) => (
+          {(section?.settings?.items ?? defaultItems).map((item, idx) => (
             <div key={idx} className="flex items-start gap-4">
               <div className="p-3 bg-white border border-stone-200 shadow-xs flex-shrink-0">
                 {item.icon}
@@ -72,6 +81,7 @@ export default function FeaturesStrip({ section }: FeaturesStripProps) {
             </div>
           ))}
         </div>
+        {section?.cta_text && <div className="mt-8 text-center"><LocalizedClientLink href={section.cta_link || "/store"} className="text-sm underline">{section.cta_text}</LocalizedClientLink></div>}
       </div>
     </section>
   )

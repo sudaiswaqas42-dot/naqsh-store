@@ -1,46 +1,16 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { HOMEPAGE_MODULE } from "../../../modules/homepage"
 import { syncAndHydrateHomepageSections } from "../../../modules/homepage/sync-blueprint"
+import { manageHomepageWorkflow } from "../../../workflows/manage-homepage"
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-  try {
-    const homepageService = req.scope.resolve(HOMEPAGE_MODULE) as any
-    const sections = await syncAndHydrateHomepageSections(homepageService, false)
-    res.json({ sections })
-  } catch (error: any) {
-    res.status(500).json({ error: error.message, sections: [] })
-  }
+  const service = req.scope.resolve(HOMEPAGE_MODULE)
+  res.json({ sections: await syncAndHydrateHomepageSections(service, false) })
 }
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
-  try {
-    const homepageService = req.scope.resolve(HOMEPAGE_MODULE) as any
-    const body = req.body as any
-
-    if (body.action === "reset_blueprint" || body.sync_blueprint) {
-      const sections = await syncAndHydrateHomepageSections(homepageService, true)
-      return res.json({ sections, message: "Homepage reset to reference blueprint with all cards!" })
-    }
-
-    if (body.reorder && Array.isArray(body.sections)) {
-      // Reordering multiple sections
-      for (const item of body.sections) {
-        await homepageService.updateHomepageSections({
-          id: item.id,
-          rank: item.rank,
-        })
-      }
-      const sections = await homepageService.listHomepageSections(
-        {},
-        { order: { rank: "ASC" } }
-      )
-      return res.json({ sections: sections.filter((s: any) => s.key !== "sale_discounts") })
-    }
-
-    const created = await homepageService.createHomepageSections(body)
-    res.status(201).json({ section: created })
-  } catch (error: any) {
-    res.status(500).json({ error: error.message })
-  }
+  const body = (req.body || {}) as any
+  const action = body.action === "reset_blueprint" || body.sync_blueprint ? "reset" : body.reorder ? "reorder" : "create"
+  const { result } = await manageHomepageWorkflow(req.scope).run({ input: { action, data: action === "reorder" ? body.sections : body } })
+  res.status(action === "create" ? 201 : 200).json(result)
 }
-

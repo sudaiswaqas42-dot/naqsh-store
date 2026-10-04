@@ -2,6 +2,7 @@ import { defineWidgetConfig } from "@medusajs/admin-sdk"
 import { Check, ArrowDownTray, PencilSquare, DocumentText } from "@medusajs/icons"
 import { Container, Heading, Text, Badge, Button, Input, Select } from "@medusajs/ui"
 import { useState } from "react"
+import naqshLogo from "../assets/naqsh-logo.png"
 
 const ALL_STATUSES = [
   "Pending",
@@ -20,6 +21,7 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
   const metadata = order?.metadata || {}
 
   const getInitialStatus = () => {
+    if (order?.status === "canceled") return "Cancelled"
     if (metadata.custom_status) return metadata.custom_status as string
     const fulfillments = Array.isArray(order?.fulfillments) ? order.fulfillments : []
     const items = Array.isArray(order?.items) ? order.items : []
@@ -70,6 +72,10 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
           internal_notes: internalNotes,
         }),
       })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.message || body.error || "Could not update order")
+      }
       if (res.ok) {
         setSavedMsg(true)
         setTimeout(() => setSavedMsg(false), 3000)
@@ -85,11 +91,14 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
     const printWindow = window.open("", "_blank")
     if (!printWindow) return
 
+    const escape = (value: unknown) => String(value ?? "").replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]!))
+    const paymentProvider = order.payment_collections?.flatMap((collection: any) => collection.payments || []).find((payment: any) => payment.provider_id)?.provider_id
+    const paymentMethod = paymentProvider?.includes("system") ? "Cash on Delivery" : paymentProvider || order.payment_status || "See order payment details"
     const itemsHtml = (order.items || [])
       .map(
         (item: any) => `
         <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${item.title || "Product"}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${escape(item.title || "Product")}</td>
           <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center;">${item.quantity}</td>
           <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right;">Rs. ${Number(item.unit_price || 0).toLocaleString()}</td>
           <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: bold;">Rs. ${(Number(item.unit_price || 0) * Number(item.quantity)).toLocaleString()}</td>
@@ -98,52 +107,56 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
       )
       .join("")
 
+    const logoSrc = naqshLogo.startsWith("http") || naqshLogo.startsWith("data:")
+      ? naqshLogo
+      : `${window.location.origin}${naqshLogo}`
+
     const html = `
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Invoice - #${order.display_id || order.id}</title>
+        <title>Invoice - #${escape(order.display_id || order.id)}</title>
+        <base href="${window.location.origin}/" />
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 40px; color: #1a1a1a; max-width: 800px; margin: 0 auto; }
-          .header { display: flex; justify-content: space-between; border-bottom: 2px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 30px; }
-          .logo { font-size: 28px; font-weight: bold; letter-spacing: 2px; }
-          .logo span { color: #c9a96e; }
+          .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0F2D22; padding-bottom: 20px; margin-bottom: 30px; }
+          .logo-img { height: 64px; max-width: 240px; object-fit: contain; margin-bottom: 6px; display: block; }
           table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th { text-align: left; background: #f8f8f6; padding: 10px; font-size: 12px; text-transform: uppercase; }
+          th { text-align: left; background: #f8f8f6; padding: 10px; font-size: 12px; text-transform: uppercase; color: #0F2D22; }
           .total-box { margin-top: 30px; float: right; width: 300px; }
           .total-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
-          .grand-total { font-size: 18px; font-weight: bold; border-top: 2px solid #1a1a1a; padding-top: 8px; margin-top: 8px; }
+          .grand-total { font-size: 18px; font-weight: bold; border-top: 2px solid #0F2D22; padding-top: 8px; margin-top: 8px; color: #0F2D22; }
           @media print { body { padding: 0; } }
         </style>
       </head>
       <body>
         <div class="header">
           <div>
-            <div class="logo">NAQSH<span>.</span></div>
-            <p style="font-size: 13px; color: #666; margin: 4px 0 0 0;">Pakistani Luxury Fashion & Apparel</p>
-            <p style="font-size: 12px; color: #888;">Email: support@naqsh.pk · Tel: +92 (21) 3584-9000</p>
+            <img class="logo-img" src="${logoSrc}" alt="NAQSH — Where Identity Begins" />
+            <p style="font-size: 12px; color: #555; margin: 2px 0 0 0; letter-spacing: 0.5px;">Pakistani Luxury Fashion &amp; Apparel</p>
+            <p style="font-size: 11px; color: #777; margin: 2px 0 0 0;">Email: support@naqsh.pk · Tel: +92 (21) 3584-9000</p>
           </div>
           <div style="text-align: right;">
-            <h2 style="margin: 0; font-size: 20px; text-transform: uppercase;">Official Invoice</h2>
-            <p style="margin: 4px 0; font-size: 14px;"><strong>Order #:</strong> ${order.display_id || order.id}</p>
+            <h2 style="margin: 0; font-size: 20px; text-transform: uppercase; color: #0F2D22; letter-spacing: 1px;">Official Invoice</h2>
+            <p style="margin: 4px 0; font-size: 14px;"><strong>Order #:</strong> ${escape(order.display_id || order.id)}</p>
             <p style="margin: 4px 0; font-size: 13px; color: #666;"><strong>Date:</strong> ${new Date(order.created_at).toLocaleDateString()}</p>
-            <p style="margin: 4px 0; font-size: 13px;"><strong>Status:</strong> ${currentStatus}</p>
+            <p style="margin: 4px 0; font-size: 13px;"><strong>Status:</strong> ${escape(currentStatus)}</p>
           </div>
         </div>
 
         <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
           <div>
             <h4 style="margin: 0 0 6px 0; font-size: 12px; text-transform: uppercase; color: #888;">Billed / Shipped To:</h4>
-            <p style="margin: 2px 0; font-weight: 600;">${order.shipping_address?.first_name || ""} ${order.shipping_address?.last_name || order.email || "Customer"}</p>
-            <p style="margin: 2px 0; font-size: 13px;">${order.shipping_address?.address_1 || "Address Line 1"}</p>
-            <p style="margin: 2px 0; font-size: 13px;">${order.shipping_address?.city || "Karachi"}, ${order.shipping_address?.province || "Sindh"}</p>
-            <p style="margin: 2px 0; font-size: 13px;">${order.shipping_address?.phone || ""}</p>
+            <p style="margin: 2px 0; font-weight: 600;">${escape(order.shipping_address?.first_name || "")} ${escape(order.shipping_address?.last_name || order.email || "Customer")}</p>
+            <p style="margin: 2px 0; font-size: 13px;">${escape(order.shipping_address?.address_1 || "Address Line 1")}</p>
+            <p style="margin: 2px 0; font-size: 13px;">${escape(order.shipping_address?.city || "Karachi")}, ${escape(order.shipping_address?.province || "Sindh")}</p>
+            <p style="margin: 2px 0; font-size: 13px;">${escape(order.shipping_address?.phone || "")}</p>
           </div>
           <div style="text-align: right;">
             <h4 style="margin: 0 0 6px 0; font-size: 12px; text-transform: uppercase; color: #888;">Payment & Courier:</h4>
-            <p style="margin: 2px 0; font-size: 13px;"><strong>Payment Method:</strong> Cash on Delivery (COD)</p>
-            <p style="margin: 2px 0; font-size: 13px;"><strong>Courier Partner:</strong> ${carrier}</p>
-            <p style="margin: 2px 0; font-size: 13px;"><strong>Tracking #:</strong> ${trackingNumber || "Assigned upon dispatch"}</p>
+            <p style="margin: 2px 0; font-size: 13px;"><strong>Payment Method:</strong> ${escape(paymentMethod)}</p>
+            <p style="margin: 2px 0; font-size: 13px;"><strong>Courier Partner:</strong> ${escape(carrier)}</p>
+            <p style="margin: 2px 0; font-size: 13px;"><strong>Tracking #:</strong> ${escape(trackingNumber || "Assigned upon dispatch")}</p>
           </div>
         </div>
 
@@ -164,7 +177,7 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
         <div class="total-box">
           <div class="total-row">
             <span>Subtotal:</span>
-            <span>Rs. ${Number(order.subtotal || order.total).toLocaleString()}</span>
+            <span>Rs. ${Number(order.subtotal ?? order.total).toLocaleString()}</span>
           </div>
           <div class="total-row">
             <span>Shipping Charges:</span>
@@ -183,7 +196,7 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
         </div>
 
         <div style="clear: both; margin-top: 60px; border-top: 1px solid #e5e7eb; padding-top: 20px; text-align: center; font-size: 12px; color: #888;">
-          Thank you for choosing NAQSH. For inquiries or returns, visit naqsh.pk/order/track or WhatsApp +92 (300) 123-4567.
+          Thank you for choosing NAQSH. For inquiries or returns, visit naqsh.pk/order/track or WhatsApp +92 (319) 736-5388.
         </div>
       </body>
       </html>
@@ -191,9 +204,17 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
     printWindow.document.write(html)
     printWindow.document.close()
     printWindow.focus()
-    setTimeout(() => {
-      printWindow.print()
-    }, 250)
+    const img = printWindow.document.querySelector("img")
+    if (img && !img.complete) {
+      img.onload = () => {
+        setTimeout(() => printWindow.print(), 250)
+      }
+      setTimeout(() => printWindow.print(), 1000)
+    } else {
+      setTimeout(() => {
+        printWindow.print()
+      }, 300)
+    }
   }
 
   return (
@@ -209,13 +230,14 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <Button variant="secondary" size="small" onClick={printInvoice}>
-            <ArrowDownTray /> Download Invoice PDF
+            <ArrowDownTray /> Print / Save invoice PDF
           </Button>
           {savedMsg && <Badge color="green">Changes Saved ✓</Badge>}
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr", gap: "16px", alignItems: "flex-end" }}>
+      <p className="mb-4 text-sm text-ui-fg-subtle">Tracking labels do not execute financial operations. Use the order actions to cancel, return or refund an order and update inventory/payments.</p>
+      <div className="grid gap-4 md:grid-cols-3">
         <div>
           <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "#374151" }}>
             Order Status Step

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
-import Image from "next/image"
+import NaqshLogo from "@modules/common/components/naqsh-logo"
 
 /**
  * Luxury Brand Page Transition Screen with NAQSH Logo.
@@ -87,34 +87,18 @@ export default function NavigationProgressBar() {
   return (
     <div
       aria-hidden="true"
-      className={`fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#FAF9F6] transition-opacity duration-200 select-none pointer-events-none ${
+      className={`fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#FAF9F6] transition-opacity duration-300 select-none pointer-events-none ${
         isFadingOut ? "opacity-0" : "opacity-100 animate-fadeIn"
       }`}
     >
-      <div className="flex flex-col items-center justify-center text-center p-6">
-        {/* Animated Brand Logo */}
-        <div className="relative mb-3 animate-pulse">
-          <Image
-            src="/images/naqsh-logo-dark.png"
-            alt="NAQSH"
-            width={180}
-            height={70}
-            priority
-            className="h-12 sm:h-14 w-auto object-contain"
-          />
-        </div>
-
-        {/* Elegant Gold Tagline */}
-        <div className="flex items-center gap-2 mt-1">
-          <span className="w-6 h-[1px] bg-[#B6975A]/60" />
-          <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.3em] text-[#0F2D22]">
-            Where Identity Begins
-          </span>
-          <span className="w-6 h-[1px] bg-[#B6975A]/60" />
+      <div className="flex flex-col items-center justify-center text-center p-8 max-w-lg mx-auto">
+        {/* Animated Brand Logo - Prominent Luxury Scale */}
+        <div className="relative animate-pulse-subtle">
+          <NaqshLogo variant="dark" size="2xl" priority />
         </div>
 
         {/* Subtle Luxury Gold Shimmer Indicator */}
-        <div className="w-32 h-[1.5px] bg-[#EBE1D6] rounded-full overflow-hidden mt-4 relative">
+        <div className="w-48 sm:w-60 md:w-72 h-[2.5px] bg-[#EBE1D6] rounded-full overflow-hidden mt-8 relative shadow-xs">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#B6975A] to-transparent animate-shimmer" />
         </div>
       </div>

@@ -17,7 +17,9 @@ export default function CartDrawer({
 }: {
   cart: HttpTypes.StoreCart | null
 }) {
-  const { isOpen, closeCart } = useCartDrawer()
+  const { isOpen, closeCart, pendingItems, latestCart, syncCart, removeItem, updateQuantity } = useCartDrawer()
+  useEffect(() => { syncCart(initialCart) }, [initialCart, syncCart])
+  const cart = latestCart !== null ? latestCart : initialCart
   const pathname = usePathname()
   const { showToast } = useToast()
   const [updatingId, setUpdatingId] = useState<string | null>(null)
@@ -38,60 +40,54 @@ export default function CartDrawer({
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [isOpen, closeCart])
 
-  const [optimisticQuantities, setOptimisticQuantities] = useState<Record<string, number>>({})
-  const [removedLineIds, setRemovedLineIds] = useState<Record<string, boolean>>({})
-  const debounceMap = useRef<Record<string, NodeJS.Timeout>>({})
+  const items = cart?.items || []
+  const pendingQty = pendingItems.reduce((acc, p) => acc + p.quantity, 0)
+  const totalItems =
+    items.reduce((acc, item) => acc + item.quantity, 0) + pendingQty
 
-  const items = (initialCart?.items || []).filter((item) => !removedLineIds[item.id])
-  const totalItems = items.reduce(
-    (acc, item) => acc + (optimisticQuantities[item.id] ?? item.quantity),
+  const pendingSubtotal = pendingItems.reduce(
+    (acc, p) => acc + (p.unit_price * p.quantity),
     0
   )
-  const subtotal = items.reduce((acc, item) => {
-    const qty = optimisticQuantities[item.id] ?? item.quantity
+  const itemsSubtotal = items.reduce((acc, item) => {
     const unit = item.unit_price || (item.total ? item.total / item.quantity : 0)
-    return acc + unit * qty
-  }, 0) || (initialCart?.subtotal ?? 0)
-  const currencyCode = initialCart?.currency_code || "pkr"
+    return acc + unit * item.quantity
+  }, 0)
+  const subtotal =
+    (itemsSubtotal + pendingSubtotal) || (cart?.subtotal ?? 0)
+  const currencyCode = cart?.currency_code || "pkr"
 
   // Free shipping threshold: Rs. 4,999
   const freeShippingThreshold = 4999
   const amountNeeded = Math.max(0, freeShippingThreshold - subtotal)
   const progressPercent = Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100))
 
-  const handleQuantity = (lineId: string, currentQty: number, delta: number) => {
-    const currentVal = optimisticQuantities[lineId] ?? currentQty
-    const newQty = currentVal + delta
+  const handleQuantity = async (lineId: string, currentQty: number, delta: number) => {
+    const newQty = currentQty + delta
     if (newQty <= 0) {
       handleRemove(lineId)
       return
     }
 
-    // Instant optimistic update (0ms, zero wait!)
-    setOptimisticQuantities((prev) => ({ ...prev, [lineId]: newQty }))
-
-    if (debounceMap.current[lineId]) clearTimeout(debounceMap.current[lineId])
-    debounceMap.current[lineId] = setTimeout(async () => {
-      try {
-        await updateLineItem({ lineId, quantity: newQty })
-      } catch (err) {
-        setOptimisticQuantities((prev) => ({ ...prev, [lineId]: currentQty }))
-        showToast(err instanceof Error ? err.message : "Unable to update your bag. Please try again.", "error")
-      }
-    }, 280)
+    try {
+      setUpdatingId(lineId)
+      await updateQuantity(lineId, newQty)
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Unable to update your bag. Please try again.", "error")
+    } finally {
+      setUpdatingId(null)
+    }
   }
 
-  const handleRemove = (lineId: string) => {
-    // Instant optimistic removal in 0 seconds!
-    setRemovedLineIds((prev) => ({ ...prev, [lineId]: true }))
-    deleteLineItem(lineId).catch((err) => {
-      setRemovedLineIds((prev) => {
-        const next = { ...prev }
-        delete next[lineId]
-        return next
-      })
+  const handleRemove = async (lineId: string) => {
+    try {
+      setUpdatingId(lineId)
+      await removeItem(lineId)
+    } catch (err) {
       showToast(err instanceof Error ? err.message : "Unable to update your bag. Please try again.", "error")
-    })
+    } finally {
+      setUpdatingId(null)
+    }
   }
 
   return (
@@ -177,7 +173,42 @@ export default function CartDrawer({
 
         {/* Cart Item List */}
         <div className="flex-1 min-h-0 overflow-y-auto p-5 divide-y divide-gray-100">
-          {items.length === 0 ? (
+          {pendingItems.map((item) => (
+            <div key={item.id} className="py-4 flex gap-4 first:pt-0 last:pb-0 opacity-95">
+              <div className="w-20 h-24 flex-shrink-0 bg-surface rounded overflow-hidden relative border border-gray-100">
+                <Thumbnail thumbnail={item.thumbnail} size="full" />
+              </div>
+              <div className="flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-start gap-2">
+                    <span className="font-serif text-sm font-medium text-brand line-clamp-1">
+                      {item.title}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-accent/10 text-accent">
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent animate-ping" />
+                      Added
+                    </span>
+                  </div>
+                  <div className="text-xs font-semibold text-brand mt-1">
+                    {convertToLocale({
+                      amount: item.unit_price,
+                      currency_code: currencyCode,
+                    })}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-3 text-xs text-stone-500">
+                  <span>Qty: {item.quantity}</span>
+                  <span className="font-semibold text-brand">
+                    {convertToLocale({
+                      amount: item.unit_price * item.quantity,
+                      currency_code: currencyCode,
+                    })}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+          {items.length === 0 && pendingItems.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4">
               <div className="w-20 h-20 rounded-full bg-surface flex items-center justify-center text-accent">
                 <svg
@@ -275,7 +306,7 @@ export default function CartDrawer({
                         -
                       </button>
                       <span className="w-8 text-center text-xs font-semibold text-stone-900 select-none">
-                        {optimisticQuantities[item.id] ?? item.quantity}
+                        {item.quantity}
                       </span>
                       <button
                         onClick={() => handleQuantity(item.id, item.quantity, 1)}
@@ -292,7 +323,7 @@ export default function CartDrawer({
                           (item.unit_price ||
                             (item.total && item.quantity
                               ? item.total / item.quantity
-                              : 0)) * (optimisticQuantities[item.id] ?? item.quantity),
+                              : 0)) * item.quantity,
                         currency_code: currencyCode,
                       })}
                     </span>
@@ -304,7 +335,7 @@ export default function CartDrawer({
         </div>
 
         {/* Footer / Checkout */}
-        {items.length > 0 && (
+        {(items.length > 0 || pendingItems.length > 0) && (
           <div className="p-5 border-t border-gray-100 bg-surface/30 space-y-4">
             <div className="space-y-1.5">
               <div className="flex justify-between text-sm text-gray-600">

@@ -13,6 +13,7 @@ interface CategoryGridProps {
 interface StyleCategoryItem {
   id: string
   title: string
+  badge?: string
   countLabel: string
   href: string
   image: string
@@ -105,6 +106,7 @@ function CategoryBox({ item, className = "" }: { item: StyleCategoryItem; classN
 
       {/* Text overlay at bottom-left exactly matching Image 3 */}
       <div className="absolute inset-x-0 bottom-0 p-5 text-white z-10">
+        {item.badge && <p className="text-xs uppercase tracking-widest mb-2">{item.badge}</p>}
         <h3 className="font-serif text-lg sm:text-xl font-normal text-white group-hover:text-amber-200 transition-colors drop-shadow-md">
           {item.title}
         </h3>
@@ -124,7 +126,7 @@ function CategoryBox({ item, className = "" }: { item: StyleCategoryItem; classN
 }
 
 export default function CategoryGrid({ section }: CategoryGridProps & { section?: any }) {
-  const customCards = section?.settings?.cards && section.settings.cards.length > 0
+  const customCards = Array.isArray(section?.settings?.cards)
     ? section.settings.cards
     : null
 
@@ -132,7 +134,8 @@ export default function CategoryGrid({ section }: CategoryGridProps & { section?
     ? customCards.map((c: any) => ({
         id: c.id,
         title: c.title,
-        countLabel: c.subtitle || "Collection",
+        countLabel: c.subtitle ?? "Collection",
+        badge: c.badge,
         href: c.link || "/store",
         image: c.image_url || c.image || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80",
       }))
@@ -162,13 +165,13 @@ export default function CategoryGrid({ section }: CategoryGridProps & { section?
         {/* Section Header matching Image 2: SHOP BY CATEGORY / Find Your Perfect Style */}
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
           <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-accent">
-            Shop by Category
+            {section?.settings?.eyebrow ?? "Shop by Category"}
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-brand font-medium mt-1">
-            Find Your <span className="italic font-normal">Perfect Style</span>
+            {section?.title ?? "Find Your Perfect Style"}
           </h2>
           <p className="text-xs sm:text-sm text-stone-500 mt-2 font-light">
-            {section?.subtitle || "From unstitched luxury fabrics to ready-to-wear kurtas"}
+            {section?.subtitle ?? "From unstitched luxury fabrics to ready-to-wear kurtas"}
           </p>
         </div>
 
@@ -221,6 +224,7 @@ export default function CategoryGrid({ section }: CategoryGridProps & { section?
             ))}
           </div>
         )}
+        {section?.cta_text && <div className="mt-8 text-center"><LocalizedClientLink href={section.cta_link || "/store"} className="text-sm underline">{section.cta_text}</LocalizedClientLink></div>}
       </div>
     </section>
   )
