@@ -13,7 +13,7 @@
     "medusa"
   ],
   "scripts": {
-    "build": "medusa build --no-lint",
+    "build": "medusa build --no-lint && node scripts/copy-admin.js",
     "start": "medusa start",
     "dev": "medusa develop --no-lint",
     "lint": "medusa lint",
