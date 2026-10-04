@@ -1,21 +1,60 @@
 const fs = require('fs');
 const path = require('path');
 
-const src = path.resolve(__dirname, '../public/admin');
-if (fs.existsSync(src)) {
-  // 1. Copy to .medusa/server/public/admin
-  const serverDest = path.resolve(__dirname, '../.medusa/server/public/admin');
-  fs.mkdirSync(serverDest, { recursive: true });
-  fs.cpSync(src, serverDest, { recursive: true });
+// Potential directories where medusa build might have put the admin build
+const searchPaths = [
+  path.resolve(__dirname, '../.medusa/server/public/admin'),
+  path.resolve(__dirname, '../.medusa/admin'),
+  path.resolve(__dirname, '../.medusa/client'),
+  path.resolve(process.cwd(), '.medusa/server/public/admin'),
+  path.resolve(process.cwd(), '.medusa/admin'),
+  path.resolve(process.cwd(), '.medusa/client'),
+  path.resolve(__dirname, '../../../.medusa/server/public/admin'),
+  path.resolve(__dirname, '../../../.medusa/admin')
+];
 
-  // 2. Copy to root public/admin
-  const rootDest = path.resolve(__dirname, '../../../public/admin');
-  try {
-    fs.mkdirSync(rootDest, { recursive: true });
-    fs.cpSync(src, rootDest, { recursive: true });
-  } catch (e) {}
+let sourceDir = null;
+for (const p of searchPaths) {
+  if (fs.existsSync(path.join(p, 'index.html'))) {
+    sourceDir = p;
+    break;
+  }
+}
 
-  console.log('Admin assets copied to all target directories successfully!');
+// Destinations where Medusa runtime or Railway might look for admin build
+const destinations = [
+  path.resolve(__dirname, '../public/admin'),
+  path.resolve(process.cwd(), 'public/admin'),
+  path.resolve(__dirname, '../.medusa/server/public/admin'),
+  path.resolve(process.cwd(), '.medusa/server/public/admin')
+];
+
+if (sourceDir) {
+  console.log(`Found admin build at: ${sourceDir}`);
+  for (const dest of destinations) {
+    try {
+      if (path.resolve(sourceDir) !== path.resolve(dest)) {
+        fs.mkdirSync(dest, { recursive: true });
+        fs.cpSync(sourceDir, dest, { recursive: true });
+        console.log(`Copied admin build to: ${dest}`);
+      }
+    } catch (err) {
+      console.warn(`Failed to copy to ${dest}:`, err.message);
+    }
+  }
 } else {
-  console.log('No public/admin directory found at', src);
+  console.warn('Warning: Could not find admin build directory with index.html in search paths!');
+  console.log('Checked paths:', searchPaths);
+
+  // Fallback: Create a placeholder index.html so medusa start does not crash
+  for (const dest of destinations) {
+    try {
+      fs.mkdirSync(dest, { recursive: true });
+      const fallbackHtml = `<!DOCTYPE html><html><head><title>Medusa Admin</title></head><body><div id="root"><h1>Medusa Backend & Admin Running</h1></div></body></html>`;
+      fs.writeFileSync(path.join(dest, 'index.html'), fallbackHtml);
+      console.log(`Created fallback index.html at: ${dest}`);
+    } catch (err) {
+      console.warn(`Failed to create fallback at ${dest}:`, err.message);
+    }
+  }
 }

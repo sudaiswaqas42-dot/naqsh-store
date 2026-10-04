@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "build": "medusa build --no-lint && node scripts/copy-admin.js",
-    "start": "medusa start",
+    "start": "node scripts/copy-admin.js && medusa start",
     "dev": "medusa develop --no-lint",
     "lint": "medusa lint",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
