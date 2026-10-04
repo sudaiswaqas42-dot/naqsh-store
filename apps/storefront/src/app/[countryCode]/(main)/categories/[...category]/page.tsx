@@ -42,23 +42,54 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     getCategoryByHandle(categoryArray).catch(() => undefined),
   ])
 
-  if (!item) notFound()
+  let finalItem = item
+  if (!finalItem) {
+    const handleKey = categoryArray[categoryArray.length - 1]?.toLowerCase()
+    const fallbackMap: Record<string, { id: string; name: string; handle: string; description: string }> = {
+      sale: { id: "pcat_01M3EW9AH4V6S14CNHCRM6H2YK", name: "End of Season Sale", handle: "sale", description: "Explore handcrafted luxury pret, unstitched fabrics, and festive formals on exclusive seasonal sale." },
+      women: { id: "pcat_01M3EW9AGX87DJN0W7RP7Z6041", name: "Women", handle: "women", description: "Explore our latest Women's luxury pret, stitched ensembles, and unstitched fabrics." },
+      men: { id: "pcat_01M3EW9AGYE2YT2P17ZSGFVTB9", name: "Men", handle: "men", description: "Discover handcrafted men's kurtas, waistcoats, and premium unstitched fabrics." },
+      unstitched: { id: "pcat_01M3EW9AK9WFT37D60F729CTDM", name: "Unstitched Fabric", handle: "unstitched", description: "Fine lawn, pure silk dupattas & embroidered unstitched fabrics." },
+      children: { id: "pcat_01M3mukykbr2612d80c6d0983", name: "Children", handle: "children", description: "Handcrafted festive ghararas, kurtas & eastern kids collection." },
+      "women-stitched": { id: "pcat_01M3mukykbq301fda21fe108f", name: "Women's Stitched Pret", handle: "women-stitched", description: "Ready to wear luxury pret and embroidered ensembles." },
+      "women-unstitched": { id: "pcat_01M3mukykbqv18abc7547c99d", name: "Women's Unstitched Lawn & Silks", handle: "women-unstitched", description: "Fine lawn, pure silk dupattas & embroidered 3-piece unstitched fabrics." },
+      "men-stitched": { id: "pcat_01M3mukykbqx1004649b19db4", name: "Men's Stitched Eastern", handle: "men-stitched", description: "Bespoke stitched kurtas, shalwar kameez & waistcoats." },
+      "men-unstitched": { id: "pcat_01M3mukykbr04bb73bd499a58", name: "Men's Unstitched Fabric", handle: "men-unstitched", description: "Premium Egyptian cotton & wash and wear fabrics." },
+      "co-ords": { id: "pcat_01M3EW9AKC27MD5FVK1FVCNJ93", name: "Co-ords Sets", handle: "co-ords", description: "Modern matching separates in pure cotton and silk." },
+      "festive-formals": { id: "pcat_01M3EW9AKEV37FT2AXXHQBD3QJ", name: "Festive Formals", handle: "festive-formals", description: "Zardozi hand-embellished raw silks and wedding wear." },
+      "kurta-shalwar": { id: "pcat_01M3EW9AKGNTFR4VVGMS0Y3DXH", name: "Kurta & Shalwar", handle: "kurta-shalwar", description: "Traditional Pakistani kurtas and shalwars." },
+      waistcoats: { id: "pcat_01M3EW9AKJHZJPE2F2Y96R25YH", name: "Waistcoats", handle: "waistcoats", description: "Festive and formal eastern waistcoats." },
+    }
+    if (fallbackMap[handleKey]) {
+      finalItem = {
+        ...fallbackMap[handleKey],
+        category_children: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        deleted_at: null,
+        parent_category_id: null,
+        rank: 0,
+      } as any
+    }
+  }
+
+  if (!finalItem) notFound()
 
   const categories = categoriesList || []
-  const isSaleCategory = item.handle === "sale" || categoryArray.includes("sale")
+  const isSaleCategory = finalItem.handle === "sale" || categoryArray.includes("sale")
 
   if (isSaleCategory) {
     return (
       <CatalogTemplate
         countryCode={countryCode}
         query={query}
-        title={item.name || "End of Season Sale"}
+        title={finalItem.name || "End of Season Sale"}
         description={
-          item.description ||
+          finalItem.description ||
           "Explore handcrafted luxury pret, unstitched fabrics, and festive formals on exclusive seasonal sale."
         }
         categoryIds={undefined}
-        links={(item.category_children || []).map((child) => ({
+        links={(finalItem.category_children || []).map((child) => ({
           href: "/categories/" + child.handle,
           label: child.name,
         }))}
@@ -67,7 +98,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     )
   }
 
-  const ids = new Set([item.id])
+  const ids = new Set([finalItem.id])
   let changed = true
   while (changed) {
     changed = false
@@ -82,11 +113,11 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       }
     }
   }
-  for (const child of item.category_children || []) ids.add(child.id)
+  for (const child of finalItem.category_children || []) ids.add(child.id)
 
   // Strict category scoping:
   // 1. Women category must NEVER include general unstitched (which contains men) or any men categories
-  if (item.handle === "women") {
+  if (finalItem.handle === "women") {
     for (const candidate of categories) {
       if (candidate.handle === "unstitched" || candidate.handle.startsWith("men")) {
         ids.delete(candidate.id)
@@ -95,7 +126,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   }
 
   // 2. Unstitched category must include general unstitched as well as women-unstitched and men-unstitched
-  if (item.handle === "unstitched") {
+  if (finalItem.handle === "unstitched") {
     for (const candidate of categories) {
       if (candidate.handle === "women-unstitched" || candidate.handle === "men-unstitched") {
         ids.add(candidate.id)
@@ -104,7 +135,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   }
 
   // 3. Men category must NEVER include women categories
-  if (item.handle === "men") {
+  if (finalItem.handle === "men") {
     for (const candidate of categories) {
       if (candidate.handle === "unstitched" || candidate.handle.startsWith("women")) {
         ids.delete(candidate.id)
@@ -116,11 +147,11 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     <CatalogTemplate
       countryCode={countryCode}
       query={query}
-      title={item.name}
-      categoryHandle={item.handle}
-      description={item.description || "Explore the collection. Find the details that feel like you."}
+      title={finalItem.name}
+      categoryHandle={finalItem.handle}
+      description={finalItem.description || "Explore the collection. Find the details that feel like you."}
       categoryIds={Array.from(ids)}
-      links={(item.category_children || []).map((child) => ({
+      links={(finalItem.category_children || []).map((child) => ({
         href: "/categories/" + child.handle,
         label: child.name,
       }))}

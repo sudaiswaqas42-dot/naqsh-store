@@ -15,12 +15,12 @@ export async function getCatalog(
   scope: { categoryIds?: string[]; collectionId?: string; isSalePage?: boolean } = {}
 ) {
   let region = await getRegion(countryCode).catch(() => null)
-  if (!region) {
+  if (!region || !region.id) {
     const regions = await listRegions().catch(() => [])
     region = regions?.[0] || null
   }
-  if (!region) {
-    region = { id: "reg_default", currency_code: "pkr" } as any
+  if (!region || !region.id) {
+    region = { id: "reg_01M3EW98QY2SGP87H13WFBDRM5", currency_code: "pkr" } as any
   }
 
   const value = (key: string) => {
@@ -35,10 +35,13 @@ export async function getCatalog(
 
   const pubKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ""
   const searchParams = new URLSearchParams()
-  if (region?.id && region.id !== "reg_default") {
+  if (region?.id) {
     searchParams.set("region_id", region.id)
   }
-  searchParams.set("fields", fields)
+  const effectiveFields = region?.id
+    ? fields
+    : fields.replace(",*variants.calculated_price", "")
+  searchParams.set("fields", effectiveFields)
 
   // Order
   const sort = value("sortBy") || "newest"
@@ -97,7 +100,8 @@ export async function getCatalog(
     !!value("min") ||
     !!value("max") ||
     value("stock") === "1" ||
-    value("sale") === "1"
+    value("sale") === "1" ||
+    scope.isSalePage === true
 
   if (!hasCustomFilter) {
     searchParams.set("offset", String(offset))
