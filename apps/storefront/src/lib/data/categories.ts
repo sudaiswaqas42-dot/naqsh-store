@@ -19,8 +19,8 @@ export const listCategories = async (query?: Record<string, unknown>) => {
 
   const defaultFields = query?.fields || "*category_children, *parent_category, name, handle, id, description, parent_category_id"
 
-  return sdk.client
-    .fetch<{ product_categories: HttpTypes.StoreProductCategory[] }>(
+  try {
+    const { product_categories } = await sdk.client.fetch<{ product_categories: HttpTypes.StoreProductCategory[] }>(
       "/store/product-categories",
       {
         query: {
@@ -32,19 +32,29 @@ export const listCategories = async (query?: Record<string, unknown>) => {
         cache: "force-cache",
       }
     )
-    .then(({ product_categories }) => {
-      if (isDefaultQuery) {
-        categoryCache = { data: product_categories, timestamp: Date.now() }
-      }
-      return product_categories
-    })
+    if (isDefaultQuery && Array.isArray(product_categories)) {
+      categoryCache = { data: product_categories, timestamp: Date.now() }
+    }
+    return product_categories || []
+  } catch (err) {
+    console.error("listCategories fetch error:", err)
+    return categoryCache?.data || []
+  }
 }
 
 const categoryHandleCache = new Map<string, { data: HttpTypes.StoreProductCategory; timestamp: number }>()
 
-export const getCategoryByHandle = async (categoryHandle: string[]) => {
-  const fullHandle = `${categoryHandle.join("/")}`
-  const leafHandle = categoryHandle[categoryHandle.length - 1]
+export const getCategoryByHandle = async (categoryHandle: string[] | string) => {
+  const handles = Array.isArray(categoryHandle)
+    ? categoryHandle
+    : typeof categoryHandle === "string"
+    ? [categoryHandle]
+    : []
+
+  if (!handles.length) return undefined
+
+  const fullHandle = handles.join("/")
+  const leafHandle = handles[handles.length - 1]
   const now = Date.now()
 
   const cached = categoryHandleCache.get(fullHandle) || categoryHandleCache.get(leafHandle)
@@ -81,7 +91,7 @@ export const getCategoryByHandle = async (categoryHandle: string[]) => {
           cache: "force-cache",
         }
       )
-      const cat = product_categories[0]
+      const cat = product_categories?.[0]
       if (cat) {
         categoryHandleCache.set(fullHandle, { data: cat, timestamp: Date.now() })
         categoryHandleCache.set(leafHandle, { data: cat, timestamp: Date.now() })

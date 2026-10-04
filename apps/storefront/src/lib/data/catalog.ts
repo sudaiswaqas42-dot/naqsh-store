@@ -1,5 +1,5 @@
 import "server-only"
-import { getRegion } from "./regions"
+import { getRegion, listRegions } from "./regions"
 import { listCategories } from "./categories"
 import { CatalogProduct, productPrice, optionValues, matchesVariantFilters, isDiscounted } from "@lib/util/catalog"
 
@@ -14,8 +14,14 @@ export async function getCatalog(
   query: CatalogQuery = {},
   scope: { categoryIds?: string[]; collectionId?: string; isSalePage?: boolean } = {}
 ) {
-  const region = await getRegion(countryCode)
-  if (!region) throw new Error("Shopping region is unavailable")
+  let region = await getRegion(countryCode).catch(() => null)
+  if (!region) {
+    const regions = await listRegions().catch(() => [])
+    region = regions?.[0] || null
+  }
+  if (!region) {
+    region = { id: "reg_default", currency_code: "pkr" } as any
+  }
 
   const value = (key: string) => {
     const item = query[key]
@@ -29,9 +35,9 @@ export async function getCatalog(
 
   const pubKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ""
   const searchParams = new URLSearchParams()
-  searchParams.set("region_id", region.id)
-  searchParams.set("limit", "100")
-  searchParams.set("offset", "0")
+  if (region?.id && region.id !== "reg_default") {
+    searchParams.set("region_id", region.id)
+  }
   searchParams.set("fields", fields)
 
   // Order
@@ -51,16 +57,29 @@ export async function getCatalog(
   // Category filter
   let targetCategoryIds = scope.categoryIds || []
   if (selected("category").length) {
-    const categories = await listCategories()
+    const categories = await listCategories().catch(() => [])
     const wanted = selected("category")
-    const ids = new Set(categories.filter(category => wanted.includes(category.id) || wanted.includes(category.handle)).map(category => category.id))
+    const ids = new Set(
+      categories
+        .filter((category) => wanted.includes(category.id) || wanted.includes(category.handle))
+        .map((category) => category.id)
+    )
     let expanded = true
     while (expanded) {
       expanded = false
-      for (const category of categories) if (category.parent_category_id && ids.has(category.parent_category_id) && !ids.has(category.id)) { ids.add(category.id); expanded = true }
+      for (const category of categories) {
+        if (category.parent_category_id && ids.has(category.parent_category_id) && !ids.has(category.id)) {
+          ids.add(category.id)
+          expanded = true
+        }
+      }
     }
-    targetCategoryIds = Array.from(ids).filter(id => !scope.categoryIds?.length || scope.categoryIds.includes(id))
-    if (!targetCategoryIds.length) return { products: [], count: 0, page, facets: { sizes: [], colors: [], fabrics: [] } }
+    targetCategoryIds = Array.from(ids).filter(
+      (id) => !scope.categoryIds?.length || scope.categoryIds.includes(id)
+    )
+    if (!targetCategoryIds.length) {
+      return { products: [], count: 0, page, facets: { sizes: [], colors: [], fabrics: [] } }
+    }
   }
   for (const id of targetCategoryIds) searchParams.append("category_id[]", id)
 
@@ -71,23 +90,38 @@ export async function getCatalog(
     for (const id of selected("collection")) searchParams.append("collection_id[]", id)
   }
 
+  const hasCustomFilter =
+    selected("size").length > 0 ||
+    selected("color").length > 0 ||
+    selected("fabric").length > 0 ||
+    !!value("min") ||
+    !!value("max") ||
+    value("stock") === "1" ||
+    value("sale") === "1"
+
+  if (!hasCustomFilter) {
+    searchParams.set("offset", String(offset))
+    searchParams.set("limit", String(limit))
+  } else {
+    searchParams.set("offset", "0")
+    searchParams.set("limit", "100")
+  }
+
   try {
-    const rawProducts: any[] = []
-    let backendCount = Infinity
-    while (rawProducts.length < backendCount) {
-      searchParams.set("offset", String(rawProducts.length))
-      const response = await fetch(`${MEDUSA_URL}/store/products?${searchParams.toString()}`, {
-        headers: { "x-publishable-api-key": pubKey },
-        next: { revalidate: 30, tags: ["products", "catalog"] },
-        signal: AbortSignal.timeout(10000),
-      })
-      if (!response.ok) throw new Error(`Catalog request failed (${response.status})`)
-      const data = await response.json()
-      const batch = data.products || []
-      if (!batch.length) break
-      rawProducts.push(...batch)
-      backendCount = typeof data.count === "number" ? data.count : rawProducts.length
+    const response = await fetch(`${MEDUSA_URL}/store/products?${searchParams.toString()}`, {
+      headers: { "x-publishable-api-key": pubKey },
+      next: { revalidate: 30, tags: ["products", "catalog"] },
+      signal: AbortSignal.timeout(8000),
+    })
+
+    if (!response.ok) {
+      console.error(`Catalog request failed (${response.status})`)
+      return { products: [], count: 0, page, facets: { sizes: [], colors: [], fabrics: [] } }
     }
+
+    const data = await response.json()
+    const rawProducts: any[] = data.products || []
+    let totalCount: number = typeof data.count === "number" ? data.count : rawProducts.length
 
     let products: CatalogProduct[] = rawProducts.map((product: any) => ({
       id: product.id,
@@ -130,23 +164,43 @@ export async function getCatalog(
     }))
 
     const facets = {
-      sizes: Array.from(new Set(products.flatMap(product => optionValues(product, "size")))).sort(),
-      colors: Array.from(new Set(products.flatMap(product => optionValues(product, "color")))).sort(),
-      fabrics: Array.from(new Set(products.map(product => product.material).filter((material): material is string => !!material))).sort(),
+      sizes: Array.from(new Set(products.flatMap((product) => optionValues(product, "size")))).sort(),
+      colors: Array.from(new Set(products.flatMap((product) => optionValues(product, "color")))).sort(),
+      fabrics: Array.from(
+        new Set(
+          products
+            .map((product) => product.material)
+            .filter((material): material is string => !!material)
+        )
+      ).sort(),
     }
-    products = products.filter(product => {
-      const price = productPrice(product)
-      return matchesVariantFilters(product, selected("size"), selected("color"), value("stock") === "1") &&
-        (!selected("fabric").length || selected("fabric").includes(product.material || "")) &&
-        (!value("min") || (price !== null && price >= Number(value("min")))) &&
-        (!value("max") || (price !== null && price <= Number(value("max")))) &&
-        (!(scope.isSalePage || value("sale") === "1") || isDiscounted(product))
-    })
+
+    if (hasCustomFilter) {
+      products = products.filter((product) => {
+        const price = productPrice(product)
+        return (
+          matchesVariantFilters(product, selected("size"), selected("color"), value("stock") === "1") &&
+          (!selected("fabric").length || selected("fabric").includes(product.material || "")) &&
+          (!value("min") || (price !== null && price >= Number(value("min")))) &&
+          (!value("max") || (price !== null && price <= Number(value("max")))) &&
+          (!(scope.isSalePage || value("sale") === "1") || isDiscounted(product))
+        )
+      })
+      totalCount = products.length
+    }
+
     let rankings: Record<string, { sold: number; recent: number }> = {}
     if (["popular", "best-selling", "recommended"].includes(sort)) {
-      const response = await fetch(`${MEDUSA_URL}/store/catalog-rankings`, { headers: { "x-publishable-api-key": pubKey }, next: { revalidate: 60 }, signal: AbortSignal.timeout(10000) })
-      if (response.ok) rankings = (await response.json()).rankings || {}
+      try {
+        const response = await fetch(`${MEDUSA_URL}/store/catalog-rankings`, {
+          headers: { "x-publishable-api-key": pubKey },
+          next: { revalidate: 60 },
+          signal: AbortSignal.timeout(5000),
+        })
+        if (response.ok) rankings = (await response.json()).rankings || {}
+      } catch {}
     }
+
     products.sort((a, b) => {
       if (sort === "price-asc" || sort === "price-desc") {
         const left = productPrice(a)
@@ -167,9 +221,17 @@ export async function getCatalog(
       }
       return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
     })
-    return { products: products.slice(offset, offset + limit), count: products.length, page, facets }
+
+    const displayProducts = hasCustomFilter ? products.slice(offset, offset + limit) : products
+
+    return {
+      products: displayProducts,
+      count: totalCount,
+      page,
+      facets,
+    }
   } catch (err) {
     console.error("Catalog fetch error:", err)
-    throw new Error("Products are temporarily unavailable. Please try again.")
+    return { products: [], count: 0, page: 1, facets: { sizes: [], colors: [], fabrics: [] } }
   }
 }
