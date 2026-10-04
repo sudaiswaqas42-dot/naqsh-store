@@ -5,19 +5,15 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
 module.exports = defineConfig({
   admin: {
-    vite: (config: any = {}) => ({
-      ...config,
+    vite: () => ({
       server: {
-        ...config?.server,
         hmr: {
           overlay: false,
         },
       },
       resolve: {
-        ...config?.resolve,
         dedupe: ["react", "react-dom"],
         alias: {
-          ...config?.resolve?.alias,
           react: path.dirname(require.resolve("react/package.json")),
           "react-dom": path.dirname(require.resolve("react-dom/package.json")),
         },
