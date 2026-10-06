@@ -110,22 +110,6 @@ export default function CategoryShowcaseGrid({ categoryHandle = "", title = "" }
               </LocalizedClientLink>
             </div>
           </div>
-
-          {/* Ladies Unstitched Subcategories Strip (Image 1) */}
-          <div className="flex items-center gap-2 overflow-x-auto pt-2 pb-1 no-scrollbar border-t border-[#EBE1D6]/70">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 whitespace-nowrap mr-1 flex items-center gap-1">
-              <span>🧵</span> Ladies Fabrics:
-            </span>
-            {ladiesSubcategories.map((item) => (
-              <LocalizedClientLink
-                key={item.label}
-                href={item.href}
-                className="px-3 py-1 text-[11px] font-medium tracking-wide rounded-full bg-white border border-[#EBE1D6] text-stone-800 hover:border-[#0F2D22] hover:text-[#0F2D22] whitespace-nowrap transition-all shadow-2xs"
-              >
-                {item.label}
-              </LocalizedClientLink>
-            ))}
-          </div>
         </div>
       </section>
     )
@@ -218,22 +202,6 @@ export default function CategoryShowcaseGrid({ categoryHandle = "", title = "" }
               </LocalizedClientLink>
             </div>
           </div>
-
-          {/* Gents Unstitched Subcategories Strip (Image 1) */}
-          <div className="flex items-center gap-2 overflow-x-auto pt-2 pb-1 no-scrollbar border-t border-[#EBE1D6]/70">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 whitespace-nowrap mr-1 flex items-center gap-1">
-              <span>👔</span> Gents Fabrics:
-            </span>
-            {gentsSubcategories.map((item) => (
-              <LocalizedClientLink
-                key={item.label}
-                href={item.href}
-                className="px-3 py-1 text-[11px] font-medium tracking-wide rounded-full bg-white border border-[#EBE1D6] text-stone-800 hover:border-[#0F2D22] hover:text-[#0F2D22] whitespace-nowrap transition-all shadow-2xs"
-              >
-                {item.label}
-              </LocalizedClientLink>
-            ))}
-          </div>
         </div>
       </section>
     )
@@ -295,39 +263,6 @@ export default function CategoryShowcaseGrid({ categoryHandle = "", title = "" }
               >
                 Men&apos;s Unstitched (1,000)
               </LocalizedClientLink>
-            </div>
-          </div>
-
-          {/* Both Ladies and Gents Unstitched Categories Navigation */}
-          <div className="pt-2 border-t border-[#EBE1D6]/70 space-y-2">
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-800 whitespace-nowrap mr-1 flex items-center gap-1">
-                <span>🌸</span> Ladies:
-              </span>
-              {ladiesCategories.map((item) => (
-                <LocalizedClientLink
-                  key={item.label}
-                  href={item.href}
-                  className="px-3 py-1 text-[11px] font-medium tracking-wide rounded-full bg-white border border-[#EBE1D6] text-stone-800 hover:border-[#0F2D22] hover:text-[#0F2D22] whitespace-nowrap transition-all shadow-2xs"
-                >
-                  {item.label}
-                </LocalizedClientLink>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 whitespace-nowrap mr-1 flex items-center gap-1">
-                <span>👔</span> Gents:
-              </span>
-              {gentsCategories.map((item) => (
-                <LocalizedClientLink
-                  key={item.label}
-                  href={item.href}
-                  className="px-3 py-1 text-[11px] font-medium tracking-wide rounded-full bg-white border border-[#EBE1D6] text-stone-800 hover:border-[#0F2D22] hover:text-[#0F2D22] whitespace-nowrap transition-all shadow-2xs"
-                >
-                  {item.label}
-                </LocalizedClientLink>
-              ))}
             </div>
           </div>
         </div>

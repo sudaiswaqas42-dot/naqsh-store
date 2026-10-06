@@ -226,17 +226,51 @@ export default function CatalogTemplate({
             { label: "Gents: Kamalia Khaddar", href: "/categories/men-unstitched?q=kamalia" },
           ]
         } else {
-          // Standard Pret / Store Quick Filters
-          pills = [
-            { label: "All Pieces", href: baseFilterPath },
-            { label: "3-Piece Luxury Suits", href: `${baseFilterPath}?q=3-piece` },
-            { label: "2-Piece Sets", href: `${baseFilterPath}?q=2-piece` },
-            { label: "1-Piece Kurtis", href: `${baseFilterPath}?q=kurti` },
-            { label: "Pure Lawn", href: `${baseFilterPath}?q=lawn` },
-            { label: "Chiffon & Silk", href: `${baseFilterPath}?q=silk` },
-            { label: "Organza", href: `${baseFilterPath}?q=organza` },
-            { label: "Festive Jacquard", href: `${baseFilterPath}?q=jacquard` },
-          ]
+          // Task 2 & Task 5: On NEW IN / Complete Store page, show Unstitched & Ready to Wear circular category cards (Image 2) instead of the quick filter pills
+          return (
+            <section className="bg-white border-b border-stone-200/90 py-8 sm:py-10 shadow-2xs">
+              <div className="content-container text-center">
+                <h2 className="font-serif text-2xl sm:text-3xl font-semibold tracking-wider text-stone-900 uppercase mb-8">
+                  NEW IN
+                </h2>
+                <div className="flex items-center justify-center gap-10 sm:gap-16">
+                  {/* UNSTITCHED Circular Card (Image 2) */}
+                  <LocalizedClientLink
+                    href="/categories/unstitched"
+                    className="group flex flex-col items-center cursor-pointer"
+                  >
+                    <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-2 border-stone-200 group-hover:border-[#0F2D22] shadow-md transition-all duration-300 group-hover:scale-105">
+                      <img
+                        src="https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=400&q=85"
+                        alt="Unstitched Collection"
+                        className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                      />
+                    </div>
+                    <span className="mt-4 text-xs sm:text-sm font-semibold tracking-[0.2em] uppercase text-stone-900 group-hover:text-[#0F2D22] transition-colors">
+                      UNSTITCHED
+                    </span>
+                  </LocalizedClientLink>
+
+                  {/* READY TO WEAR Circular Card (Image 2) */}
+                  <LocalizedClientLink
+                    href="/categories/women-stitched"
+                    className="group flex flex-col items-center cursor-pointer"
+                  >
+                    <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-2 border-stone-200 group-hover:border-[#0F2D22] shadow-md transition-all duration-300 group-hover:scale-105">
+                      <img
+                        src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=400&q=85"
+                        alt="Ready to Wear Collection"
+                        className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                      />
+                    </div>
+                    <span className="mt-4 text-xs sm:text-sm font-semibold tracking-[0.2em] uppercase text-stone-900 group-hover:text-[#0F2D22] transition-colors">
+                      READY TO WEAR
+                    </span>
+                  </LocalizedClientLink>
+                </div>
+              </div>
+            </section>
+          )
         }
 
         return (
