@@ -179,13 +179,78 @@ export default function CatalogTemplate({
         const GENTS_SUB_HANDLES = ["italian", "boski", "wash-wear", "wool", "kamalia-khaddar"]
         const LADIES_SUB_HANDLES = ["dhanak", "khaddar", "linen", "karandi", "silk", "printed", "embroidery-waly", "2pc", "3pc"]
 
+        const isChildren = categoryHandle === "children" || categoryHandle === "kids" || (lowerTitle.includes("children") && !lowerTitle.includes("girl") && !lowerTitle.includes("boy"))
+        const isGirls = categoryHandle === "girls" || categoryHandle === "girls-eastern" || categoryHandle === "girls-unstitched" || categoryHandle === "girls-stitched" || lowerTitle.includes("girl")
+        const isBoys = categoryHandle === "boys" || categoryHandle === "boys-eastern" || categoryHandle === "boys-unstitched" || categoryHandle === "boys-stitched" || lowerTitle.includes("boy")
         const isMen = categoryHandle === "men-unstitched" || bannerKey === "men" || GENTS_SUB_HANDLES.includes(categoryHandle || "")
         const isWomen = categoryHandle === "women-unstitched" || bannerKey === "women" || LADIES_SUB_HANDLES.includes(categoryHandle || "")
         const isUnstitched = categoryHandle === "unstitched" || lowerTitle.includes("unstitched")
 
+        // 1. Children page: Show GIRLS and BOYS circular category bubbles with authentic children images
+        if (isChildren) {
+          return (
+            <section className="bg-white border-b border-stone-200/90 py-8 sm:py-10 shadow-2xs">
+              <div className="content-container text-center">
+                <h2 className="font-serif text-2xl sm:text-3xl font-semibold tracking-wider text-stone-900 uppercase mb-8">
+                  CHILDREN EASTERN
+                </h2>
+                <div className="flex items-center justify-center gap-10 sm:gap-16">
+                  {/* GIRLS Circular Card */}
+                  <LocalizedClientLink
+                    href="/categories/girls"
+                    className="group flex flex-col items-center cursor-pointer"
+                  >
+                    <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-2 border-stone-200 group-hover:border-[#0F2D22] shadow-md transition-all duration-300 group-hover:scale-105">
+                      <img
+                        src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=400&q=85"
+                        alt="Girls Eastern Collection"
+                        className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                      />
+                    </div>
+                    <span className="mt-4 text-xs sm:text-sm font-semibold tracking-[0.2em] uppercase text-stone-900 group-hover:text-[#0F2D22] transition-colors">
+                      GIRLS
+                    </span>
+                  </LocalizedClientLink>
+
+                  {/* BOYS Circular Card */}
+                  <LocalizedClientLink
+                    href="/categories/boys"
+                    className="group flex flex-col items-center cursor-pointer"
+                  >
+                    <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-2 border-stone-200 group-hover:border-[#0F2D22] shadow-md transition-all duration-300 group-hover:scale-105">
+                      <img
+                        src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400&q=85"
+                        alt="Boys Eastern Collection"
+                        className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                      />
+                    </div>
+                    <span className="mt-4 text-xs sm:text-sm font-semibold tracking-[0.2em] uppercase text-stone-900 group-hover:text-[#0F2D22] transition-colors">
+                      BOYS
+                    </span>
+                  </LocalizedClientLink>
+                </div>
+              </div>
+            </section>
+          )
+        }
+
         let pills: { label: string; href: string }[] = []
 
-        if (isMen) {
+        if (isGirls) {
+          // Dedicated Girls Page: Unstitched & Ready to Wear subcategories
+          pills = [
+            { label: "All Girls", href: "/categories/girls" },
+            { label: "Ready to Wear", href: "/categories/girls-stitched" },
+            { label: "Unstitched", href: "/categories/girls-unstitched" },
+          ]
+        } else if (isBoys) {
+          // Dedicated Boys Page: Unstitched & Ready to Wear subcategories
+          pills = [
+            { label: "All Boys", href: "/categories/boys" },
+            { label: "Ready to Wear", href: "/categories/boys-stitched" },
+            { label: "Unstitched", href: "/categories/boys-unstitched" },
+          ]
+        } else if (isMen) {
           // Gents Unstitched Categories (Image 1) - Direct category links
           pills = [
             { label: "All Gents", href: "/categories/men-unstitched" },
@@ -229,7 +294,7 @@ export default function CatalogTemplate({
             { label: "Gents: Kamalia Khaddar", href: "/categories/kamalia-khaddar" },
           ]
         } else {
-          // Task 2 & Task 5: On NEW IN / Complete Store page, show Unstitched & Ready to Wear circular category cards (Image 2) instead of the quick filter pills
+          // On NEW IN / Complete Store page, show Unstitched & Ready to Wear circular category cards
           return (
             <section className="bg-white border-b border-stone-200/90 py-8 sm:py-10 shadow-2xs">
               <div className="content-container text-center">
@@ -237,7 +302,7 @@ export default function CatalogTemplate({
                   NEW IN
                 </h2>
                 <div className="flex items-center justify-center gap-10 sm:gap-16">
-                  {/* UNSTITCHED Circular Card (Image 2) */}
+                  {/* UNSTITCHED Circular Card */}
                   <LocalizedClientLink
                     href="/categories/unstitched"
                     className="group flex flex-col items-center cursor-pointer"
@@ -254,14 +319,14 @@ export default function CatalogTemplate({
                     </span>
                   </LocalizedClientLink>
 
-                  {/* READY TO WEAR Circular Card (Image 2) */}
+                  {/* READY TO WEAR Circular Card */}
                   <LocalizedClientLink
                     href="/categories/women-stitched"
                     className="group flex flex-col items-center cursor-pointer"
                   >
                     <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-2 border-stone-200 group-hover:border-[#0F2D22] shadow-md transition-all duration-300 group-hover:scale-105">
                       <img
-                        src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=400&q=85"
+                        src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=400&q=85"
                         alt="Ready to Wear Collection"
                         className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
                       />

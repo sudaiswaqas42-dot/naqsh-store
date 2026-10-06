@@ -76,6 +76,15 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       "festive-formals": { id: "pcat_01M3EW9AKEV37FT2AXXHQBD3QJ", name: "Festive Formals", handle: "festive-formals", description: "Zardozi hand-embellished raw silks and wedding wear." },
       "kurta-shalwar": { id: "pcat_01M3EW9AKGNTFR4VVGMS0Y3DXH", name: "Kurta & Shalwar", handle: "kurta-shalwar", description: "Traditional Pakistani kurtas and shalwars." },
       waistcoats: { id: "pcat_01M3EW9AKJHZJPE2F2Y96R25YH", name: "Waistcoats", handle: "waistcoats", description: "Festive and formal eastern waistcoats." },
+      // Children Categories: Girls & Boys (Dedicated routes & cards)
+      girls: { id: "pcat_01M3EW9AKN2TK634D7T4SZS573", name: "Girls Eastern Collection", handle: "girls", description: "Handcrafted festive frocks, ghararas & stitched sets for young girls." },
+      "girls-eastern": { id: "pcat_01M3EW9AKN2TK634D7T4SZS573", name: "Girls Eastern Collection", handle: "girls-eastern", description: "Handcrafted festive frocks, ghararas & stitched sets for young girls." },
+      "girls-unstitched": { id: "pcat_girls_unstitched", name: "Girls Unstitched", handle: "girls-unstitched", description: "Fine fabrics and unstitched gharara & frock cuts for girls." },
+      "girls-stitched": { id: "pcat_girls_stitched", name: "Girls Ready to Wear", handle: "girls-stitched", description: "Ready to wear festive frocks and embroidered gharara sets for girls." },
+      boys: { id: "pcat_01M3EW9AKQY520YNZN4B7M0NQ6", name: "Boys Eastern Collection", handle: "boys", description: "Traditional kurtas, waistcoats & shalwar kameez for boys." },
+      "boys-eastern": { id: "pcat_01M3EW9AKQY520YNZN4B7M0NQ6", name: "Boys Eastern Collection", handle: "boys-eastern", description: "Traditional kurtas, waistcoats & shalwar kameez for boys." },
+      "boys-unstitched": { id: "pcat_boys_unstitched", name: "Boys Unstitched", handle: "boys-unstitched", description: "Premium unstitched kurta & shalwar fabrics for boys." },
+      "boys-stitched": { id: "pcat_boys_stitched", name: "Boys Ready to Wear", handle: "boys-stitched", description: "Ready to wear kurtas, waistcoats and pajama sets for boys." },
     }
     if (fallbackMap[handleKey]) {
       finalItem = {
