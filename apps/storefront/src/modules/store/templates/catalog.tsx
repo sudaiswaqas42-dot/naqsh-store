@@ -179,6 +179,11 @@ export default function CatalogTemplate({
         const GENTS_SUB_HANDLES = ["italian", "boski", "wash-wear", "wool", "kamalia-khaddar"]
         const LADIES_SUB_HANDLES = ["dhanak", "khaddar", "linen", "karandi", "silk", "printed", "embroidery-waly", "2pc", "3pc"]
 
+        const isSale = isSalePage || categoryHandle === "sale" || lowerTitle.includes("sale")
+        if (isSale) {
+          return null
+        }
+
         const isChildren = categoryHandle === "children" || categoryHandle === "kids" || (lowerTitle.includes("children") && !lowerTitle.includes("girl") && !lowerTitle.includes("boy"))
         const isGirls = categoryHandle === "girls" || categoryHandle === "girls-eastern" || categoryHandle === "girls-unstitched" || categoryHandle === "girls-stitched" || lowerTitle.includes("girl")
         const isBoys = categoryHandle === "boys" || categoryHandle === "boys-eastern" || categoryHandle === "boys-unstitched" || categoryHandle === "boys-stitched" || lowerTitle.includes("boy")
