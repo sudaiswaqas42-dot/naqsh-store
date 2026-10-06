@@ -103,29 +103,59 @@ export async function getCatalog(
     value("sale") === "1" ||
     scope.isSalePage === true
 
-  if (!hasCustomFilter) {
+  const scanCatalog = hasCustomFilter ||
+    ["price-asc", "price-desc", "popular", "best-selling", "recommended"].includes(sort)
+  const batchSize = 250
+  if (!scanCatalog) {
     searchParams.set("offset", String(offset))
     searchParams.set("limit", String(limit))
   } else {
     searchParams.set("offset", "0")
-    searchParams.set("limit", "100")
+    searchParams.set("limit", String(batchSize))
+    searchParams.set("fields", effectiveFields.replace(",*images", ""))
   }
 
   try {
-    const response = await fetch(`${MEDUSA_URL}/store/products?${searchParams.toString()}`, {
-      headers: { "x-publishable-api-key": pubKey },
-      next: { revalidate: 30, tags: ["products", "catalog"] },
-      signal: AbortSignal.timeout(8000),
-    })
-
-    if (!response.ok) {
-      console.error(`Catalog request failed (${response.status})`)
-      return { products: [], count: 0, page, facets: { sizes: [], colors: [], fabrics: [] } }
+    const readPage = async (params: URLSearchParams) => {
+      for (let attempt = 0; ; attempt++) {
+        try {
+          const response = await fetch(`${MEDUSA_URL}/store/products?${params}`, {
+            headers: { "x-publishable-api-key": pubKey },
+            cache: "no-store",
+            next: { tags: ["products", "catalog"] },
+            signal: AbortSignal.timeout(10000),
+          })
+          if (!response.ok) {
+            throw Object.assign(new Error(`Catalog request failed (${response.status})`), { status: response.status })
+          }
+          return await response.json()
+        } catch (error) {
+          const status = (error as { status?: number }).status
+          if (attempt >= 1 || (status && status !== 408 && status !== 429 && status < 500)) throw error
+          await new Promise(resolve => setTimeout(resolve, 250))
+        }
+      }
     }
 
-    const data = await response.json()
+    const data = await readPage(searchParams)
     const rawProducts: any[] = data.products || []
     let totalCount: number = typeof data.count === "number" ? data.count : rawProducts.length
+
+    if (scanCatalog && rawProducts.length) {
+      let nextOffset = rawProducts.length
+      // Three workers keep large catalogs complete without flooding the backend.
+      await Promise.all(Array.from({ length: 3 }, async () => {
+        while (nextOffset < totalCount) {
+          const batchOffset = nextOffset
+          nextOffset += batchSize
+          const params = new URLSearchParams(searchParams)
+          params.set("offset", String(batchOffset))
+          const batch = await readPage(params)
+          if (!batch.products?.length) throw new Error("Catalog changed while loading; please retry")
+          rawProducts.push(...batch.products)
+        }
+      }))
+    }
 
     let products: CatalogProduct[] = rawProducts.map((product: any) => ({
       id: product.id,
@@ -223,10 +253,10 @@ export async function getCatalog(
         const difference = (rankings[b.id]?.[metric] || 0) - (rankings[a.id]?.[metric] || 0)
         if (difference) return difference
       }
-      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime() || a.id.localeCompare(b.id)
     })
 
-    const displayProducts = hasCustomFilter ? products.slice(offset, offset + limit) : products
+    const displayProducts = scanCatalog ? products.slice(offset, offset + limit) : products
 
     return {
       products: displayProducts,
@@ -236,6 +266,6 @@ export async function getCatalog(
     }
   } catch (err) {
     console.error("Catalog fetch error:", err)
-    return { products: [], count: 0, page: 1, facets: { sizes: [], colors: [], fabrics: [] } }
+    throw err
   }
 }

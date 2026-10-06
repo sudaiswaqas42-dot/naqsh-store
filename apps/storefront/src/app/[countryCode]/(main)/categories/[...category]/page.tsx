@@ -20,7 +20,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export const revalidate = 60
+export const dynamic = "force-dynamic"
+export const revalidate = 0
 
 export default async function CategoryPage({ params, searchParams }: Props) {
   const resolvedParams = await params
@@ -55,6 +56,22 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       "women-unstitched": { id: "pcat_01M3mukykbqv18abc7547c99d", name: "Women's Unstitched Lawn & Silks", handle: "women-unstitched", description: "Fine lawn, pure silk dupattas & embroidered 3-piece unstitched fabrics." },
       "men-stitched": { id: "pcat_01M3mukykbqx1004649b19db4", name: "Men's Stitched Eastern", handle: "men-stitched", description: "Bespoke stitched kurtas, shalwar kameez & waistcoats." },
       "men-unstitched": { id: "pcat_01M3mukykbr04bb73bd499a58", name: "Men's Unstitched Fabric", handle: "men-unstitched", description: "Premium Egyptian cotton & wash and wear fabrics." },
+      // Gents Unstitched Subcategories (Image 1)
+      italian: { id: "pcat_gents_italian", name: "Italian Unstitched", handle: "italian", description: "Premium Italian luxury suit fabrics." },
+      boski: { id: "pcat_gents_boski", name: "Pure Boski", handle: "boski", description: "Traditional pure silk boski unstitched fabric." },
+      "wash-wear": { id: "pcat_gents_wash_wear", name: "Wash & Wear", handle: "wash-wear", description: "Easy care wrinkle-resistant wash & wear suit cuts." },
+      wool: { id: "pcat_gents_wool", name: "Warm Wool", handle: "wool", description: "Winter warm wool blend unstitched fabric." },
+      "kamalia-khaddar": { id: "pcat_gents_kamalia_khaddar", name: "Kamalia Khaddar", handle: "kamalia-khaddar", description: "Authentic handspun Kamalia Khaddar cuts." },
+      // Ladies Unstitched Subcategories (Image 1)
+      dhanak: { id: "pcat_ladies_dhanak", name: "Dhanak", handle: "dhanak", description: "Warm winter Dhanak embroidered unstitched suits." },
+      khaddar: { id: "pcat_ladies_khaddar", name: "Khaddar", handle: "khaddar", description: "Traditional winter Khaddar printed & embroidered suits." },
+      linen: { id: "pcat_ladies_linen", name: "Linen", handle: "linen", description: "Pure slub linen unstitched collection." },
+      karandi: { id: "pcat_ladies_karandi", name: "Karandi", handle: "karandi", description: "Winter classic Karandi embroidered suit cuts." },
+      silk: { id: "pcat_ladies_silk", name: "Pure Silk", handle: "silk", description: "Luxury festive pure silk unstitched ensembles." },
+      printed: { id: "pcat_ladies_printed", name: "Printed Lawn & Khaddar", handle: "printed", description: "Vibrant digital printed unstitched 2pc & 3pc suits." },
+      "embroidery-waly": { id: "pcat_ladies_embroidery_waly", name: "Embroidery Waly Suits", handle: "embroidery-waly", description: "Heavily embroidered formal and festive unstitched suits." },
+      "2pc": { id: "pcat_ladies_2pc", name: "2-Piece Unstitched", handle: "2pc", description: "Unstitched shirt & dupatta / trouser 2-piece suits." },
+      "3pc": { id: "pcat_ladies_3pc", name: "3-Piece Luxury Unstitched", handle: "3pc", description: "Complete 3-piece luxury unstitched designer suits." },
       "co-ords": { id: "pcat_01M3EW9AKC27MD5FVK1FVCNJ93", name: "Co-ords Sets", handle: "co-ords", description: "Modern matching separates in pure cotton and silk." },
       "festive-formals": { id: "pcat_01M3EW9AKEV37FT2AXXHQBD3QJ", name: "Festive Formals", handle: "festive-formals", description: "Zardozi hand-embellished raw silks and wedding wear." },
       "kurta-shalwar": { id: "pcat_01M3EW9AKGNTFR4VVGMS0Y3DXH", name: "Kurta & Shalwar", handle: "kurta-shalwar", description: "Traditional Pakistani kurtas and shalwars." },

@@ -176,54 +176,57 @@ export default function CatalogTemplate({
 
       {/* 2. Instant Quick-Filter Strip (Dynamic Gents & Ladies Unstitched Categories matching Image 1) */}
       {(() => {
-        const isMen = categoryHandle === "men-unstitched" || bannerKey === "men"
-        const isWomen = categoryHandle === "women-unstitched" || bannerKey === "women"
+        const GENTS_SUB_HANDLES = ["italian", "boski", "wash-wear", "wool", "kamalia-khaddar"]
+        const LADIES_SUB_HANDLES = ["dhanak", "khaddar", "linen", "karandi", "silk", "printed", "embroidery-waly", "2pc", "3pc"]
+
+        const isMen = categoryHandle === "men-unstitched" || bannerKey === "men" || GENTS_SUB_HANDLES.includes(categoryHandle || "")
+        const isWomen = categoryHandle === "women-unstitched" || bannerKey === "women" || LADIES_SUB_HANDLES.includes(categoryHandle || "")
         const isUnstitched = categoryHandle === "unstitched" || lowerTitle.includes("unstitched")
 
         let pills: { label: string; href: string }[] = []
 
         if (isMen) {
-          // Gents Unstitched Categories (Image 1)
+          // Gents Unstitched Categories (Image 1) - Direct category links
           pills = [
-            { label: "All Gents", href: baseFilterPath },
-            { label: "Italian", href: `${baseFilterPath}?q=italian` },
-            { label: "Boski", href: `${baseFilterPath}?q=boski` },
-            { label: "Wash & Wear", href: `${baseFilterPath}?q=wash` },
-            { label: "Wool", href: `${baseFilterPath}?q=wool` },
-            { label: "Kamalia Khaddar", href: `${baseFilterPath}?q=kamalia` },
+            { label: "All Gents", href: "/categories/men-unstitched" },
+            { label: "Italian", href: "/categories/italian" },
+            { label: "Boski", href: "/categories/boski" },
+            { label: "Wash & Wear", href: "/categories/wash-wear" },
+            { label: "Wool", href: "/categories/wool" },
+            { label: "Kamalia Khaddar", href: "/categories/kamalia-khaddar" },
           ]
         } else if (isWomen) {
-          // Ladies Unstitched Categories (Image 1)
+          // Ladies Unstitched Categories (Image 1) - Direct category links
           pills = [
-            { label: "All Ladies", href: baseFilterPath },
-            { label: "Dhanak", href: `${baseFilterPath}?q=dhanak` },
-            { label: "Khaddar", href: `${baseFilterPath}?q=khaddar` },
-            { label: "Linen", href: `${baseFilterPath}?q=linen` },
-            { label: "Karandi", href: `${baseFilterPath}?q=karandi` },
-            { label: "Silk", href: `${baseFilterPath}?q=silk` },
-            { label: "Printed", href: `${baseFilterPath}?q=printed` },
-            { label: "Embroidery Waly", href: `${baseFilterPath}?q=embroidery` },
-            { label: "2pc", href: `${baseFilterPath}?q=2pc` },
-            { label: "3pc", href: `${baseFilterPath}?q=3pc` },
+            { label: "All Ladies", href: "/categories/women-unstitched" },
+            { label: "Dhanak", href: "/categories/dhanak" },
+            { label: "Khaddar", href: "/categories/khaddar" },
+            { label: "Linen", href: "/categories/linen" },
+            { label: "Karandi", href: "/categories/karandi" },
+            { label: "Silk", href: "/categories/silk" },
+            { label: "Printed", href: "/categories/printed" },
+            { label: "Embroidery Waly", href: "/categories/embroidery-waly" },
+            { label: "2pc", href: "/categories/2pc" },
+            { label: "3pc", href: "/categories/3pc" },
           ]
         } else if (isUnstitched) {
-          // All Unstitched Page: Full selection of Ladies and Gents
+          // All Unstitched Page: Full selection of Ladies and Gents - Direct category links
           pills = [
             { label: "All Unstitched", href: "/categories/unstitched" },
-            { label: "Ladies: Dhanak", href: "/categories/women-unstitched?q=dhanak" },
-            { label: "Ladies: Khaddar", href: "/categories/women-unstitched?q=khaddar" },
-            { label: "Ladies: Linen", href: "/categories/women-unstitched?q=linen" },
-            { label: "Ladies: Karandi", href: "/categories/women-unstitched?q=karandi" },
-            { label: "Ladies: Silk", href: "/categories/women-unstitched?q=silk" },
-            { label: "Ladies: Printed", href: "/categories/women-unstitched?q=printed" },
-            { label: "Ladies: Embroidery", href: "/categories/women-unstitched?q=embroidery" },
-            { label: "Ladies: 2pc", href: "/categories/women-unstitched?q=2pc" },
-            { label: "Ladies: 3pc", href: "/categories/women-unstitched?q=3pc" },
-            { label: "Gents: Italian", href: "/categories/men-unstitched?q=italian" },
-            { label: "Gents: Boski", href: "/categories/men-unstitched?q=boski" },
-            { label: "Gents: Wash & Wear", href: "/categories/men-unstitched?q=wash" },
-            { label: "Gents: Wool", href: "/categories/men-unstitched?q=wool" },
-            { label: "Gents: Kamalia Khaddar", href: "/categories/men-unstitched?q=kamalia" },
+            { label: "Ladies: Dhanak", href: "/categories/dhanak" },
+            { label: "Ladies: Khaddar", href: "/categories/khaddar" },
+            { label: "Ladies: Linen", href: "/categories/linen" },
+            { label: "Ladies: Karandi", href: "/categories/karandi" },
+            { label: "Ladies: Silk", href: "/categories/silk" },
+            { label: "Ladies: Printed", href: "/categories/printed" },
+            { label: "Ladies: Embroidery", href: "/categories/embroidery-waly" },
+            { label: "Ladies: 2pc", href: "/categories/2pc" },
+            { label: "Ladies: 3pc", href: "/categories/3pc" },
+            { label: "Gents: Italian", href: "/categories/italian" },
+            { label: "Gents: Boski", href: "/categories/boski" },
+            { label: "Gents: Wash & Wear", href: "/categories/wash-wear" },
+            { label: "Gents: Wool", href: "/categories/wool" },
+            { label: "Gents: Kamalia Khaddar", href: "/categories/kamalia-khaddar" },
           ]
         } else {
           // Task 2 & Task 5: On NEW IN / Complete Store page, show Unstitched & Ready to Wear circular category cards (Image 2) instead of the quick filter pills
@@ -281,9 +284,10 @@ export default function CatalogTemplate({
                   <span>✨</span> Quick Filter:
                 </span>
                 {pills.map((pill) => {
-                  const currentQ = String(query.q || "").toLowerCase()
-                  const pillTarget = pill.href.split("q=")[1]?.toLowerCase()
-                  const isSelected = !pillTarget ? !currentQ : currentQ.includes(pillTarget)
+                  const targetCat = pill.href.split("/categories/")[1]?.split("?")[0]?.toLowerCase()
+                  const isSelected = targetCat
+                    ? categoryHandle === targetCat || (targetCat === "unstitched" && categoryHandle === "unstitched")
+                    : false
 
                   return (
                     <LocalizedClientLink
