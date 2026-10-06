@@ -247,8 +247,18 @@ export default function ProductActions({
   }, [selectedVariant, isValidVariant])
 
   // Context-aware option value stock checking:
-  // When Color is selected, checks if Size is in stock for that specific Color
   const isOptionValueInStock = (optionId: string, val: string) => {
+    // If option is synthesized from metadata or product has no defined variant options
+    const isSynthesized = !product.options?.some((o) => o.id === optionId)
+    if (isSynthesized) {
+      if (!product.variants || product.variants.length === 0) return true
+      return product.variants.some((v) => {
+        if (!v.manage_inventory) return true
+        if (v.allow_backorder) return true
+        return (v.inventory_quantity || 0) > 0
+      })
+    }
+
     const otherSelected = Object.entries(options).filter(
       ([key, v]) => key !== optionId && !!v
     )
