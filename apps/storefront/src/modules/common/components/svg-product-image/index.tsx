@@ -28,8 +28,8 @@ export default function SvgProductImage({
   const [hasError, setHasError] = useState(false)
   const [loaded, setLoaded] = useState(false)
 
-  const fallbackSvg = "/images/products/women_stitched_1.svg"
-  const imageSrc = hasError || !src ? fallbackSvg : src
+  const fallbackPhoto = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=85"
+  const imageSrc = hasError || !src ? fallbackPhoto : src
   const isDirectSvg = imageSrc.toLowerCase().split("?")[0].endsWith(".svg")
 
   const handleLoaded = () => {

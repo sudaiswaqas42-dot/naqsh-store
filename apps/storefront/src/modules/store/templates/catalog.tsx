@@ -3,7 +3,6 @@ import Form from "next/form"
 import { getCatalog, CatalogQuery } from "@lib/data/catalog"
 import { listCategories } from "@lib/data/categories"
 import { listCollections } from "@lib/data/collections"
-import { getSalesConfig } from "@lib/data/sales"
 import CatalogGridView from "../components/catalog-grid-view"
 import CategoryShowcaseGrid from "../components/category-showcase-grid"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -175,44 +174,102 @@ export default function CatalogTemplate({
       {/* 2. Visual Stitched & Unstitched Category Showcase Layout */}
       <CategoryShowcaseGrid categoryHandle={categoryHandle || bannerKey} title={title} />
 
-      {/* 2. Instant Quick-Filter Strip */}
-      <div className="bg-white border-b border-stone-200/90 py-3 shadow-2xs">
-        <div className="content-container">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 whitespace-nowrap mr-1 flex items-center gap-1">
-              <span>✨</span> Quick Filter:
-            </span>
-            {[
-              { label: "All Pieces", href: baseFilterPath },
-              { label: "3-Piece Luxury Suits", href: `${baseFilterPath}?q=3-piece` },
-              { label: "2-Piece Sets", href: `${baseFilterPath}?q=2-piece` },
-              { label: "1-Piece Kurtis", href: `${baseFilterPath}?q=kurti` },
-              { label: "Pure Lawn", href: `${baseFilterPath}?q=lawn` },
-              { label: "Chiffon & Silk", href: `${baseFilterPath}?q=silk` },
-              { label: "Organza", href: `${baseFilterPath}?q=organza` },
-              { label: "Festive Jacquard", href: `${baseFilterPath}?q=jacquard` },
-            ].map((pill) => {
-              const currentQ = String(query.q || "").toLowerCase()
-              const pillTarget = pill.href.split("q=")[1]?.toLowerCase()
-              const isSelected = !pillTarget ? !currentQ : currentQ.includes(pillTarget)
+      {/* 2. Instant Quick-Filter Strip (Dynamic Gents & Ladies Unstitched Categories matching Image 1) */}
+      {(() => {
+        const isMen = categoryHandle === "men-unstitched" || bannerKey === "men"
+        const isWomen = categoryHandle === "women-unstitched" || bannerKey === "women"
+        const isUnstitched = categoryHandle === "unstitched" || lowerTitle.includes("unstitched")
 
-              return (
-                <LocalizedClientLink
-                  key={pill.label}
-                  href={pill.href}
-                  className={`px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap rounded-full border transition-all ${
-                    isSelected
-                      ? "bg-brand text-white border-brand shadow-xs"
-                      : "bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-400 hover:bg-white"
-                  }`}
-                >
-                  {pill.label}
-                </LocalizedClientLink>
-              )
-            })}
+        let pills: { label: string; href: string }[] = []
+
+        if (isMen) {
+          // Gents Unstitched Categories (Image 1)
+          pills = [
+            { label: "All Gents", href: baseFilterPath },
+            { label: "Italian", href: `${baseFilterPath}?q=italian` },
+            { label: "Boski", href: `${baseFilterPath}?q=boski` },
+            { label: "Wash & Wear", href: `${baseFilterPath}?q=wash` },
+            { label: "Wool", href: `${baseFilterPath}?q=wool` },
+            { label: "Kamalia Khaddar", href: `${baseFilterPath}?q=kamalia` },
+          ]
+        } else if (isWomen) {
+          // Ladies Unstitched Categories (Image 1)
+          pills = [
+            { label: "All Ladies", href: baseFilterPath },
+            { label: "Dhanak", href: `${baseFilterPath}?q=dhanak` },
+            { label: "Khaddar", href: `${baseFilterPath}?q=khaddar` },
+            { label: "Linen", href: `${baseFilterPath}?q=linen` },
+            { label: "Karandi", href: `${baseFilterPath}?q=karandi` },
+            { label: "Silk", href: `${baseFilterPath}?q=silk` },
+            { label: "Printed", href: `${baseFilterPath}?q=printed` },
+            { label: "Embroidery Waly", href: `${baseFilterPath}?q=embroidery` },
+            { label: "2pc", href: `${baseFilterPath}?q=2pc` },
+            { label: "3pc", href: `${baseFilterPath}?q=3pc` },
+          ]
+        } else if (isUnstitched) {
+          // All Unstitched Page: Full selection of Ladies and Gents
+          pills = [
+            { label: "All Unstitched", href: "/categories/unstitched" },
+            { label: "Ladies: Dhanak", href: "/categories/women-unstitched?q=dhanak" },
+            { label: "Ladies: Khaddar", href: "/categories/women-unstitched?q=khaddar" },
+            { label: "Ladies: Linen", href: "/categories/women-unstitched?q=linen" },
+            { label: "Ladies: Karandi", href: "/categories/women-unstitched?q=karandi" },
+            { label: "Ladies: Silk", href: "/categories/women-unstitched?q=silk" },
+            { label: "Ladies: Printed", href: "/categories/women-unstitched?q=printed" },
+            { label: "Ladies: Embroidery", href: "/categories/women-unstitched?q=embroidery" },
+            { label: "Ladies: 2pc", href: "/categories/women-unstitched?q=2pc" },
+            { label: "Ladies: 3pc", href: "/categories/women-unstitched?q=3pc" },
+            { label: "Gents: Italian", href: "/categories/men-unstitched?q=italian" },
+            { label: "Gents: Boski", href: "/categories/men-unstitched?q=boski" },
+            { label: "Gents: Wash & Wear", href: "/categories/men-unstitched?q=wash" },
+            { label: "Gents: Wool", href: "/categories/men-unstitched?q=wool" },
+            { label: "Gents: Kamalia Khaddar", href: "/categories/men-unstitched?q=kamalia" },
+          ]
+        } else {
+          // Standard Pret / Store Quick Filters
+          pills = [
+            { label: "All Pieces", href: baseFilterPath },
+            { label: "3-Piece Luxury Suits", href: `${baseFilterPath}?q=3-piece` },
+            { label: "2-Piece Sets", href: `${baseFilterPath}?q=2-piece` },
+            { label: "1-Piece Kurtis", href: `${baseFilterPath}?q=kurti` },
+            { label: "Pure Lawn", href: `${baseFilterPath}?q=lawn` },
+            { label: "Chiffon & Silk", href: `${baseFilterPath}?q=silk` },
+            { label: "Organza", href: `${baseFilterPath}?q=organza` },
+            { label: "Festive Jacquard", href: `${baseFilterPath}?q=jacquard` },
+          ]
+        }
+
+        return (
+          <div className="bg-white border-b border-stone-200/90 py-3 shadow-2xs">
+            <div className="content-container">
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 whitespace-nowrap mr-1 flex items-center gap-1">
+                  <span>✨</span> Quick Filter:
+                </span>
+                {pills.map((pill) => {
+                  const currentQ = String(query.q || "").toLowerCase()
+                  const pillTarget = pill.href.split("q=")[1]?.toLowerCase()
+                  const isSelected = !pillTarget ? !currentQ : currentQ.includes(pillTarget)
+
+                  return (
+                    <LocalizedClientLink
+                      key={pill.label}
+                      href={pill.href}
+                      className={`px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap rounded-full border transition-all ${
+                        isSelected
+                          ? "bg-brand text-white border-brand shadow-xs"
+                          : "bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-400 hover:bg-white"
+                      }`}
+                    >
+                      {pill.label}
+                    </LocalizedClientLink>
+                  )
+                })}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        )
+      })()}
 
       {/* 3. Product Catalog Grid: Streamed asynchronously with zero-wait transition */}
       <Suspense fallback={<CatalogGridSkeleton />}>
@@ -241,11 +298,10 @@ async function AsyncCatalogProducts({
   collectionId?: string
   isSalePage?: boolean
 }) {
-  const [result, categories, collections, sales] = await Promise.all([
+  const [result, categories, collections] = await Promise.all([
     getCatalog(countryCode, query, { categoryIds, collectionId, isSalePage }),
     listCategories(),
-    listCollections(),
-    getSalesConfig(),
+    listCollections().catch(() => ({ collections: [], count: 0 })),
   ])
 
   const displayProducts = result.products
@@ -264,7 +320,6 @@ async function AsyncCatalogProducts({
       pages={pages}
       query={query}
       isSalePage={isSalePage}
-      sales={sales}
     />
   )
 }

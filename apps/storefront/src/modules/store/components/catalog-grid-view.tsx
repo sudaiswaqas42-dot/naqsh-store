@@ -236,14 +236,7 @@ export default function CatalogGridView({
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => {
-              // On desktop toggle sidebar; on mobile open drawer
-              if (typeof window !== "undefined" && window.innerWidth >= 1024) {
-                setFilterOpen(!filterOpen)
-              } else {
-                setMobileDrawerOpen(true)
-              }
-            }}
+            onClick={() => setMobileDrawerOpen(true)}
             className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-900 hover:text-accent transition-colors"
           >
             <svg
@@ -507,8 +500,8 @@ export default function CatalogGridView({
       {/* Mobile Filters Slide-over Modal */}
       <Dialog open={mobileDrawerOpen} onClose={setMobileDrawerOpen} className="relative z-[100]">
         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs" aria-hidden="true" />
-        <div className="fixed inset-0 flex justify-end">
-          <DialogPanel className="h-[100dvh] w-[min(90vw,420px)] bg-[#faf8f5] flex flex-col shadow-2xl animate-fadeIn">
+        <div className="fixed inset-0 flex justify-start">
+          <DialogPanel className="h-[100dvh] w-[min(90vw,420px)] bg-[#faf8f5] flex flex-col shadow-2xl border-r border-stone-200 animate-fadeIn">
             <div className="flex justify-between items-center p-6 border-b border-stone-200">
               <DialogTitle className="font-serif text-2xl font-semibold text-stone-900">
                 Filters

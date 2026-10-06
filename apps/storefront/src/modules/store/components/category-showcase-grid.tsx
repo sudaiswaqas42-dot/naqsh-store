@@ -58,11 +58,24 @@ export default function CategoryShowcaseGrid({ categoryHandle = "", title = "" }
     )
   }
 
-  // If inside Women's Unstitched subcategory: Show professional luxury breadcrumb & navigation bar
+  // If inside Women's Unstitched subcategory: Show professional luxury breadcrumb & navigation bar with Ladies Unstitched categories
   if (isWomenUnstitched) {
+    const ladiesSubcategories = [
+      { label: "All Ladies Unstitched", href: "/categories/women-unstitched", q: "" },
+      { label: "Dhanak", href: "/categories/women-unstitched?q=dhanak", q: "dhanak" },
+      { label: "Khaddar", href: "/categories/women-unstitched?q=khaddar", q: "khaddar" },
+      { label: "Linen", href: "/categories/women-unstitched?q=linen", q: "linen" },
+      { label: "Karandi", href: "/categories/women-unstitched?q=karandi", q: "karandi" },
+      { label: "Silk", href: "/categories/women-unstitched?q=silk", q: "silk" },
+      { label: "Printed", href: "/categories/women-unstitched?q=printed", q: "printed" },
+      { label: "Embroidery Waly", href: "/categories/women-unstitched?q=embroidery", q: "embroidery" },
+      { label: "2pc", href: "/categories/women-unstitched?q=2pc", q: "2pc" },
+      { label: "3pc", href: "/categories/women-unstitched?q=3pc", q: "3pc" },
+    ]
+
     return (
       <section className="bg-[#FAF8F5] border-b border-[#EBE1D6] py-4 sm:py-5 shadow-2xs">
-        <div className="content-container">
+        <div className="content-container space-y-3.5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <LocalizedClientLink
@@ -76,13 +89,18 @@ export default function CategoryShowcaseGrid({ categoryHandle = "", title = "" }
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
                 <span className="text-xs font-serif tracking-wide text-stone-900 font-medium">
-                  Viewing: <strong className="font-semibold text-[#0F2D22]">Women&apos;s Unstitched Lawn &amp; Silks</strong>
+                  Viewing: <strong className="font-semibold text-[#0F2D22]">Ladies Unstitched Fabrics</strong>
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-stone-500 uppercase tracking-wider hidden lg:inline">Want ready-to-wear?</span>
+              <LocalizedClientLink
+                href="/categories/men-unstitched"
+                className="px-3 py-1.5 rounded-full bg-white border border-stone-300 hover:border-[#0F2D22] text-stone-800 text-[11px] font-semibold uppercase tracking-wider transition-all"
+              >
+                Men&apos;s Unstitched (1,000)
+              </LocalizedClientLink>
               <LocalizedClientLink
                 href="/categories/women-stitched"
                 className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0F2D22] hover:bg-[#B6975A] text-white hover:text-[#0F2D22] text-xs font-semibold uppercase tracking-wider transition-all shadow-xs"
@@ -91,6 +109,22 @@ export default function CategoryShowcaseGrid({ categoryHandle = "", title = "" }
                 <span>&rarr;</span>
               </LocalizedClientLink>
             </div>
+          </div>
+
+          {/* Ladies Unstitched Subcategories Strip (Image 1) */}
+          <div className="flex items-center gap-2 overflow-x-auto pt-2 pb-1 no-scrollbar border-t border-[#EBE1D6]/70">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 whitespace-nowrap mr-1 flex items-center gap-1">
+              <span>🧵</span> Ladies Fabrics:
+            </span>
+            {ladiesSubcategories.map((item) => (
+              <LocalizedClientLink
+                key={item.label}
+                href={item.href}
+                className="px-3 py-1 text-[11px] font-medium tracking-wide rounded-full bg-white border border-[#EBE1D6] text-stone-800 hover:border-[#0F2D22] hover:text-[#0F2D22] whitespace-nowrap transition-all shadow-2xs"
+              >
+                {item.label}
+              </LocalizedClientLink>
+            ))}
           </div>
         </div>
       </section>
@@ -136,11 +170,20 @@ export default function CategoryShowcaseGrid({ categoryHandle = "", title = "" }
     )
   }
 
-  // If inside Men's Unstitched subcategory: Show professional luxury breadcrumb & navigation bar
+  // If inside Men's Unstitched subcategory: Show professional luxury breadcrumb & navigation bar with Gents categories
   if (isMenUnstitched) {
+    const gentsSubcategories = [
+      { label: "All Gents Unstitched", href: "/categories/men-unstitched" },
+      { label: "Italian", href: "/categories/men-unstitched?q=italian" },
+      { label: "Boski", href: "/categories/men-unstitched?q=boski" },
+      { label: "Wash & Wear", href: "/categories/men-unstitched?q=wash" },
+      { label: "Wool", href: "/categories/men-unstitched?q=wool" },
+      { label: "Kamalia Khaddar", href: "/categories/men-unstitched?q=kamalia" },
+    ]
+
     return (
       <section className="bg-[#FAF8F5] border-b border-[#EBE1D6] py-4 sm:py-5 shadow-2xs">
-        <div className="content-container">
+        <div className="content-container space-y-3.5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <LocalizedClientLink
@@ -160,7 +203,12 @@ export default function CategoryShowcaseGrid({ categoryHandle = "", title = "" }
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-stone-500 uppercase tracking-wider hidden lg:inline">Want tailored eastern wear?</span>
+              <LocalizedClientLink
+                href="/categories/women-unstitched"
+                className="px-3 py-1.5 rounded-full bg-white border border-stone-300 hover:border-[#0F2D22] text-stone-800 text-[11px] font-semibold uppercase tracking-wider transition-all"
+              >
+                Women&apos;s Unstitched (1,250)
+              </LocalizedClientLink>
               <LocalizedClientLink
                 href="/categories/men-stitched"
                 className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0F2D22] hover:bg-[#B6975A] text-white hover:text-[#0F2D22] text-xs font-semibold uppercase tracking-wider transition-all shadow-xs"
@@ -170,6 +218,22 @@ export default function CategoryShowcaseGrid({ categoryHandle = "", title = "" }
               </LocalizedClientLink>
             </div>
           </div>
+
+          {/* Gents Unstitched Subcategories Strip (Image 1) */}
+          <div className="flex items-center gap-2 overflow-x-auto pt-2 pb-1 no-scrollbar border-t border-[#EBE1D6]/70">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 whitespace-nowrap mr-1 flex items-center gap-1">
+              <span>👔</span> Gents Fabrics:
+            </span>
+            {gentsSubcategories.map((item) => (
+              <LocalizedClientLink
+                key={item.label}
+                href={item.href}
+                className="px-3 py-1 text-[11px] font-medium tracking-wide rounded-full bg-white border border-[#EBE1D6] text-stone-800 hover:border-[#0F2D22] hover:text-[#0F2D22] whitespace-nowrap transition-all shadow-2xs"
+              >
+                {item.label}
+              </LocalizedClientLink>
+            ))}
+          </div>
         </div>
       </section>
     )
@@ -177,9 +241,29 @@ export default function CategoryShowcaseGrid({ categoryHandle = "", title = "" }
 
   // If inside Unstitched dedicated page
   if (isGeneralUnstitched) {
+    const gentsCategories = [
+      { label: "Italian", href: "/categories/men-unstitched?q=italian" },
+      { label: "Boski", href: "/categories/men-unstitched?q=boski" },
+      { label: "Wash & Wear", href: "/categories/men-unstitched?q=wash" },
+      { label: "Wool", href: "/categories/men-unstitched?q=wool" },
+      { label: "Kamalia Khaddar", href: "/categories/men-unstitched?q=kamalia" },
+    ]
+
+    const ladiesCategories = [
+      { label: "Dhanak", href: "/categories/women-unstitched?q=dhanak" },
+      { label: "Khaddar", href: "/categories/women-unstitched?q=khaddar" },
+      { label: "Linen", href: "/categories/women-unstitched?q=linen" },
+      { label: "Karandi", href: "/categories/women-unstitched?q=karandi" },
+      { label: "Silk", href: "/categories/women-unstitched?q=silk" },
+      { label: "Printed", href: "/categories/women-unstitched?q=printed" },
+      { label: "Embroidery Waly", href: "/categories/women-unstitched?q=embroidery" },
+      { label: "2pc", href: "/categories/women-unstitched?q=2pc" },
+      { label: "3pc", href: "/categories/women-unstitched?q=3pc" },
+    ]
+
     return (
       <section className="bg-[#FAF8F5] border-b border-[#EBE1D6] py-4 sm:py-5 shadow-2xs">
-        <div className="content-container">
+        <div className="content-container space-y-3.5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <LocalizedClientLink
@@ -201,16 +285,49 @@ export default function CategoryShowcaseGrid({ categoryHandle = "", title = "" }
             <div className="flex items-center gap-2">
               <LocalizedClientLink
                 href="/categories/women-unstitched"
-                className="px-3 py-1.5 rounded-full bg-white border border-stone-300 hover:border-[#0F2D22] text-stone-800 text-[11px] font-semibold uppercase tracking-wider transition-all"
+                className="px-3.5 py-1.5 rounded-full bg-white border border-stone-300 hover:border-[#0F2D22] hover:bg-[#0F2D22] hover:text-white text-stone-800 text-[11px] font-semibold uppercase tracking-wider transition-all shadow-2xs"
               >
                 Women&apos;s Unstitched (1,250)
               </LocalizedClientLink>
               <LocalizedClientLink
                 href="/categories/men-unstitched"
-                className="px-3 py-1.5 rounded-full bg-white border border-stone-300 hover:border-[#0F2D22] text-stone-800 text-[11px] font-semibold uppercase tracking-wider transition-all"
+                className="px-3.5 py-1.5 rounded-full bg-white border border-stone-300 hover:border-[#0F2D22] hover:bg-[#0F2D22] hover:text-white text-stone-800 text-[11px] font-semibold uppercase tracking-wider transition-all shadow-2xs"
               >
                 Men&apos;s Unstitched (1,000)
               </LocalizedClientLink>
+            </div>
+          </div>
+
+          {/* Both Ladies and Gents Unstitched Categories Navigation */}
+          <div className="pt-2 border-t border-[#EBE1D6]/70 space-y-2">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-800 whitespace-nowrap mr-1 flex items-center gap-1">
+                <span>🌸</span> Ladies:
+              </span>
+              {ladiesCategories.map((item) => (
+                <LocalizedClientLink
+                  key={item.label}
+                  href={item.href}
+                  className="px-3 py-1 text-[11px] font-medium tracking-wide rounded-full bg-white border border-[#EBE1D6] text-stone-800 hover:border-[#0F2D22] hover:text-[#0F2D22] whitespace-nowrap transition-all shadow-2xs"
+                >
+                  {item.label}
+                </LocalizedClientLink>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 whitespace-nowrap mr-1 flex items-center gap-1">
+                <span>👔</span> Gents:
+              </span>
+              {gentsCategories.map((item) => (
+                <LocalizedClientLink
+                  key={item.label}
+                  href={item.href}
+                  className="px-3 py-1 text-[11px] font-medium tracking-wide rounded-full bg-white border border-[#EBE1D6] text-stone-800 hover:border-[#0F2D22] hover:text-[#0F2D22] whitespace-nowrap transition-all shadow-2xs"
+                >
+                  {item.label}
+                </LocalizedClientLink>
+              ))}
             </div>
           </div>
         </div>
