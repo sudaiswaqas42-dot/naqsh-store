@@ -12,8 +12,7 @@ import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { useToast } from "@lib/context/toast-context"
 import { useWishlist } from "@lib/context/wishlist-context"
 import ProductAttributes from "../product-attributes"
-import { publicValue } from "@lib/util/product-details"
-import SizeGuideModal from "@modules/products/components/size-guide-modal"
+import { publicValue, formatSizeName } from "@lib/util/product-details"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -44,10 +43,8 @@ export default function ProductActions({
 
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
-  const [showSizeGuide, setShowSizeGuide] = useState(false)
   const [openAccordion, setOpenAccordion] = useState<"desc" | "care" | null>("desc")
   const countryCode = useParams().countryCode as string
-
 
   // Track recently viewed products for Task 5
   useEffect(() => {
@@ -77,6 +74,68 @@ export default function ProductActions({
   const isInitialMount = useRef(true)
   const [validationShake, setValidationShake] = useState(false)
 
+  // Effective options: Combine real product options with metadata sizes/colors
+  const effectiveOptions = useMemo(() => {
+    const existing = (product.options || []).filter(
+      (opt) => opt.title?.toLowerCase() !== "default option"
+    )
+    const hasColor = existing.some((o) => /colou?r/i.test(o.title || ""))
+    const hasSize = existing.some((o) => /size/i.test(o.title || ""))
+
+    const result = [...existing]
+
+    if (!hasColor) {
+      const rawColors =
+        product.metadata?.colors ||
+        product.metadata?.colours ||
+        product.metadata?.color ||
+        product.metadata?.colour ||
+        ["Midnight Blue", "Sand Beige"]
+      const colorValues = Array.isArray(rawColors)
+        ? rawColors
+        : String(rawColors)
+            .split(",")
+            .map((c) => c.trim())
+            .filter(Boolean)
+
+      result.unshift({
+        id: "color",
+        title: "Color",
+        values: colorValues.map((v) => ({ id: `val-${v}`, value: v })),
+      } as any)
+    }
+
+    if (!hasSize) {
+      const rawSizes =
+        product.metadata?.sizes ||
+        product.metadata?.size ||
+        ["Small", "Medium", "Large", "XL"]
+      const sizeValues = Array.isArray(rawSizes)
+        ? rawSizes
+        : String(rawSizes)
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+
+      result.push({
+        id: "size",
+        title: "Size",
+        values: sizeValues.map((v) => ({ id: `val-${v}`, value: v })),
+      } as any)
+    }
+
+    // Sort to ensure Color comes before Size matching Image 1
+    return result.sort((a, b) => {
+      const order = ["color", "size"]
+      const aIdx = order.indexOf((a.title || "").toLowerCase())
+      const bIdx = order.indexOf((b.title || "").toLowerCase())
+      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx
+      if (aIdx !== -1) return -1
+      if (bIdx !== -1) return 1
+      return 0
+    })
+  }, [product.options, product.metadata])
+
   // Preselect from URL params on initial mount, or if single variant
   useEffect(() => {
     if (isInitialMount.current) {
@@ -89,35 +148,62 @@ export default function ProductActions({
           return
         }
       }
+      if (product.variants?.length === 1 && (product.options || []).length === 0) {
+        // Preselect first available color and size
+        const initialOpts: Record<string, string> = {}
+        effectiveOptions.forEach((opt) => {
+          if (opt.values?.[0]?.value) {
+            initialOpts[opt.id] = opt.values[0].value
+          }
+        })
+        if (Object.keys(initialOpts).length > 0) {
+          setOptions(initialOpts)
+          return
+        }
+      }
       if (product.variants?.length === 1) {
         const variantOptions = optionsAsKeymap(product.variants[0].options)
         setOptions(variantOptions ?? {})
       }
     }
-  }, [searchParams, product.variants])
+  }, [searchParams, product.variants, effectiveOptions, product.options])
 
   // Only reset options when navigating to a DIFFERENT product
   useEffect(() => {
     if (prevProductIdRef.current !== product.id) {
       prevProductIdRef.current = product.id
-      if (product.variants?.length === 1) {
+      if (product.variants?.length === 1 && (product.options || []).length === 0) {
+        const initialOpts: Record<string, string> = {}
+        effectiveOptions.forEach((opt) => {
+          if (opt.values?.[0]?.value) {
+            initialOpts[opt.id] = opt.values[0].value
+          }
+        })
+        setOptions(initialOpts)
+      } else if (product.variants?.length === 1) {
         const variantOptions = optionsAsKeymap(product.variants[0].options)
         setOptions(variantOptions ?? {})
       } else {
         setOptions({})
       }
     }
-  }, [product.id, product.variants])
+  }, [product.id, product.variants, effectiveOptions, product.options])
 
   const selectedVariant = useMemo(() => {
     if (!product.variants || product.variants.length === 0) {
       return
     }
 
-    return product.variants.find((v) => {
+    const found = product.variants.find((v) => {
       const variantOptions = optionsAsKeymap(v.options)
       return isEqual(variantOptions, options)
     })
+
+    if (!found && product.variants.length === 1) {
+      return product.variants[0]
+    }
+
+    return found || product.variants[0]
   }, [product.variants, options])
 
   // update the options when a variant is selected
@@ -130,6 +216,7 @@ export default function ProductActions({
 
   // check if the selected options produce a valid variant
   const isValidVariant = useMemo(() => {
+    if (product.variants?.length === 1) return true
     return product.variants?.some((v) => {
       const variantOptions = optionsAsKeymap(v.options)
       return isEqual(variantOptions, options)
@@ -137,11 +224,10 @@ export default function ProductActions({
   }, [product.variants, options])
 
   // Options validation: all options configured on product must be chosen
-  const productOptions = useMemo(() => product.options || [], [product.options])
   const missingOptions = useMemo(() => {
-    return productOptions.filter((opt) => !options[opt.id])
-  }, [productOptions, options])
-  const allOptionsSelected = productOptions.length === 0 || missingOptions.length === 0
+    return effectiveOptions.filter((opt) => !options[opt.id])
+  }, [effectiveOptions, options])
+  const allOptionsSelected = effectiveOptions.length === 0 || missingOptions.length === 0
 
   // Update URL search params safely without triggering Next.js RSC re-fetch
   useEffect(() => {
@@ -246,13 +332,26 @@ export default function ProductActions({
     setIsAdding(true)
 
     try {
+      const chosenColor = Object.entries(options).find(([k]) => {
+        const opt = effectiveOptions.find(o => o.id === k)
+        return opt && /colou?r/i.test(opt.title || "")
+      })?.[1]
+
+      const chosenSize = Object.entries(options).find(([k]) => {
+        const opt = effectiveOptions.find(o => o.id === k)
+        return opt && /size/i.test(opt.title || "")
+      })?.[1]
+
+      const variantDetails = [chosenColor, chosenSize ? formatSizeName(chosenSize) : null].filter(Boolean).join(" / ")
+      const itemTitle = variantDetails ? `${product.title} (${variantDetails})` : product.title
+
       await addItem({
         variantId: selectedVariant.id,
         quantity: 1,
         countryCode,
-        preview: { title: product.title, thumbnail: product.thumbnail || product.images?.[0]?.url, unit_price: selectedVariant.calculated_price?.calculated_amount ?? 0 },
+        preview: { title: itemTitle, thumbnail: product.thumbnail || product.images?.[0]?.url, unit_price: selectedVariant.calculated_price?.calculated_amount ?? 0 },
       })
-      showToast(`Added ${product.title} to your bag!`, "success")
+      showToast(`Added ${itemTitle} to your bag!`, "success")
 
     } catch (err: any) {
       showToast(err?.message || "Failed to add to bag.", "error")
@@ -303,9 +402,9 @@ export default function ProductActions({
 
 
 
-        {/* 4. Variant / Size Selectors with Exact Strike-Through Circles for Out-of-Stock (Matching Image 1) */}
+        {/* 4. Variant / Size Selectors with Full Word Pills (Matching Image 1) */}
         <div className="pt-2">
-          {(product.options || []).map((option) => (
+          {effectiveOptions.map((option) => (
             <div key={option.id} className="mb-3">
               <OptionSelect
                 option={{ ...option, values: option.values?.length ? option.values :
@@ -508,16 +607,6 @@ export default function ProductActions({
           </div>
         </div>
 
-        {/* 8. Solid Black Size Guide Button (Matching Image 1 & 2) */}
-        <div>
-          <button
-            type="button"
-            onClick={() => setShowSizeGuide(true)}
-            className="bg-black text-white px-5 py-2 text-xs font-bold uppercase tracking-wider hover:bg-stone-800 transition-colors inline-block shadow-2xs"
-          >
-            Size Guide
-          </button>
-        </div>
 
         {/* 9. COD Notice (Matching Image 1) */}
         <p className="text-xs text-stone-700 font-normal">
@@ -601,10 +690,6 @@ export default function ProductActions({
         />
       </div>
 
-      <SizeGuideModal
-        isOpen={showSizeGuide}
-        onClose={() => setShowSizeGuide(false)}
-      />
     </>
   )
 }

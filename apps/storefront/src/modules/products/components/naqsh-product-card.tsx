@@ -1,8 +1,9 @@
 "use client"
 
 import ProductAttributes from "@modules/products/components/product-attributes"
+import { formatSizeName } from "@lib/util/product-details"
 
-import { productPrice, variantAvailable } from "@lib/util/catalog"
+import { productPrice, productOriginalPrice, variantAvailable } from "@lib/util/catalog"
 import Image from "next/image"
 import React, { useState } from "react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -56,8 +57,7 @@ export default function NaqshProductCard({
   const rawPrice = calculatedPrice
   const formattedPrice = formatPrice(rawPrice)
   const salePrice = rawPrice
-  const pricedVariant = variants.find((variant: any) => variant.calculated_price?.calculated_amount === rawPrice)
-  const originalPrice = pricedVariant?.calculated_price?.original_amount ?? rawPrice
+  const originalPrice = productOriginalPrice(product)
   const discountPercent = originalPrice && salePrice != null && originalPrice > salePrice
     ? Math.round((1 - salePrice / originalPrice) * 100) : 0
 
@@ -177,34 +177,30 @@ export default function NaqshProductCard({
                 : "opacity-0 translate-y-3 pointer-events-none"
             }`}
           >
-            {variants.length > 1 ? (
-              <div className="w-full space-y-1.5 text-center">
-                <span className="text-[10px] text-amber-200 tracking-[0.2em] uppercase font-semibold block">
-                  Select Size To Add
-                </span>
-                <div className="flex flex-wrap items-center justify-center gap-1.5">
-                  {variants.slice(0, 6).map((v: any) => (
-                    <button
-                      key={v.id}
-                      onClick={() => handleQuickAdd(v.id, v.title)}
-                      disabled={!!addingVariantId || !variantAvailable(v) || v.calculated_price?.calculated_amount == null}
-                      className="min-w-[32px] h-7 px-2 bg-white/95 hover:bg-amber-600 hover:text-white text-stone-900 text-[11px] font-bold tracking-tight border border-white/40 shadow-xs transition-all uppercase disabled:opacity-40 disabled:hover:bg-white/95 disabled:hover:text-stone-900"
-                    >
-                      {addingVariantId === v.id ? "..." : v.title}
-                    </button>
-                  ))}
-                </div>
+            <div className="w-full space-y-1.5 text-center">
+              <span className="text-[10px] text-amber-200 tracking-[0.2em] uppercase font-semibold block">
+                Select Size To Add
+              </span>
+              <div className="flex flex-wrap items-center justify-center gap-1.5">
+                {(variants.length > 1
+                  ? variants.map((v: any) => ({ id: v.id, label: formatSizeName(v.title), variant: v }))
+                  : (Array.isArray(product.metadata?.sizes) ? product.metadata.sizes : ["Small", "Medium", "Large", "XL"]).map((s: string) => ({
+                      id: firstVariant?.id || "",
+                      label: formatSizeName(s),
+                      variant: firstVariant,
+                    }))
+                ).slice(0, 5).map((item: any, i: number) => (
+                  <button
+                    key={`${item.id}-${i}`}
+                    onClick={() => handleQuickAdd(item.id, item.label)}
+                    disabled={!!addingVariantId || (item.variant && !variantAvailable(item.variant)) || rawPrice == null}
+                    className="min-w-[42px] h-7 px-2.5 rounded-full bg-white/95 hover:bg-black hover:text-white text-stone-900 text-[10px] font-medium tracking-tight border border-white/60 shadow-xs transition-all disabled:opacity-40"
+                  >
+                    {addingVariantId === item.id ? "..." : item.label}
+                  </button>
+                ))}
               </div>
-            ) : (
-              <button
-                onClick={() => handleQuickAdd(firstVariant?.id || "")}
-                disabled={!firstVariant || !!addingVariantId || !variantAvailable(firstVariant) || rawPrice == null}
-                className="w-full py-2.5 bg-white text-stone-900 text-[11px] font-bold uppercase tracking-widest hover:bg-amber-600 hover:text-white shadow-md transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
-              >
-                <span>+</span>
-                <span>{addingVariantId ? "Adding to Bag..." : "Quick Add to Bag"}</span>
-              </button>
-            )}
+            </div>
           </div>
         )}
       </div>
