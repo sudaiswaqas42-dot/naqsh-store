@@ -219,7 +219,7 @@ export default function CatalogTemplate({
                   >
                     <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-2 border-stone-200 group-hover:border-[#0F2D22] shadow-md transition-all duration-300 group-hover:scale-105">
                       <img
-                        src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400&q=85"
+                        src="https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?auto=format&fit=crop&w=400&q=85"
                         alt="Boys Eastern Collection"
                         className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
                       />
