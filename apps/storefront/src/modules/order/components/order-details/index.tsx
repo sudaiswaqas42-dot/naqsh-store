@@ -23,7 +23,7 @@ const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
           </span>
           <div className="flex items-center gap-2">
             <span className="text-xl sm:text-2xl font-serif font-semibold text-brand tracking-wider">
-              #{order.display_id}
+              #{(order.custom_display_id || order.display_id)}
             </span>
             <span className="text-[11px] px-2 py-0.5 bg-emerald-100 text-emerald-800 font-medium">
               Confirmed
@@ -35,7 +35,7 @@ const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
         </div>
 
         <LocalizedClientLink
-          href={`/order/track?order_number=${order.display_id}&email=${encodeURIComponent(order.email || "")}`}
+          href={`/order/track?order_number=${(order.custom_display_id || order.display_id)}&email=${encodeURIComponent(order.email || "")}`}
           className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand text-white text-xs font-semibold uppercase tracking-widest hover:bg-black transition-colors whitespace-nowrap shadow-xs"
         >
           <span>Track This Order</span>
@@ -88,7 +88,7 @@ const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
           <span>If you want to cancel your order,</span>
           <a
             href={`https://wa.me/923197365388?text=${encodeURIComponent(
-              `Assalam-o-Alaikum NAQSH Team,\n\nI would like to request CANCELLATION for my Order #${order.display_id}.\n\nOrder Details:\n• Order Reference: #${order.display_id}\n• Customer Email: ${order.email || ""}\n• Total Amount: Rs. ${Number(order.total || 0).toLocaleString()}\n• Date Placed: ${new Date(order.created_at).toDateString()}\n\nPlease confirm cancellation and assist with my order.`
+              `Assalam-o-Alaikum NAQSH Team,\n\nI would like to request CANCELLATION for my Order #${(order.custom_display_id || order.display_id)}.\n\nOrder Details:\n• Order Reference: #${(order.custom_display_id || order.display_id)}\n• Customer Email: ${order.email || ""}\n• Total Amount: Rs. ${Number(order.total || 0).toLocaleString()}\n• Date Placed: ${new Date(order.created_at).toDateString()}\n\nPlease confirm cancellation and assist with my order.`
             )}`}
             target="_blank"
             rel="noopener noreferrer"

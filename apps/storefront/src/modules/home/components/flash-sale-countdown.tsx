@@ -29,7 +29,7 @@ function computeTimeLeft(targetTime: number) {
 
 export default function FlashSaleCountdown({
   badge = "Limited Time Festive Gala",
-  headline = "Flat 20% Off Ready-to-Wear & Luxury Pret",
+  headline = "Flat 20% Off Luxury Unstitched Fabrics",
   subtitle = "Hand-spun pashmina wraps, pure chiffon dupattas, and intricate zari embroideries. Applicable at checkout.",
   code = "LUXE20",
   ctaText = "Shop The Gala",

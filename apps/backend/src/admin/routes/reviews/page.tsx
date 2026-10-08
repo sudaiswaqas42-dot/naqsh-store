@@ -197,7 +197,7 @@ const ReviewsAdminPage = () => {
           <Heading level="h1" style={{ fontSize: "28px", fontWeight: "600" }}>
             Customer Reviews Management
           </Heading>
-          <Text style={{ color: "#6b7280", marginTop: "4px" }}>
+          <Text style={{ color: "var(--fg-subtle)", marginTop: "4px" }}>
             Full control over live customer testimonials, star ratings, categories, and storefront visibility
           </Text>
         </div>
@@ -212,7 +212,7 @@ const ReviewsAdminPage = () => {
       {/* Stats Summary Cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
         <Container style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "4px" }}>
-          <Text size="xsmall" style={{ color: "#6b7280", fontWeight: "600", textTransform: "uppercase" }}>
+          <Text size="xsmall" style={{ color: "var(--fg-subtle)", fontWeight: "600", textTransform: "uppercase" }}>
             Total Reviews
           </Text>
           <Heading level="h2" style={{ fontSize: "24px", fontWeight: "700" }}>
@@ -221,7 +221,7 @@ const ReviewsAdminPage = () => {
         </Container>
 
         <Container style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "4px" }}>
-          <Text size="xsmall" style={{ color: "#6b7280", fontWeight: "600", textTransform: "uppercase" }}>
+          <Text size="xsmall" style={{ color: "var(--fg-subtle)", fontWeight: "600", textTransform: "uppercase" }}>
             Active on Storefront
           </Text>
           <Heading level="h2" style={{ fontSize: "24px", fontWeight: "700", color: "#16a34a" }}>
@@ -230,7 +230,7 @@ const ReviewsAdminPage = () => {
         </Container>
 
         <Container style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "4px" }}>
-          <Text size="xsmall" style={{ color: "#6b7280", fontWeight: "600", textTransform: "uppercase" }}>
+          <Text size="xsmall" style={{ color: "var(--fg-subtle)", fontWeight: "600", textTransform: "uppercase" }}>
             Store Satisfaction Rating
           </Text>
           <Heading level="h2" style={{ fontSize: "24px", fontWeight: "700", color: "#d97706" }}>
@@ -257,7 +257,7 @@ const ReviewsAdminPage = () => {
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "16px" }}>
           <div>
-            <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "#374151" }}>
+            <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "var(--fg-base)" }}>
               Main Title
             </Text>
             <Input
@@ -267,7 +267,7 @@ const ReviewsAdminPage = () => {
             />
           </div>
           <div>
-            <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "#374151" }}>
+            <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "var(--fg-base)" }}>
               Subtitle / Caption
             </Text>
             <Input
@@ -287,9 +287,9 @@ const ReviewsAdminPage = () => {
 
       {/* Add New Review Modal / Form */}
       {showAddModal && (
-        <Container style={{ padding: "24px", border: "2px solid #3b82f6", display: "flex", flexDirection: "column", gap: "16px", background: "#f8fafc" }}>
+        <Container style={{ padding: "24px", border: "2px solid #3b82f6", display: "flex", flexDirection: "column", gap: "16px", background: "var(--bg-base)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Heading level="h2" style={{ fontSize: "18px", fontWeight: "600", color: "#1e3a8a" }}>
+            <Heading level="h2" style={{ fontSize: "18px", fontWeight: "600", color: "var(--fg-base)" }}>
               Add Verified Customer Testimonial
             </Heading>
             <Button variant="secondary" size="small" onClick={() => setShowAddModal(false)}>
@@ -323,7 +323,7 @@ const ReviewsAdminPage = () => {
                 <select
                   value={newForm.category}
                   onChange={(e) => setNewForm({ ...newForm, category: e.target.value as any })}
-                  style={{ width: "100%", height: "32px", padding: "0 8px", border: "1px solid #d1d5db", borderRadius: "4px", fontSize: "12px", background: "#fff" }}
+                  style={{ width: "100%", height: "32px", padding: "0 8px", border: "1px solid var(--border-base)", borderRadius: "4px", fontSize: "12px", background: "var(--bg-base)" }}
                 >
                   <option value="lawn">Festive Lawn</option>
                   <option value="pret">Stitched Pret</option>
@@ -337,7 +337,7 @@ const ReviewsAdminPage = () => {
                 <select
                   value={newForm.rating}
                   onChange={(e) => setNewForm({ ...newForm, rating: Number(e.target.value) })}
-                  style={{ width: "100%", height: "32px", padding: "0 8px", border: "1px solid #d1d5db", borderRadius: "4px", fontSize: "12px", background: "#fff" }}
+                  style={{ width: "100%", height: "32px", padding: "0 8px", border: "1px solid var(--border-base)", borderRadius: "4px", fontSize: "12px", background: "var(--bg-base)" }}
                 >
                   <option value={5}>★★★★★ (5 Stars)</option>
                   <option value={4}>★★★★☆ (4 Stars)</option>
@@ -354,7 +354,7 @@ const ReviewsAdminPage = () => {
                 value={newForm.quote}
                 onChange={(e) => setNewForm({ ...newForm, quote: e.target.value })}
                 placeholder="Paste customer review here..."
-                style={{ width: "100%", padding: "8px", border: "1px solid #d1d5db", borderRadius: "4px", fontSize: "13px", fontFamily: "inherit" }}
+                style={{ width: "100%", padding: "8px", border: "1px solid var(--border-base)", borderRadius: "4px", fontSize: "13px", fontFamily: "inherit" }}
               />
             </div>
 
@@ -378,11 +378,11 @@ const ReviewsAdminPage = () => {
 
         {loading ? (
           <Container style={{ padding: "32px", textAlign: "center" }}>
-            <Text style={{ color: "#6b7280" }}>Loading customer reviews...</Text>
+            <Text style={{ color: "var(--fg-subtle)" }}>Loading customer reviews...</Text>
           </Container>
         ) : reviews.length === 0 ? (
           <Container style={{ padding: "32px", textAlign: "center" }}>
-            <Text style={{ color: "#6b7280" }}>No reviews found. Click "Add Verified Review" to create one.</Text>
+            <Text style={{ color: "var(--fg-subtle)" }}>No reviews found. Click "Add Verified Review" to create one.</Text>
           </Container>
         ) : (
           reviews.map((r) => {
@@ -398,7 +398,7 @@ const ReviewsAdminPage = () => {
                   flexDirection: "column",
                   gap: "12px",
                   borderLeft: isLive ? "4px solid #16a34a" : "4px solid #9ca3af",
-                  background: isLive ? "#fff" : "#f9fafb",
+                  background: isLive ? "var(--bg-base)" : "var(--bg-subtle)",
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px" }}>
@@ -425,7 +425,7 @@ const ReviewsAdminPage = () => {
 
                     <div>
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <Text style={{ fontWeight: "700", fontSize: "14px", color: "#111827" }}>
+                        <Text style={{ fontWeight: "700", fontSize: "14px", color: "var(--fg-base)" }}>
                           {r.name}
                         </Text>
                         <span style={{ fontSize: "12px", color: "#d97706" }}>
@@ -436,7 +436,7 @@ const ReviewsAdminPage = () => {
                         </Badge>
                       </div>
 
-                      <Text size="xsmall" style={{ color: "#6b7280", marginTop: "2px" }}>
+                      <Text size="xsmall" style={{ color: "var(--fg-subtle)", marginTop: "2px" }}>
                         {r.city} • {r.date}
                       </Text>
                     </div>
@@ -475,13 +475,13 @@ const ReviewsAdminPage = () => {
 
                 {/* Review Text */}
                 {!isEditing ? (
-                  <div style={{ background: "#f8fafc", padding: "10px 14px", borderRadius: "4px", border: "1px solid #f1f5f9" }}>
-                    <Text style={{ fontSize: "13px", color: "#334155", fontStyle: "italic", lineHeight: "1.5" }}>
+                  <div style={{ background: "var(--bg-base)", padding: "10px 14px", borderRadius: "4px", border: "1px solid #f1f5f9" }}>
+                    <Text style={{ fontSize: "13px", color: "var(--fg-base)", fontStyle: "italic", lineHeight: "1.5" }}>
                       "{r.quote}"
                     </Text>
                   </div>
                 ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "8px", borderTop: "1px solid #e5e7eb", paddingTop: "12px" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "8px", borderTop: "1px solid var(--border-base)", paddingTop: "12px" }}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
                       <div>
                         <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px" }}>Customer Name</Text>
@@ -502,7 +502,7 @@ const ReviewsAdminPage = () => {
                         <select
                           value={editForm.category}
                           onChange={(e) => setEditForm({ ...editForm, category: e.target.value as any })}
-                          style={{ width: "100%", height: "32px", padding: "0 8px", border: "1px solid #d1d5db", borderRadius: "4px", fontSize: "12px", background: "#fff" }}
+                          style={{ width: "100%", height: "32px", padding: "0 8px", border: "1px solid var(--border-base)", borderRadius: "4px", fontSize: "12px", background: "var(--bg-base)" }}
                         >
                           <option value="lawn">Festive Lawn</option>
                           <option value="pret">Stitched Pret</option>
@@ -518,7 +518,7 @@ const ReviewsAdminPage = () => {
                         rows={2}
                         value={editForm.quote}
                         onChange={(e) => setEditForm({ ...editForm, quote: e.target.value })}
-                        style={{ width: "100%", padding: "8px", border: "1px solid #d1d5db", borderRadius: "4px", fontSize: "13px", fontFamily: "inherit" }}
+                        style={{ width: "100%", padding: "8px", border: "1px solid var(--border-base)", borderRadius: "4px", fontSize: "13px", fontFamily: "inherit" }}
                       />
                     </div>
 

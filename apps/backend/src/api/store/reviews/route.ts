@@ -8,7 +8,7 @@ export interface ReviewItem {
   initials: string
   quote: string
   rating: number
-  category: "all" | "lawn" | "pret" | "formals"
+  category: "all" | "lawn" | "3pc" | "2pc" | "pret" | "boski" | "formals" | "khaddar" | "gents"
   verified: boolean
   is_approved: boolean
   date: string
@@ -27,7 +27,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       const approvedOnly = allReviews.filter((r) => r.is_approved === true)
       return res.json({
         title: sec.title || "Loved by Thousands",
-        subtitle: sec.subtitle || "Real feedback from verified shoppers across Pakistan who trust NAQSH for celebratory moments.",
+        subtitle: sec.subtitle || "Real feedback from verified shoppers across Pakistan who trust NAQSH for unstitched fabric cuts.",
         is_active: sec.is_active,
         reviews: approvedOnly,
       })
@@ -37,7 +37,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   } catch (error: any) {
     return res.json({
       title: "Loved by Thousands",
-      subtitle: "Real feedback from verified shoppers across Pakistan who trust NAQSH for celebratory moments.",
+      subtitle: "Real feedback from verified shoppers across Pakistan who trust NAQSH for unstitched fabric cuts.",
       is_active: true,
       reviews: defaultReviews,
     })
@@ -53,7 +53,8 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     const quote = String(body.quote || "").trim()
     const city = String(body.city || "Pakistan").trim()
     const rating = Math.round(Math.min(5, Math.max(1, Number(body.rating) || 5)))
-    const category = ["all", "lawn", "pret", "formals"].includes(body.category) ? body.category : "all"
+    const allowedCats = ["all", "lawn", "3pc", "2pc", "pret", "boski", "formals", "khaddar", "gents"]
+    const category = allowedCats.includes(body.category) ? body.category : "all"
 
     if (!name || !quote) {
       return res.status(400).json({ error: "Name and review message are required." })

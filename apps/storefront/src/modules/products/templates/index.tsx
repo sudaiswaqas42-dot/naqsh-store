@@ -1,3 +1,4 @@
+import MobileProductToolbar from "@modules/products/components/mobile-product-toolbar"
 import React, { Suspense } from "react"
 import ImageGallery from "@modules/products/components/image-gallery"
 import ProductActions from "@modules/products/components/product-actions"
@@ -38,11 +39,11 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   return (
     <>
       <div
-        className="content-container mx-auto px-4 sm:px-6 lg:px-8 py-6 relative"
+        className="content-container mx-auto !px-0 lg:!px-8 pt-0 lg:py-6 relative"
         data-testid="product-container"
       >
         {/* Breadcrumb Navigation matching Image 1: Home / Collection / Product */}
-        <nav className="flex items-center text-xs text-stone-500 mb-6 gap-2 font-sans">
+        <nav className="hidden lg:flex items-center text-xs text-stone-500 mb-6 gap-2 font-sans">
           <LocalizedClientLink href="/" className="hover:text-stone-900 transition-colors">
             Home
           </LocalizedClientLink>
@@ -62,14 +63,15 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
         </nav>
 
         {/* 2-Column Luxury Layout Matching Image 1 & Image 2 */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start relative">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-14 items-start relative">
           {/* Left Column: Image Gallery with Vertical Thumbnails, Zoom Lens & Side Preview (58% width) */}
           <div className="lg:col-span-7 w-full relative">
+            <MobileProductToolbar product={product} />
             <ImageGallery images={galleryImages} isSoldOut={isOutOfStock} />
           </div>
 
           {/* Right Column: Title, Price, Live Viewers, Options, Buttons & Details (42% width) */}
-          <div className="lg:col-span-5 w-full lg:sticky lg:top-28">
+          <div className="lg:col-span-5 w-full relative z-10 -mt-6 rounded-t-3xl bg-white px-5 py-6 lg:mt-0 lg:rounded-none lg:bg-transparent lg:p-0 lg:sticky lg:top-28">
             <Suspense
               fallback={
                 <ProductActions

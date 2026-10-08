@@ -48,8 +48,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
   if (!product) {
     return {
-      title: "NAQSH — Haute Couture & Pret",
-      description: "Artisanal luxury Pakistani couture",
+      title: "NAQSH — Luxury Unstitched Fabric & Haute Couture",
+      description: "Artisanal luxury Pakistani unstitched fabrics",
     }
   }
 

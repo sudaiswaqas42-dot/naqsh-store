@@ -10,17 +10,86 @@ interface Review {
   city: string
   initials: string
   rating: number
-  category: "all" | "lawn" | "pret" | "formals"
+  category: "all" | "lawn" | "3pc" | "2pc" | "pret" | "boski" | "formals" | "khaddar" | "gents"
   verified: boolean
   date: string
 }
 
+const DEFAULT_UNSTITCHED_REVIEWS: Review[] = [
+  {
+    id: "rev_lawn_1",
+    name: "Ayesha Malik",
+    city: "Lahore",
+    initials: "AM",
+    quote: "The 3-piece embroidered lawn suit exceeded my expectations. Pure breathable pima lawn fabric and the chiffon dupatta drape is so graceful!",
+    rating: 5,
+    category: "3pc",
+    verified: true,
+    date: "2 days ago",
+  },
+  {
+    id: "rev_boski_1",
+    name: "Chaudhry Salman",
+    city: "Faisalabad",
+    initials: "CS",
+    quote: "Purchased the 8-pound pure silk Boski cut for Eid. Exceptional heirloom sheen, original pure silk feel, and exact 4.5-meter length.",
+    rating: 5,
+    category: "boski",
+    verified: true,
+    date: "1 week ago",
+  },
+  {
+    id: "rev_2pc_1",
+    name: "Fatima Noor",
+    city: "Karachi",
+    initials: "FN",
+    quote: "The 2-piece printed unstitched cut has vibrant colors that stayed sharp after multiple washes. Perfect summer fabric for daily luxury.",
+    rating: 5,
+    category: "2pc",
+    verified: true,
+    date: "3 days ago",
+  },
+  {
+    id: "rev_formals_1",
+    name: "Zainab Tariq",
+    city: "Islamabad",
+    initials: "ZT",
+    quote: "Heavy embroidered organza cut with hand-embellished zari work. Tailored it for my sister's wedding and everyone asked where the fabric was from!",
+    rating: 5,
+    category: "formals",
+    verified: true,
+    date: "2 weeks ago",
+  },
+  {
+    id: "rev_khaddar_1",
+    name: "Hina Qureshi",
+    city: "Rawalpindi",
+    initials: "HQ",
+    quote: "Traditional Kamalia Khaddar unstitched cut is so warm and soft. Genuine textured yarn weave that speaks timeless Pakistani heritage.",
+    rating: 5,
+    category: "khaddar",
+    verified: true,
+    date: "5 days ago",
+  },
+  {
+    id: "rev_gents_1",
+    name: "Usman Raza",
+    city: "Multan",
+    initials: "UR",
+    quote: "The Egyptian cotton wash & wear unstitched fabric is completely wrinkle-resistant. Tailored into a crisp shalwar kameez that stayed crease-free all day.",
+    rating: 5,
+    category: "gents",
+    verified: true,
+    date: "4 days ago",
+  },
+]
+
 export default function CustomerReviews({ section }: { section?: any }) {
   const { showToast } = useToast()
-  const [selectedFilter, setSelectedFilter] = useState<"all" | "lawn" | "pret" | "formals">("all")
-  const [reviews, setReviews] = useState<Review[]>([])
+  const [selectedFilter, setSelectedFilter] = useState<"all" | "lawn" | "3pc" | "2pc" | "pret" | "boski" | "formals" | "khaddar" | "gents">("all")
+  const [reviews, setReviews] = useState<Review[]>(DEFAULT_UNSTITCHED_REVIEWS)
   const [sectionTitle, setSectionTitle] = useState("Loved by Thousands")
-  const [sectionSubtitle, setSectionSubtitle] = useState("Real feedback from verified shoppers across Pakistan who trust NAQSH for celebratory moments.")
+  const [sectionSubtitle, setSectionSubtitle] = useState("Real feedback from verified shoppers across Pakistan who trust NAQSH for unstitched fabric cuts.")
   const [isActive, setIsActive] = useState(true)
 
   const [showModal, setShowModal] = useState(false)
@@ -33,7 +102,7 @@ export default function CustomerReviews({ section }: { section?: any }) {
     fetch("/api/reviews")
       .then((res) => res.json())
       .then((data) => {
-        if (data.reviews && Array.isArray(data.reviews)) {
+        if (data.reviews && Array.isArray(data.reviews) && data.reviews.length > 0) {
           setReviews(data.reviews)
         }
         if (data.title) setSectionTitle(data.title)
@@ -50,9 +119,13 @@ export default function CustomerReviews({ section }: { section?: any }) {
   const filtered =
     selectedFilter === "all"
       ? reviews
-      : reviews.filter((r) => r.category === selectedFilter || r.category === "all")
+      : reviews.filter((r) => {
+          if (r.category === selectedFilter || r.category === "all") return true
+          if (selectedFilter === "3pc" && r.category === "lawn") return true
+          if (selectedFilter === "boski" && r.category === "pret") return true
+          return false
+        })
 
-  // Take top 3 for exact match to Image 5, or show filtered
   const displayReviews = filtered
 
   const handleAddReview = async (e: React.FormEvent) => {
@@ -71,7 +144,7 @@ export default function CustomerReviews({ section }: { section?: any }) {
           city: newCity.trim() || "Pakistan",
           quote: newQuote.trim(),
           rating: newRating,
-          category: selectedFilter === "all" ? "lawn" : selectedFilter,
+          category: selectedFilter === "all" ? "3pc" : selectedFilter,
         }),
       })
       if (!response.ok) throw new Error("Review submission failed")
@@ -112,9 +185,12 @@ export default function CustomerReviews({ section }: { section?: any }) {
           <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
             {[
               { id: "all", label: `All Reviews (${reviews.length})` },
-              { id: "lawn", label: "Festive Lawn" },
-              { id: "pret", label: "Stitched Pret" },
-              { id: "formals", label: "Luxury Formals" },
+              { id: "3pc", label: "3-Piece Festive Lawn" },
+              { id: "boski", label: "Pure Boski & Silk" },
+              { id: "2pc", label: "2-Piece Printed Cuts" },
+              { id: "formals", label: "Luxury Formals & Chiffon" },
+              { id: "khaddar", label: "Winter Khaddar & Karandi" },
+              { id: "gents", label: "Men's Wash & Wear" },
             ].map((tab) => (
               <button
                 key={tab.id}

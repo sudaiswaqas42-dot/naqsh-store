@@ -6,7 +6,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 const announcements = [
   { text: "FREE DELIVERY ACROSS PAKISTAN | EASY RETURNS & EXCHANGES", code: "" },
   { text: "✨ Nationwide Express Delivery on All Orders Across Pakistan", code: "" },
-  { text: "🏷️ Use code LUXE20 for 20% off your luxury pret order", code: "LUXE20" },
+  { text: "🏷️ Use code LUXE20 for 20% off your unstitched fabric order", code: "LUXE20" },
   { text: "📦 Cash on Delivery & 30-Day Doorstep Exchanges", code: "" },
 ]
 

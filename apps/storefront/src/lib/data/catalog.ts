@@ -1,4 +1,5 @@
 import "server-only"
+import { matchesCatalogScope } from "@lib/util/catalog-scope"
 import { getRegion, listRegions } from "./regions"
 import { listCategories } from "./categories"
 import { CatalogProduct, productPrice, optionValues, matchesVariantFilters, isDiscounted } from "@lib/util/catalog"
@@ -8,6 +9,32 @@ const fields =
   "id,title,handle,thumbnail,created_at,material,metadata,*collection,*categories,*images,*options,*options.values,*variants.options,*variants.calculated_price,+variants.inventory_quantity,variants.id,variants.title,variants.manage_inventory,variants.allow_backorder"
 
 const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
+
+// Fast in-memory cache for scanned catalogs (TTL: 60s) to make filter clicks instant
+interface CatalogCacheEntry {
+  rawProducts: any[]
+  totalCount: number
+  timestamp: number
+}
+
+const GLOBAL_CATALOG_CACHE: Map<string, CatalogCacheEntry> =
+  (globalThis as any).__NAQSH_CATALOG_CACHE__ || new Map()
+;(globalThis as any).__NAQSH_CATALOG_CACHE__ = GLOBAL_CATALOG_CACHE
+const CACHE_TTL_MS = 60 * 1000 // 60 seconds
+
+// Concurrency pool helper for parallel batch loading
+async function runWithConcurrency<T>(tasks: (() => Promise<T>)[], concurrency = 5): Promise<T[]> {
+  const results: T[] = new Array(tasks.length)
+  let index = 0
+  const workers = Array.from({ length: Math.min(concurrency, tasks.length) }, async () => {
+    while (index < tasks.length) {
+      const currentIndex = index++
+      results[currentIndex] = await tasks[currentIndex]()
+    }
+  })
+  await Promise.all(workers)
+  return results
+}
 
 export async function getCatalog(
   countryCode: string,
@@ -94,6 +121,7 @@ export async function getCatalog(
   }
 
   const hasCustomFilter =
+    !!value("brand") || !!value("gender") ||
     selected("size").length > 0 ||
     selected("color").length > 0 ||
     selected("fabric").length > 0 ||
@@ -103,9 +131,11 @@ export async function getCatalog(
     value("sale") === "1" ||
     scope.isSalePage === true
 
-  const scanCatalog = hasCustomFilter ||
+  const scanCatalog =
+    hasCustomFilter ||
     ["price-asc", "price-desc", "popular", "best-selling", "recommended"].includes(sort)
   const batchSize = 250
+
   if (!scanCatalog) {
     searchParams.set("offset", String(offset))
     searchParams.set("limit", String(limit))
@@ -121,40 +151,69 @@ export async function getCatalog(
         try {
           const response = await fetch(`${MEDUSA_URL}/store/products?${params}`, {
             headers: { "x-publishable-api-key": pubKey },
-            cache: "no-store",
-            next: { tags: ["products", "catalog"] },
+            next: { revalidate: 60, tags: ["products", "catalog"] },
             signal: AbortSignal.timeout(10000),
           })
           if (!response.ok) {
-            throw Object.assign(new Error(`Catalog request failed (${response.status})`), { status: response.status })
+            throw Object.assign(new Error(`Catalog request failed (${response.status})`), {
+              status: response.status,
+            })
           }
           return await response.json()
         } catch (error) {
           const status = (error as { status?: number }).status
           if (attempt >= 1 || (status && status !== 408 && status !== 429 && status < 500)) throw error
-          await new Promise(resolve => setTimeout(resolve, 250))
+          await new Promise((resolve) => setTimeout(resolve, 200))
         }
       }
     }
 
-    const data = await readPage(searchParams)
-    const rawProducts: any[] = data.products || []
-    let totalCount: number = typeof data.count === "number" ? data.count : rawProducts.length
+    let rawProducts: any[] = []
+    let totalCount = 0
 
-    if (scanCatalog && rawProducts.length) {
-      let nextOffset = rawProducts.length
-      // Three workers keep large catalogs complete without flooding the backend.
-      await Promise.all(Array.from({ length: 3 }, async () => {
-        while (nextOffset < totalCount) {
-          const batchOffset = nextOffset
-          nextOffset += batchSize
-          const params = new URLSearchParams(searchParams)
-          params.set("offset", String(batchOffset))
-          const batch = await readPage(params)
-          if (!batch.products?.length) throw new Error("Catalog changed while loading; please retry")
-          rawProducts.push(...batch.products)
+    if (scanCatalog) {
+      // Check in-memory catalog cache for lightning-fast filter responses (< 5ms)
+      const cacheKey = `${region?.id}_${targetCategoryIds.slice().sort().join(",")}_${scope.collectionId || ""}_${term}`
+      const cached = GLOBAL_CATALOG_CACHE.get(cacheKey)
+
+      if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+        rawProducts = [...cached.rawProducts]
+        totalCount = cached.totalCount
+      } else {
+        const firstBatch = await readPage(searchParams)
+        rawProducts = firstBatch.products || []
+        totalCount = typeof firstBatch.count === "number" ? firstBatch.count : rawProducts.length
+
+        if (totalCount > batchSize) {
+          const offsets: number[] = []
+          for (let o = batchSize; o < totalCount; o += batchSize) {
+            offsets.push(o)
+          }
+
+          const tasks = offsets.map((off) => async () => {
+            const p = new URLSearchParams(searchParams)
+            p.set("offset", String(off))
+            const batch = await readPage(p)
+            return batch.products || []
+          })
+
+          const remainingBatches = await runWithConcurrency(tasks, 5)
+          for (const batch of remainingBatches) {
+            rawProducts.push(...batch)
+          }
         }
-      }))
+
+        // Cache for 60s
+        GLOBAL_CATALOG_CACHE.set(cacheKey, {
+          rawProducts: [...rawProducts],
+          totalCount,
+          timestamp: Date.now(),
+        })
+      }
+    } else {
+      const data = await readPage(searchParams)
+      rawProducts = data.products || []
+      totalCount = typeof data.count === "number" ? data.count : rawProducts.length
     }
 
     let products: CatalogProduct[] = rawProducts.map((product: any) => ({
@@ -173,6 +232,7 @@ export async function getCatalog(
       categories: product.categories?.map((category: any) => ({
         id: category.id,
         name: category.name,
+        handle: category.handle,
       })),
       options: product.options?.map((option: any) => ({
         id: option.id,
@@ -213,6 +273,7 @@ export async function getCatalog(
       products = products.filter((product) => {
         const price = productPrice(product)
         return (
+          matchesCatalogScope(product, value("brand"), value("gender")) &&
           matchesVariantFilters(product, selected("size"), selected("color"), value("stock") === "1") &&
           (!selected("fabric").length || selected("fabric").includes(product.material || "")) &&
           (!value("min") || (price !== null && price >= Number(value("min")))) &&

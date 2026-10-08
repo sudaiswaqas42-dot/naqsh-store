@@ -1,5 +1,7 @@
 "use client"
 
+import SortDropdown from "./sort-dropdown"
+
 import React, { useState, useMemo } from "react"
 import NaqshProductCard from "@modules/products/components/naqsh-product-card"
 
@@ -34,7 +36,7 @@ const PRICE_BRACKETS = [
 export default function NaqshCatalogView({
   initialProducts,
   title = "The NAQSH Collection",
-  description = "Explore our handcrafted Pakistani luxury pret, unstitched lawn, and festive couture.",
+  description = "Explore our handcrafted Pakistani unstitched lawn, pure silks, and festive fabric cuts.",
   categories = [],
   collections = [],
 }: CatalogProps) {
@@ -198,7 +200,7 @@ export default function NaqshCatalogView({
       {/* Header Banner */}
       <div className="text-center max-w-2xl mx-auto mb-8">
         <span className="text-[11px] font-semibold uppercase tracking-[0.25em] text-accent">
-          Couture & Pret Edit
+          100% Unstitched Fabric Atelier
         </span>
         <h1 className="font-serif text-3xl sm:text-4xl text-brand font-medium mt-1">
           {title}
@@ -218,7 +220,7 @@ export default function NaqshCatalogView({
             { label: "All Pieces", type: "all", value: "all" },
             { label: "3-Piece Luxury Suits", type: "piece", value: "3-Piece" },
             { label: "2-Piece Sets", type: "piece", value: "2-Piece" },
-            { label: "1-Piece Kurtis", type: "piece", value: "1-Piece" },
+            { label: "1-Piece Fabric", type: "piece", value: "1-Piece" },
             { label: "Pure Lawn", type: "fabric", value: "Lawn" },
             { label: "Silk & Chiffon", type: "fabric", value: "Silk" },
             { label: "Organza", type: "fabric", value: "Organza" },
@@ -404,21 +406,7 @@ export default function NaqshCatalogView({
 
         {/* Right: Sort Dropdown (Rounded Pill matching Image 4) */}
         <div className="relative">
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="appearance-none bg-white border border-stone-300 hover:border-stone-500 pl-4 pr-9 py-2 text-xs font-medium text-stone-800 rounded-full focus:outline-none cursor-pointer transition-colors shadow-2xs"
-          >
-            <option value="newest">Featured</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-            <option value="title-asc">Alphabetical (A - Z)</option>
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-stone-500">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
+          <SortDropdown value={sortBy} onChange={setSortBy} />
         </div>
       </div>
 

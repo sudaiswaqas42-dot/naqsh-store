@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { getCategoryByHandle, listCategories } from "@lib/data/categories"
 import { CatalogQuery } from "@lib/data/catalog"
 import CatalogTemplate from "@modules/store/templates/catalog"
@@ -38,6 +38,11 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     notFound()
   }
 
+  // Entire brand is 100% Unstitched: Redirect legacy /categories/unstitched to Women's category
+  if (categoryArray[0]?.toLowerCase() === "unstitched") {
+    redirect(`/${countryCode}/categories/women`)
+  }
+
   const [categoriesList, item] = await Promise.all([
     listCategories().catch(() => []),
     getCategoryByHandle(categoryArray).catch(() => undefined),
@@ -47,14 +52,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   if (!finalItem) {
     const handleKey = categoryArray[categoryArray.length - 1]?.toLowerCase()
     const fallbackMap: Record<string, { id: string; name: string; handle: string; description: string }> = {
-      sale: { id: "pcat_01M3EW9AH4V6S14CNHCRM6H2YK", name: "End of Season Sale", handle: "sale", description: "Explore handcrafted luxury pret, unstitched fabrics, and festive formals on exclusive seasonal sale." },
-      women: { id: "pcat_01M3EW9AGX87DJN0W7RP7Z6041", name: "Women", handle: "women", description: "Explore our latest Women's luxury pret, stitched ensembles, and unstitched fabrics." },
-      men: { id: "pcat_01M3EW9AGYE2YT2P17ZSGFVTB9", name: "Men", handle: "men", description: "Discover handcrafted men's kurtas, waistcoats, and premium unstitched fabrics." },
+      sale: { id: "pcat_01M3EW9AH4V6S14CNHCRM6H2YK", name: "End of Season Sale", handle: "sale", description: "Explore handcrafted unstitched fabrics and festive cuts on exclusive seasonal sale." },
+      women: { id: "pcat_01M3EW9AGX87DJN0W7RP7Z6041", name: "Women", handle: "women", description: "Explore our latest Women's luxury unstitched lawn, pure silks, and festive fabrics." },
+      men: { id: "pcat_01M3EW9AGYE2YT2P17ZSGFVTB9", name: "Men", handle: "men", description: "Discover handcrafted men's pure boski, Egyptian cotton, and premium unstitched fabrics." },
       unstitched: { id: "pcat_01M3EW9AK9WFT37D60F729CTDM", name: "Unstitched Fabric", handle: "unstitched", description: "Fine lawn, pure silk dupattas & embroidered unstitched fabrics." },
-      children: { id: "pcat_01M3mukykbr2612d80c6d0983", name: "Children", handle: "children", description: "Handcrafted festive ghararas, kurtas & eastern kids collection." },
-      "women-stitched": { id: "pcat_01M3mukykbq301fda21fe108f", name: "Women's Stitched Pret", handle: "women-stitched", description: "Ready to wear luxury pret and embroidered ensembles." },
+      children: { id: "pcat_01M3mukykbr2612d80c6d0983", name: "Children", handle: "children", description: "Handcrafted festive unstitched fabrics for girls and boys." },
       "women-unstitched": { id: "pcat_01M3mukykbqv18abc7547c99d", name: "Women's Unstitched Lawn & Silks", handle: "women-unstitched", description: "Fine lawn, pure silk dupattas & embroidered 3-piece unstitched fabrics." },
-      "men-stitched": { id: "pcat_01M3mukykbqx1004649b19db4", name: "Men's Stitched Eastern", handle: "men-stitched", description: "Bespoke stitched kurtas, shalwar kameez & waistcoats." },
       "men-unstitched": { id: "pcat_01M3mukykbr04bb73bd499a58", name: "Men's Unstitched Fabric", handle: "men-unstitched", description: "Premium Egyptian cotton & wash and wear fabrics." },
       // Gents Unstitched Subcategories (Image 1)
       italian: { id: "pcat_gents_italian", name: "Italian Unstitched", handle: "italian", description: "Premium Italian luxury suit fabrics." },
@@ -76,15 +79,15 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       "festive-formals": { id: "pcat_01M3EW9AKEV37FT2AXXHQBD3QJ", name: "Festive Formals", handle: "festive-formals", description: "Zardozi hand-embellished raw silks and wedding wear." },
       "kurta-shalwar": { id: "pcat_01M3EW9AKGNTFR4VVGMS0Y3DXH", name: "Kurta & Shalwar", handle: "kurta-shalwar", description: "Traditional Pakistani kurtas and shalwars." },
       waistcoats: { id: "pcat_01M3EW9AKJHZJPE2F2Y96R25YH", name: "Waistcoats", handle: "waistcoats", description: "Festive and formal eastern waistcoats." },
-      // Children Categories: Girls & Boys (Dedicated routes & cards)
-      girls: { id: "pcat_01M3EW9AKN2TK634D7T4SZS573", name: "Girls Eastern Collection", handle: "girls", description: "Handcrafted festive frocks, ghararas & stitched sets for young girls." },
-      "girls-eastern": { id: "pcat_01M3EW9AKN2TK634D7T4SZS573", name: "Girls Eastern Collection", handle: "girls-eastern", description: "Handcrafted festive frocks, ghararas & stitched sets for young girls." },
+      // Children Categories: Girls & Boys (100% Unstitched Fabric Cuts)
+      girls: { id: "pcat_01M3EW9AKN2TK634D7T4SZS573", name: "Girls Unstitched Fabrics", handle: "girls", description: "Fine fabrics and handcrafted festive unstitched cuts for girls." },
+      "girls-eastern": { id: "pcat_01M3EW9AKN2TK634D7T4SZS573", name: "Girls Unstitched Fabrics", handle: "girls-eastern", description: "Fine fabrics and handcrafted festive unstitched cuts for girls." },
       "girls-unstitched": { id: "pcat_girls_unstitched", name: "Girls Unstitched", handle: "girls-unstitched", description: "Fine fabrics and unstitched gharara & frock cuts for girls." },
-      "girls-stitched": { id: "pcat_girls_stitched", name: "Girls Ready to Wear", handle: "girls-stitched", description: "Ready to wear festive frocks and embroidered gharara sets for girls." },
-      boys: { id: "pcat_01M3EW9AKQY520YNZN4B7M0NQ6", name: "Boys Eastern Collection", handle: "boys", description: "Traditional kurtas, waistcoats & shalwar kameez for boys." },
-      "boys-eastern": { id: "pcat_01M3EW9AKQY520YNZN4B7M0NQ6", name: "Boys Eastern Collection", handle: "boys-eastern", description: "Traditional kurtas, waistcoats & shalwar kameez for boys." },
-      "boys-unstitched": { id: "pcat_boys_unstitched", name: "Boys Unstitched", handle: "boys-unstitched", description: "Premium unstitched kurta & shalwar fabrics for boys." },
-      "boys-stitched": { id: "pcat_boys_stitched", name: "Boys Ready to Wear", handle: "boys-stitched", description: "Ready to wear kurtas, waistcoats and pajama sets for boys." },
+      "girls-stitched": { id: "pcat_girls_unstitched", name: "Girls Unstitched Fabrics", handle: "girls-stitched", description: "Fine fabrics and unstitched festive cuts for girls." },
+      boys: { id: "pcat_01M3EW9AKQY520YNZN4B7M0NQ6", name: "Boys Unstitched Kurta Fabrics", handle: "boys", description: "Traditional unstitched kurta & shalwar fabrics and suit cuts for boys." },
+      "boys-eastern": { id: "pcat_01M3EW9AKQY520YNZN4B7M0NQ6", name: "Boys Unstitched Kurta Fabrics", handle: "boys-eastern", description: "Traditional unstitched kurta & shalwar fabrics and suit cuts for boys." },
+      "boys-unstitched": { id: "pcat_boys_unstitched", name: "Boys Unstitched Fabrics", handle: "boys-unstitched", description: "Premium unstitched kurta & shalwar fabrics for boys." },
+      "boys-stitched": { id: "pcat_boys_unstitched", name: "Boys Unstitched Fabrics", handle: "boys-stitched", description: "Premium unstitched kurta & shalwar fabrics for boys." },
     }
     if (fallbackMap[handleKey]) {
       finalItem = {

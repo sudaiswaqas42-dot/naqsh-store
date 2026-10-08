@@ -16,6 +16,17 @@ import {
 } from "./cookies"
 import { getRegion } from "./regions"
 import { getLocale } from "./locale-actions"
+import { listCartShippingMethods } from "./fulfillment"
+
+export async function ensureStandardDelivery(cartId: string) {
+  const methods = await listCartShippingMethods(cartId)
+  const deliverable = (methods || []).filter(method =>
+    (method as unknown as { service_zone?: { fulfillment_set?: { type?: string } } }).service_zone?.fulfillment_set?.type !== "pickup"
+  )
+  const method = deliverable.find(method => /standard/i.test(method.name)) || deliverable[0]
+  if (!method) throw new Error("Delivery is currently unavailable for this address. Please check your address or contact us.")
+  await setShippingMethod({ cartId, shippingMethodId: method.id })
+}
 
 /**
  * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.
@@ -297,6 +308,7 @@ export async function applyPromotions(codes: string[]) {
   }
 
   const normalizedCodes = Array.from(new Set(codes.map(code => code.trim().toUpperCase()).filter(Boolean)))
+  if (normalizedCodes.length > 1) throw new Error("Only one promotion code can be used per order.")
   return sdk.store.cart
     .update(cartId, { promo_codes: normalizedCodes }, { fields: "*promotions,*items.adjustments" }, headers)
     .then(async ({ cart }) => {
@@ -386,12 +398,13 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
       billing_address: formData.get("same_as_billing") === "on" ? shippingAddress : readCheckoutAddress(formData, "billing_address"),
     }
     await updateCart(data)
+    await ensureStandardDelivery(cartId)
   } catch (e: any) {
     return e.message
   }
 
   const redirectCountry = (formData.get("shipping_address.country_code") as string) || "pk"
-  redirect(`/${redirectCountry}/checkout?step=delivery`)
+  redirect(`/${redirectCountry}/checkout?step=payment`)
 }
 
 /**

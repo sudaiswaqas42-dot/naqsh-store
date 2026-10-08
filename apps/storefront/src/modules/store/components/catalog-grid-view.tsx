@@ -1,5 +1,7 @@
 "use client"
 
+import SortDropdown from "./sort-dropdown"
+
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useState, useTransition, useEffect } from "react"
@@ -73,14 +75,13 @@ export default function CatalogGridView({
   }
 
   const groups = [
-    { key: "category", title: "Category", choices: categories },
-    { key: "collection", title: "Collection", choices: collections },
-    { key: "size", title: "Size", choices: facets.sizes.map((value) => ({ id: value, label: value })) },
+    { key: "category", title: "Unstitched Category", choices: categories },
+    { key: "fabric", title: "Fabric Type", choices: facets.fabrics.map((value) => ({ id: value, label: value })) },
     { key: "color", title: "Colour", choices: facets.colors.map((value) => ({ id: value, label: value })) },
-    { key: "fabric", title: "Fabric", choices: facets.fabrics.map((value) => ({ id: value, label: value })) },
+    { key: "collection", title: "Collection", choices: collections },
   ]
 
-  const filterKeys = ["category", "collection", "size", "color", "fabric", "min", "max", "stock", "sale"]
+  const filterKeys = ["category", "collection", "color", "fabric", "min", "max", "stock", "sale"]
   const active = filterKeys.filter((key) => params.has(key)).length
 
   const clear = () => {
@@ -383,24 +384,7 @@ export default function CatalogGridView({
 
         {/* Right: Sort Dropdown (Rounded Pill matching Image 4) */}
         <div className="relative">
-          <select
-            value={params.get("sortBy") || "newest"}
-            onChange={(e) => update("sortBy", e.target.value)}
-            disabled={pending}
-            className="appearance-none bg-white border border-stone-300 hover:border-stone-500 pl-4 pr-9 py-2 text-xs font-medium text-stone-800 rounded-full focus:outline-none cursor-pointer transition-colors shadow-2xs"
-          >
-            <option value="newest">Featured</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-            <option value="popular">Popular This Month</option>
-            <option value="best-selling">Best Selling</option>
-            <option value="title-asc">Alphabetical (A - Z)</option>
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-stone-500">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
+          <SortDropdown value={params.get("sortBy") || "newest"} onChange={value => update("sortBy", value)} disabled={pending} />
         </div>
       </div>
 

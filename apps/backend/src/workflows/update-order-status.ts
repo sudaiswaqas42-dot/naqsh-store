@@ -28,7 +28,7 @@ const updateStatusStep = createStep("update-order-custom-status", async (input: 
   }
   const service = container.resolve(Modules.ORDER)
   const order = await service.retrieveOrder(input.id)
-  const metadata = { ...order.metadata, status_updated_at: new Date().toISOString() }
+  const metadata: Record<string, unknown> = { ...order.metadata, status_updated_at: new Date().toISOString() }
   for (const field of ["custom_status", "tracking_number", "carrier", "internal_notes"] as const) {
     if (input[field] !== undefined) {
       if (typeof input[field] !== "string" || input[field]!.length > 2000) {
@@ -36,6 +36,10 @@ const updateStatusStep = createStep("update-order-custom-status", async (input: 
       }
       metadata[field] = input[field]
     }
+  }
+  if (["Shipped", "Out for Delivery", "Delivered"].includes(String(metadata.custom_status)) &&
+      (!String(metadata.carrier || "").trim() || !String(metadata.tracking_number || "").trim())) {
+    throw new MedusaError(MedusaError.Types.INVALID_DATA, "Select a courier and enter the tracking ID before marking this order as dispatched.")
   }
   const updated = await service.updateOrders(input.id, { metadata })
 

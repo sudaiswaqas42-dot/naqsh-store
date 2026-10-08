@@ -1,5 +1,7 @@
 "use client"
 
+import SortDropdown from "./sort-dropdown"
+
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useState, useTransition } from "react"
@@ -47,7 +49,7 @@ export default function CatalogControls({ count, categories, collections, facets
   return <>
     <div className="col-span-full flex items-center justify-between gap-4 border-y border-stone-200 py-4">
       <div className="flex items-center gap-4"><button className="lg:hidden text-xs uppercase tracking-widest border border-stone-300 px-4 py-2" onClick={() => setOpen(true)}>Filters {active > 0 ? "(" + active + ")" : ""}</button><p role="status" className="text-xs sm:text-sm text-stone-500">{pending ? "Updating your edit..." : count + (count === 1 ? " piece" : " pieces")}</p></div>
-      <label className="flex items-center gap-2 text-xs"><span className="hidden sm:inline text-stone-500">Sort by</span><select aria-label="Sort products" disabled={pending} value={params.get("sortBy") || "newest"} onChange={e => update("sortBy", e.target.value)} className="border border-stone-300 bg-white py-2 px-3"><option value="newest">Newest arrivals</option><option value="popular">Popular this month</option><option value="best-selling">Best selling</option><option value="recommended">Recommended</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="title-asc">Name: A to Z</option></select></label>
+      <div className="flex items-center gap-2 text-xs"><span className="hidden sm:inline text-stone-500">Sort by</span><SortDropdown disabled={pending} value={params.get("sortBy") || "newest"} onChange={value => update("sortBy", value)} /></div>
     </div>
     <aside className="hidden lg:block lg:sticky lg:top-40 self-start">{filters}</aside>
     <Dialog open={open} onClose={setOpen} className="relative z-[100]"><div className="fixed inset-0 bg-black/50" aria-hidden="true" /><div className="fixed inset-0 flex justify-end"><DialogPanel className="h-[100dvh] w-[min(90vw,420px)] bg-[#faf8f5] flex flex-col"><div className="flex justify-between p-6 border-b"><DialogTitle className="font-serif text-2xl">Filters</DialogTitle><button aria-label="Close filters" onClick={() => setOpen(false)} className="text-2xl">&times;</button></div><div className="p-6 flex-1 min-h-0 overflow-auto">{filters}</div><button onClick={() => setOpen(false)} className="m-5 p-4 bg-stone-900 text-white text-sm">View {count} pieces</button></DialogPanel></div></Dialog>

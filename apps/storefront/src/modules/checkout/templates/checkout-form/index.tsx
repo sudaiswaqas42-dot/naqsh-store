@@ -1,4 +1,3 @@
-import { listCartShippingMethods } from "@lib/data/fulfillment"
 import { listCartPaymentMethods } from "@lib/data/payment"
 import { HttpTypes } from "@medusajs/types"
 import Addresses from "@modules/checkout/components/addresses"
@@ -17,20 +16,23 @@ export default async function CheckoutForm({
     return null
   }
 
-  const shippingMethods = await listCartShippingMethods(cart.id)
-  const paymentMethods = await listCartPaymentMethods(cart.region?.id ?? "")
-
-  if (!shippingMethods || !paymentMethods) {
-    return null
-  }
+  const paymentMethods = await (
+    cart.region_id || cart.region?.id
+      ? listCartPaymentMethods((cart.region_id || cart.region?.id)!)
+      : Promise.resolve(null)
+  )
 
   return (
     <div className="w-full grid grid-cols-1 gap-y-8">
       <Addresses cart={cart} customer={customer} />
 
-      <Shipping cart={cart} availableShippingMethods={shippingMethods} />
+      <Shipping cart={cart} />
 
-      <Payment cart={cart} availablePaymentMethods={paymentMethods} />
+      {paymentMethods?.length ? (
+        <Payment cart={cart} availablePaymentMethods={paymentMethods} />
+      ) : (
+        <p role="alert">Payment methods are temporarily unavailable. Please refresh the page or contact support.</p>
+      )}
 
       <Review cart={cart} />
     </div>

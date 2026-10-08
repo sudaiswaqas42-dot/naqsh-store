@@ -103,10 +103,10 @@ const DashboardPage = () => {
       {/* Top Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <Heading level="h1" style={{ fontSize: "26px", fontWeight: "700", color: "#111827", letterSpacing: "-0.02em" }}>
+          <Heading level="h1" style={{ fontSize: "26px", fontWeight: "700", color: "var(--fg-base)", letterSpacing: "-0.02em" }}>
             NAQSH Store Overview & Analytics
           </Heading>
-          <Text style={{ color: "#6b7280", marginTop: "2px", fontSize: "13px" }}>
+          <Text style={{ color: "var(--fg-subtle)", marginTop: "2px", fontSize: "13px" }}>
             Live landscape telemetry: click any metric card below to interactively inspect full transaction data
           </Text>
         </div>
@@ -128,8 +128,8 @@ const DashboardPage = () => {
             padding: "16px 20px",
             borderLeft: "4px solid #0F2D22",
             borderRadius: "8px",
-            background: selectedMetric === "revenue" ? "#F0FDF4" : "#fff",
-            border: selectedMetric === "revenue" ? "2px solid #0F2D22" : "1px solid #e5e7eb",
+            background: selectedMetric === "revenue" ? "var(--bg-subtle)" : "var(--bg-base)",
+            border: selectedMetric === "revenue" ? "2px solid #0F2D22" : "1px solid var(--border-base)",
             boxShadow: selectedMetric === "revenue" ? "0 4px 12px rgba(15, 45, 34, 0.15)" : "0 1px 3px rgba(0,0,0,0.05)",
             display: "flex",
             flexDirection: "column",
@@ -138,10 +138,10 @@ const DashboardPage = () => {
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Text size="xsmall" style={{ color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: "600" }}>Total Revenue</Text>
+            <Text size="xsmall" style={{ color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: "600" }}>Total Revenue</Text>
             {selectedMetric === "revenue" && <Badge color="green">Active</Badge>}
           </div>
-          <Heading level="h2" style={{ fontSize: "22px", marginTop: "6px", fontWeight: "700", color: "#0F2D22" }}>
+          <Heading level="h2" style={{ fontSize: "22px", marginTop: "6px", fontWeight: "700", color: "var(--fg-base)" }}>
             Rs. {Number(metrics.total_sales).toLocaleString()}
           </Heading>
           <Text size="xsmall" style={{ color: "#10b981", marginTop: "4px", fontSize: "11px" }}>Click to view all paid orders</Text>
@@ -155,8 +155,8 @@ const DashboardPage = () => {
             padding: "16px 20px",
             borderLeft: "4px solid #B6975A",
             borderRadius: "8px",
-            background: selectedMetric === "today" ? "#FFFBEB" : "#fff",
-            border: selectedMetric === "today" ? "2px solid #B6975A" : "1px solid #e5e7eb",
+            background: selectedMetric === "today" ? "var(--bg-subtle)" : "var(--bg-base)",
+            border: selectedMetric === "today" ? "2px solid #B6975A" : "1px solid var(--border-base)",
             boxShadow: selectedMetric === "today" ? "0 4px 12px rgba(182, 151, 90, 0.2)" : "0 1px 3px rgba(0,0,0,0.05)",
             display: "flex",
             flexDirection: "column",
@@ -165,13 +165,13 @@ const DashboardPage = () => {
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Text size="xsmall" style={{ color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: "600" }}>Today's Sales</Text>
+            <Text size="xsmall" style={{ color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: "600" }}>Today's Sales</Text>
             {selectedMetric === "today" && <Badge color="orange">Active</Badge>}
           </div>
           <Heading level="h2" style={{ fontSize: "22px", marginTop: "6px", fontWeight: "700", color: "#B6975A" }}>
             Rs. {Number(metrics.today_sales).toLocaleString()}
           </Heading>
-          <Text size="xsmall" style={{ color: "#6b7280", marginTop: "4px", fontSize: "11px" }}>Click to view 24h orders</Text>
+          <Text size="xsmall" style={{ color: "var(--fg-subtle)", marginTop: "4px", fontSize: "11px" }}>Click to view 24h orders</Text>
         </div>
 
         {/* Monthly Sales Box */}
@@ -182,8 +182,8 @@ const DashboardPage = () => {
             padding: "16px 20px",
             borderLeft: "4px solid #3b82f6",
             borderRadius: "8px",
-            background: selectedMetric === "monthly" ? "#EFF6FF" : "#fff",
-            border: selectedMetric === "monthly" ? "2px solid #3b82f6" : "1px solid #e5e7eb",
+            background: selectedMetric === "monthly" ? "var(--bg-subtle)" : "var(--bg-base)",
+            border: selectedMetric === "monthly" ? "2px solid #3b82f6" : "1px solid var(--border-base)",
             boxShadow: selectedMetric === "monthly" ? "0 4px 12px rgba(59, 130, 246, 0.2)" : "0 1px 3px rgba(0,0,0,0.05)",
             display: "flex",
             flexDirection: "column",
@@ -192,13 +192,13 @@ const DashboardPage = () => {
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Text size="xsmall" style={{ color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: "600" }}>Monthly Sales</Text>
+            <Text size="xsmall" style={{ color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: "600" }}>Monthly Sales</Text>
             {selectedMetric === "monthly" && <Badge color="blue">Active</Badge>}
           </div>
-          <Heading level="h2" style={{ fontSize: "22px", marginTop: "6px", fontWeight: "700", color: "#1e40af" }}>
+          <Heading level="h2" style={{ fontSize: "22px", marginTop: "6px", fontWeight: "700", color: "var(--fg-base)" }}>
             Rs. {Number(metrics.monthly_sales).toLocaleString()}
           </Heading>
-          <Text size="xsmall" style={{ color: "#6b7280", marginTop: "4px", fontSize: "11px" }}>Click to view monthly orders</Text>
+          <Text size="xsmall" style={{ color: "var(--fg-subtle)", marginTop: "4px", fontSize: "11px" }}>Click to view monthly orders</Text>
         </div>
 
         {/* Total Orders Box */}
@@ -209,8 +209,8 @@ const DashboardPage = () => {
             padding: "16px 20px",
             borderLeft: "4px solid #10b981",
             borderRadius: "8px",
-            background: selectedMetric === "orders" ? "#F0FDF4" : "#fff",
-            border: selectedMetric === "orders" ? "2px solid #10b981" : "1px solid #e5e7eb",
+            background: selectedMetric === "orders" ? "var(--bg-subtle)" : "var(--bg-base)",
+            border: selectedMetric === "orders" ? "2px solid #10b981" : "1px solid var(--border-base)",
             boxShadow: selectedMetric === "orders" ? "0 4px 12px rgba(16, 185, 129, 0.2)" : "0 1px 3px rgba(0,0,0,0.05)",
             display: "flex",
             flexDirection: "column",
@@ -219,13 +219,13 @@ const DashboardPage = () => {
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Text size="xsmall" style={{ color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: "600" }}>Total Orders</Text>
+            <Text size="xsmall" style={{ color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: "600" }}>Total Orders</Text>
             {selectedMetric === "orders" && <Badge color="green">Active</Badge>}
           </div>
-          <Heading level="h2" style={{ fontSize: "22px", marginTop: "6px", fontWeight: "700", color: "#065f46" }}>
+          <Heading level="h2" style={{ fontSize: "22px", marginTop: "6px", fontWeight: "700", color: "var(--fg-base)" }}>
             {metrics.total_orders}
           </Heading>
-          <Text size="xsmall" style={{ color: "#6b7280", marginTop: "4px", fontSize: "11px" }}>
+          <Text size="xsmall" style={{ color: "var(--fg-subtle)", marginTop: "4px", fontSize: "11px" }}>
             {metrics.pending_orders} pending · {metrics.completed_orders} done
           </Text>
         </div>
@@ -238,8 +238,8 @@ const DashboardPage = () => {
             padding: "16px 20px",
             borderLeft: "4px solid #ec4899",
             borderRadius: "8px",
-            background: selectedMetric === "customers" ? "#FDF2F8" : "#fff",
-            border: selectedMetric === "customers" ? "2px solid #ec4899" : "1px solid #e5e7eb",
+            background: selectedMetric === "customers" ? "var(--bg-subtle)" : "var(--bg-base)",
+            border: selectedMetric === "customers" ? "2px solid #ec4899" : "1px solid var(--border-base)",
             boxShadow: selectedMetric === "customers" ? "0 4px 12px rgba(236, 72, 153, 0.2)" : "0 1px 3px rgba(0,0,0,0.05)",
             display: "flex",
             flexDirection: "column",
@@ -248,27 +248,27 @@ const DashboardPage = () => {
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Text size="xsmall" style={{ color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: "600" }}>Total Customers</Text>
+            <Text size="xsmall" style={{ color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: "600" }}>Total Customers</Text>
             {selectedMetric === "customers" && <Badge color="purple">Active</Badge>}
           </div>
-          <Heading level="h2" style={{ fontSize: "22px", marginTop: "6px", fontWeight: "700", color: "#be185d" }}>
+          <Heading level="h2" style={{ fontSize: "22px", marginTop: "6px", fontWeight: "700", color: "var(--fg-base)" }}>
             {metrics.total_customers}
           </Heading>
-          <Text size="xsmall" style={{ color: "#6b7280", marginTop: "4px", fontSize: "11px" }}>Click to inspect client profiles</Text>
+          <Text size="xsmall" style={{ color: "var(--fg-subtle)", marginTop: "4px", fontSize: "11px" }}>Click to inspect client profiles</Text>
         </div>
       </div>
 
       {/* Interactive Deep-Dive Table for Selected Metric */}
-      <Container style={{ padding: "20px 24px", background: "#fff", border: "1px solid #e5e7eb", borderRadius: "8px" }}>
+      <Container style={{ padding: "20px 24px", background: "var(--bg-base)", border: "1px solid var(--border-base)", borderRadius: "8px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", flexWrap: "wrap", gap: "10px" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <Heading level="h2" style={{ fontSize: "17px", fontWeight: "700", color: "#111827" }}>
+              <Heading level="h2" style={{ fontSize: "17px", fontWeight: "700", color: "var(--fg-base)" }}>
                 {activeTableTitle}
               </Heading>
               <Badge color="blue">{selectedMetric === "customers" ? `${filteredCustomers.length} Records` : `${filteredOrders.length} Orders`}</Badge>
             </div>
-            <Text size="xsmall" style={{ color: "#6b7280", marginTop: "2px" }}>
+            <Text size="xsmall" style={{ color: "var(--fg-subtle)", marginTop: "2px" }}>
               {activeTableSubtitle}
             </Text>
           </div>
@@ -280,7 +280,7 @@ const DashboardPage = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
                 padding: "6px 12px",
-                border: "1px solid #d1d5db",
+                border: "1px solid var(--border-base)",
                 borderRadius: "6px",
                 fontSize: "12px",
                 outline: "none",
@@ -310,19 +310,19 @@ const DashboardPage = () => {
               <Table.Body>
                 {filteredCustomers.map((cust: any) => (
                   <Table.Row key={cust.id}>
-                    <Table.Cell style={{ fontFamily: "monospace", fontSize: "11px", color: "#6b7280" }}>
+                    <Table.Cell style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--fg-subtle)" }}>
                       {cust.id}
                     </Table.Cell>
-                    <Table.Cell style={{ fontWeight: "600", fontSize: "13px", color: "#111827" }}>
+                    <Table.Cell style={{ fontWeight: "600", fontSize: "13px", color: "var(--fg-base)" }}>
                       {cust.email}
                     </Table.Cell>
-                    <Table.Cell style={{ color: "#6b7280", fontSize: "12px" }}>
+                    <Table.Cell style={{ color: "var(--fg-subtle)", fontSize: "12px" }}>
                       {new Date(cust.created_at).toLocaleDateString()}
                     </Table.Cell>
                     <Table.Cell>
                       <Badge color="blue">{cust.orders_count || 0} orders</Badge>
                     </Table.Cell>
-                    <Table.Cell style={{ fontWeight: "700", color: "#0F2D22", fontSize: "13px" }}>
+                    <Table.Cell style={{ fontWeight: "700", color: "var(--fg-base)", fontSize: "13px" }}>
                       Rs. {Number(cust.total_spent || 0).toLocaleString()}
                     </Table.Cell>
                   </Table.Row>
@@ -331,7 +331,7 @@ const DashboardPage = () => {
             </Table>
           ) : (
             <div style={{ padding: "30px", textAlign: "center" }}>
-              <Text style={{ color: "#9ca3af" }}>No customers found matching "{searchTerm}".</Text>
+              <Text style={{ color: "var(--fg-subtle)" }}>No customers found matching "{searchTerm}".</Text>
             </div>
           )
         ) : filteredOrders.length > 0 ? (
@@ -350,13 +350,13 @@ const DashboardPage = () => {
             <Table.Body>
               {filteredOrders.map((ord: any) => (
                 <Table.Row key={ord.id}>
-                  <Table.Cell style={{ fontWeight: "700", fontSize: "12px", color: "#0F2D22" }}>
+                  <Table.Cell style={{ fontWeight: "700", fontSize: "12px", color: "var(--fg-base)" }}>
                     #{ord.display_id || ord.id.slice(0, 8)}
                   </Table.Cell>
-                  <Table.Cell style={{ fontSize: "12px", color: "#374151" }}>
+                  <Table.Cell style={{ fontSize: "12px", color: "var(--fg-base)" }}>
                     {ord.email || "Guest Checkout"}
                   </Table.Cell>
-                  <Table.Cell style={{ color: "#6b7280", fontSize: "11px" }}>
+                  <Table.Cell style={{ color: "var(--fg-subtle)", fontSize: "11px" }}>
                     {new Date(ord.created_at).toLocaleString()}
                   </Table.Cell>
                   <Table.Cell>
@@ -387,14 +387,14 @@ const DashboardPage = () => {
                       )
                     })()}
                   </Table.Cell>
-                  <Table.Cell style={{ fontWeight: "700", fontSize: "13px", color: "#111827" }}>
+                  <Table.Cell style={{ fontWeight: "700", fontSize: "13px", color: "var(--fg-base)" }}>
                     Rs. {Number(ord.total).toLocaleString()}
                   </Table.Cell>
                   <Table.Cell>
                     <a
                       href={`/app/orders/${ord.id}`}
                       style={{
-                        color: "#0F2D22",
+                        color: "var(--fg-base)",
                         textDecoration: "underline",
                         fontSize: "12px",
                         fontWeight: "600",
@@ -409,7 +409,7 @@ const DashboardPage = () => {
           </Table>
         ) : (
           <div style={{ padding: "30px", textAlign: "center" }}>
-            <Text style={{ color: "#9ca3af" }}>No orders found for this view.</Text>
+            <Text style={{ color: "var(--fg-subtle)" }}>No orders found for this view.</Text>
           </div>
         )}
       </Container>
@@ -420,10 +420,10 @@ const DashboardPage = () => {
         <Container style={{ padding: "20px 24px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
             <div>
-              <Heading level="h2" style={{ fontSize: "16px", fontWeight: "600", color: "#111827" }}>
+              <Heading level="h2" style={{ fontSize: "16px", fontWeight: "600", color: "var(--fg-base)" }}>
                 Revenue Trend (Last 14 Days)
               </Heading>
-              <Text size="xsmall" style={{ color: "#6b7280" }}>Daily store revenue volume across Pakistan</Text>
+              <Text size="xsmall" style={{ color: "var(--fg-subtle)" }}>Daily store revenue volume across Pakistan</Text>
             </div>
             {/* Status Pills */}
             <div style={{ display: "flex", gap: "8px" }}>
@@ -434,7 +434,7 @@ const DashboardPage = () => {
           </div>
 
           {salesChart.length > 0 ? (
-            <div style={{ display: "flex", alignItems: "flex-end", height: "160px", gap: "8px", borderBottom: "1px solid #e5e7eb", paddingBottom: "6px" }}>
+            <div style={{ display: "flex", alignItems: "flex-end", height: "160px", gap: "8px", borderBottom: "1px solid var(--border-base)", paddingBottom: "6px" }}>
               {salesChart.map((bar: any, idx: number) => {
                 const heightPct = Math.max(8, (bar.revenue / maxRevenue) * 100)
                 return (
@@ -450,14 +450,14 @@ const DashboardPage = () => {
                         transition: "all 0.3s ease",
                       }}
                     />
-                    <Text size="xsmall" style={{ color: "#9ca3af", fontSize: "9px" }}>{bar.label}</Text>
+                    <Text size="xsmall" style={{ color: "var(--fg-subtle)", fontSize: "9px" }}>{bar.label}</Text>
                   </div>
                 )
               })}
             </div>
           ) : (
             <div style={{ height: "140px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Text style={{ color: "#9ca3af" }}>No recent sales recorded yet.</Text>
+              <Text style={{ color: "var(--fg-subtle)" }}>No recent sales recorded yet.</Text>
             </div>
           )}
         </Container>
@@ -487,7 +487,7 @@ const DashboardPage = () => {
                         <a
                           href={`/app/products/${item.product_id}`}
                           style={{
-                            color: "#0F2D22",
+                            color: "var(--fg-base)",
                             textDecoration: "underline",
                             fontWeight: "600",
                             cursor: "pointer",
@@ -504,7 +504,7 @@ const DashboardPage = () => {
                         <span>{item.title}</span>
                       )}
                     </Table.Cell>
-                    <Table.Cell style={{ color: "#6b7280", fontSize: "11px" }}>{item.sku}</Table.Cell>
+                    <Table.Cell style={{ color: "var(--fg-subtle)", fontSize: "11px" }}>{item.sku}</Table.Cell>
                     <Table.Cell>
                       <Badge color={item.available <= 0 ? "red" : "orange"}>
                         {item.available <= 0 ? "0 left (Sold Out)" : `${item.available} units left`}
@@ -549,7 +549,7 @@ const DashboardPage = () => {
                         <a
                           href={`/app/products/${prod.product_id}`}
                           style={{
-                            color: "#0F2D22",
+                            color: "var(--fg-base)",
                             textDecoration: "underline",
                             fontWeight: "600",
                             cursor: "pointer",
@@ -567,7 +567,7 @@ const DashboardPage = () => {
                       )}
                     </Table.Cell>
                     <Table.Cell style={{ fontSize: "12px" }}>{prod.count} units</Table.Cell>
-                    <Table.Cell style={{ fontWeight: "600", color: "#0F2D22", fontSize: "12px" }}>
+                    <Table.Cell style={{ fontWeight: "600", color: "var(--fg-base)", fontSize: "12px" }}>
                       Rs. {Number(prod.revenue).toLocaleString()}
                     </Table.Cell>
                   </Table.Row>
@@ -575,7 +575,7 @@ const DashboardPage = () => {
               </Table.Body>
             </Table>
           ) : (
-            <Text style={{ color: "#9ca3af", fontSize: "13px" }}>No product sales recorded yet.</Text>
+            <Text style={{ color: "var(--fg-subtle)", fontSize: "13px" }}>No product sales recorded yet.</Text>
           )}
         </Container>
 
@@ -600,7 +600,7 @@ const DashboardPage = () => {
                   <Table.Row key={ord.id}>
                     <Table.Cell style={{ fontWeight: "600", fontSize: "12px" }}>#{ord.display_id || ord.id.slice(0, 8)}</Table.Cell>
                     <Table.Cell style={{ fontSize: "12px" }}>{ord.email || "Guest"}</Table.Cell>
-                    <Table.Cell style={{ color: "#6b7280", fontSize: "11px" }}>
+                    <Table.Cell style={{ color: "var(--fg-subtle)", fontSize: "11px" }}>
                       {new Date(ord.created_at).toLocaleDateString()}
                     </Table.Cell>
                     <Table.Cell>
@@ -614,7 +614,7 @@ const DashboardPage = () => {
                         {ord.status}
                       </Badge>
                     </Table.Cell>
-                    <Table.Cell style={{ fontWeight: "600", fontSize: "12px", color: "#111827" }}>
+                    <Table.Cell style={{ fontWeight: "600", fontSize: "12px", color: "var(--fg-base)" }}>
                       Rs. {Number(ord.total).toLocaleString()}
                     </Table.Cell>
                   </Table.Row>
@@ -622,7 +622,7 @@ const DashboardPage = () => {
               </Table.Body>
             </Table>
           ) : (
-            <Text style={{ color: "#9ca3af", fontSize: "13px" }}>No orders placed yet.</Text>
+            <Text style={{ color: "var(--fg-subtle)", fontSize: "13px" }}>No orders placed yet.</Text>
           )}
         </Container>
       </div>

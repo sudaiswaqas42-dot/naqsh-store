@@ -1,24 +1,16 @@
 "use client"
 
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
-import React, { useEffect } from "react"
+import { useParams } from "next/navigation"
+import React from "react"
 
-/**
- * Module-level cache to deduplicate router.prefetch() calls.
- * Prevents the same href from being prefetched more than once every 30 seconds.
- */
-const recentlyPrefetched = new Map<string, number>()
-
-/**
- * High-performance localized link that automatically prefetches on mount, hover, touch, and focus
- * for zero-second instant navigation across the entire store.
- */
+// Let Next.js prefetch route shells up to their loading boundary on visibility.
 const LocalizedClientLink = ({
   children,
   href,
-  prefetch = true,
+  prefetch = null,
   onMouseEnter,
+  onClick,
   ...props
 }: {
   children?: React.ReactNode
@@ -31,7 +23,6 @@ const LocalizedClientLink = ({
   [x: string]: unknown
 }) => {
   const { countryCode } = useParams()
-  const router = useRouter()
 
   const targetHref =
     /^(https?:|mailto:|tel:|#)/.test(href) ||
@@ -40,32 +31,19 @@ const LocalizedClientLink = ({
       ? href
       : `/${countryCode || "pk"}${href.startsWith("/") ? href : `/${href}`}`
 
-  // Eagerly prefetch on mount so pages are ready before user even hovers
-  useEffect(() => {
-    if (prefetch === false || !targetHref.startsWith("/")) return
-    const now = Date.now()
-    if (now - (recentlyPrefetched.get(targetHref) || 0) < 30000) return
-    if (recentlyPrefetched.size > 100) recentlyPrefetched.clear()
-    recentlyPrefetched.set(targetHref, now)
-    router.prefetch(targetHref)
-  }, [targetHref, prefetch, router])
-
-  const handleMouseEnter = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    // Re-prefetch on hover in case the cache expired
-    if (prefetch !== false && targetHref.startsWith("/")) {
-      router.prefetch(targetHref)
-    }
-    onMouseEnter?.(event)
-  }
-
   return (
     <Link
       href={targetHref}
       prefetch={prefetch}
-      onMouseEnter={handleMouseEnter}
-      onTouchStart={() => { if (prefetch !== false && targetHref.startsWith("/")) router.prefetch(targetHref) }}
-      onFocus={() => { if (prefetch !== false && targetHref.startsWith("/")) router.prefetch(targetHref) }}
+      onMouseEnter={onMouseEnter}
       {...props}
+      scroll={href === "/" ? true : props.scroll as boolean | undefined}
+      onClick={event => {
+        onClick?.()
+        if (href === "/" && !event.defaultPrevented && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey && event.button === 0) {
+          window.scrollTo({ top: 0, left: 0, behavior: "instant" })
+        }
+      }}
     >
       {children}
     </Link>

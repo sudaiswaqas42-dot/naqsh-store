@@ -1,3 +1,4 @@
+import FabricCategories from "../components/fabric-categories"
 import { Suspense } from "react"
 import Form from "next/form"
 import { getCatalog, CatalogQuery } from "@lib/data/catalog"
@@ -19,14 +20,14 @@ const heroBannersConfig: Record<
   women: {
     bgImage: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=2000&q=85",
     tag: "WOMEN'S ATELIER",
-    badgeText: "Haute Couture & Pret",
-    accentSubtitle: "Intricate resham embroideries, fine festive lawn, and hand-embellished pure silk silhouettes.",
+    badgeText: "100% Luxury Unstitched Fabrics",
+    accentSubtitle: "Intricate resham embroideries, fine festive lawn, and hand-embellished pure silk unstitched cuts.",
   },
   men: {
     bgImage: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=2000&q=85",
     tag: "MEN'S ATELIER",
-    badgeText: "Bespoke Eastern Wear",
-    accentSubtitle: "Raw silk kurtas, tailored jacquard waistcoats, and embroidered bandhgala collars.",
+    badgeText: "100% Gents Unstitched Fabrics",
+    accentSubtitle: "Pure silk Boski, Egyptian combed cotton, and luxury wrinkle-free wash-and-wear suit cuts.",
   },
   unstitched: {
     bgImage: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=2000&q=85",
@@ -38,7 +39,7 @@ const heroBannersConfig: Record<
     bgImage: "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=2000&q=85",
     tag: "EXCLUSIVE ARCHIVE",
     badgeText: "End of Season Sale • Limited Time",
-    accentSubtitle: "Celebratory luxury pret, stitched ensembles, and unstitched fabrics on exclusive seasonal offer.",
+    accentSubtitle: "Celebratory unstitched lawn, festive silk dupattas, and premium gents fabrics on exclusive seasonal offer.",
   },
   "co-ords": {
     bgImage: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=2000&q=85",
@@ -49,8 +50,8 @@ const heroBannersConfig: Record<
   store: {
     bgImage: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=2000&q=85",
     tag: "COMPLETE CATALOGUE",
-    badgeText: "Signature Wardrobe",
-    accentSubtitle: "Handcrafted fabrics. Refined silhouettes. Elegance that whispers rather than shouts.",
+    badgeText: "100% Unstitched Atelier",
+    accentSubtitle: "Handcrafted pure unstitched fabrics. Refined textures. Elegance that whispers rather than shouts.",
   },
   search: {
     bgImage: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=2000&q=85",
@@ -239,26 +240,25 @@ export default function CatalogTemplate({
           )
         }
 
+        if (isMen && !isGirls && !isBoys) return <FabricCategories gender="men" active={categoryHandle} />
+        if (isWomen && !isGirls && !isBoys) return <FabricCategories gender="women" active={categoryHandle} />
+
         let pills: { label: string; href: string }[] = []
 
         if (isGirls) {
-          // Dedicated Girls Page: Unstitched & Ready to Wear subcategories
           pills = [
-            { label: "All Girls", href: "/categories/girls" },
-            { label: "Ready to Wear", href: "/categories/girls-stitched" },
-            { label: "Unstitched", href: "/categories/girls-unstitched" },
+            { label: "All Girls Unstitched", href: "/categories/girls" },
+            { label: "Girls Fabrics", href: "/categories/girls-unstitched" },
           ]
         } else if (isBoys) {
-          // Dedicated Boys Page: Unstitched & Ready to Wear subcategories
           pills = [
-            { label: "All Boys", href: "/categories/boys" },
-            { label: "Ready to Wear", href: "/categories/boys-stitched" },
-            { label: "Unstitched", href: "/categories/boys-unstitched" },
+            { label: "All Boys Unstitched", href: "/categories/boys" },
+            { label: "Boys Fabrics", href: "/categories/boys-unstitched" },
           ]
         } else if (isMen) {
-          // Gents Unstitched Categories (Image 1) - Direct category links
+          // Gents Unstitched Categories - Direct category links
           pills = [
-            { label: "All Gents", href: "/categories/men-unstitched" },
+            { label: "All Gents", href: "/categories/men" },
             { label: "Italian", href: "/categories/italian" },
             { label: "Boski", href: "/categories/boski" },
             { label: "Wash & Wear", href: "/categories/wash-wear" },
@@ -266,23 +266,23 @@ export default function CatalogTemplate({
             { label: "Kamalia Khaddar", href: "/categories/kamalia-khaddar" },
           ]
         } else if (isWomen) {
-          // Ladies Unstitched Categories (Image 1) - Direct category links
+          // Ladies Unstitched Categories - Direct category links
           pills = [
-            { label: "All Ladies", href: "/categories/women-unstitched" },
+            { label: "All Ladies", href: "/categories/women" },
+            { label: "3pc", href: "/categories/3pc" },
+            { label: "2pc", href: "/categories/2pc" },
+            { label: "Embroidery Waly", href: "/categories/embroidery-waly" },
+            { label: "Printed", href: "/categories/printed" },
             { label: "Dhanak", href: "/categories/dhanak" },
             { label: "Khaddar", href: "/categories/khaddar" },
-            { label: "Linen", href: "/categories/linen" },
             { label: "Karandi", href: "/categories/karandi" },
+            { label: "Linen", href: "/categories/linen" },
             { label: "Silk", href: "/categories/silk" },
-            { label: "Printed", href: "/categories/printed" },
-            { label: "Embroidery Waly", href: "/categories/embroidery-waly" },
-            { label: "2pc", href: "/categories/2pc" },
-            { label: "3pc", href: "/categories/3pc" },
           ]
         } else if (isUnstitched) {
           // All Unstitched Page: Full selection of Ladies and Gents - Direct category links
           pills = [
-            { label: "All Unstitched", href: "/categories/unstitched" },
+            { label: "All Unstitched Cuts", href: "/categories/women" },
             { label: "Ladies: Dhanak", href: "/categories/dhanak" },
             { label: "Ladies: Khaddar", href: "/categories/khaddar" },
             { label: "Ladies: Linen", href: "/categories/linen" },
@@ -307,37 +307,37 @@ export default function CatalogTemplate({
                   NEW IN
                 </h2>
                 <div className="flex items-center justify-center gap-10 sm:gap-16">
-                  {/* UNSTITCHED Circular Card */}
+                  {/* LADIES UNSTITCHED Circular Card */}
                   <LocalizedClientLink
-                    href="/categories/unstitched"
+                    href="/categories/women"
                     className="group flex flex-col items-center cursor-pointer"
                   >
                     <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-2 border-stone-200 group-hover:border-[#0F2D22] shadow-md transition-all duration-300 group-hover:scale-105">
                       <img
                         src="https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=400&q=85"
-                        alt="Unstitched Collection"
+                        alt="Ladies Unstitched Collection"
                         className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
                       />
                     </div>
                     <span className="mt-4 text-xs sm:text-sm font-semibold tracking-[0.2em] uppercase text-stone-900 group-hover:text-[#0F2D22] transition-colors">
-                      UNSTITCHED
+                      LADIES UNSTITCHED
                     </span>
                   </LocalizedClientLink>
 
-                  {/* READY TO WEAR Circular Card */}
+                  {/* GENTS UNSTITCHED Circular Card */}
                   <LocalizedClientLink
-                    href="/categories/women-stitched"
+                    href="/categories/men"
                     className="group flex flex-col items-center cursor-pointer"
                   >
                     <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-2 border-stone-200 group-hover:border-[#0F2D22] shadow-md transition-all duration-300 group-hover:scale-105">
                       <img
-                        src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=400&q=85"
-                        alt="Ready to Wear Collection"
+                        src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=400&q=85"
+                        alt="Gents Unstitched Collection"
                         className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
                       />
                     </div>
                     <span className="mt-4 text-xs sm:text-sm font-semibold tracking-[0.2em] uppercase text-stone-900 group-hover:text-[#0F2D22] transition-colors">
-                      READY TO WEAR
+                      GENTS UNSTITCHED
                     </span>
                   </LocalizedClientLink>
                 </div>
@@ -351,7 +351,7 @@ export default function CatalogTemplate({
             <div className="content-container">
               <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 whitespace-nowrap mr-1 flex items-center gap-1">
-                  <span>✨</span> Quick Filter:
+                  Categories:
                 </span>
                 {pills.map((pill) => {
                   const targetCat = pill.href.split("/categories/")[1]?.split("?")[0]?.toLowerCase()

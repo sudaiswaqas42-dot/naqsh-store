@@ -86,31 +86,27 @@ export async function syncAndHydrateHomepageSections(
       if (sec.type) existingByKey.set(sec.type, sec)
     }
 
-    // Seeding is explicit so deleting the final section remains permanent.
-    const shouldSeed = forceReset
+    for (const blueprint of INITIAL_HOMEPAGE_BLUEPRINT) {
+      const found =
+        existingByKey.get(blueprint.key) || existingByKey.get(blueprint.type)
 
-    if (shouldSeed) {
-      for (const blueprint of INITIAL_HOMEPAGE_BLUEPRINT) {
-        const found =
-          existingByKey.get(blueprint.key) || existingByKey.get(blueprint.type)
+      const settings = isCountdownSection(blueprint)
+        ? withFreshCountdown(blueprint.settings)
+        : blueprint.settings
 
-        const settings = isCountdownSection(blueprint)
-          ? withFreshCountdown(blueprint.settings)
-          : blueprint.settings
-
-        if (!found) {
-          await homepageService.createHomepageSections({
-            key: blueprint.key,
-            type: blueprint.type,
-            title: blueprint.title,
-            subtitle: blueprint.subtitle,
-            cta_text: blueprint.cta_text,
-            cta_link: blueprint.cta_link,
-            rank: blueprint.rank,
-            is_active: blueprint.is_active,
-            settings,
-          })
-        } else if (forceReset) {
+      if (!found) {
+        await homepageService.createHomepageSections({
+          key: blueprint.key,
+          type: blueprint.type,
+          title: blueprint.title,
+          subtitle: blueprint.subtitle,
+          cta_text: blueprint.cta_text,
+          cta_link: blueprint.cta_link,
+          rank: blueprint.rank,
+          is_active: blueprint.is_active,
+          settings,
+        })
+      } else if (forceReset) {
           if (blueprint.type === "instagram_feed") {
             // Keep the connected Instagram account, only realign rank
             await homepageService.updateHomepageSections({
@@ -131,7 +127,6 @@ export async function syncAndHydrateHomepageSections(
           })
         }
       }
-    }
 
     let allSections = await homepageService.listHomepageSections(
       {},

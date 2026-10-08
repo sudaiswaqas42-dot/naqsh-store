@@ -1,3 +1,4 @@
+import MobileShopNavigation from "@modules/layout/components/mobile-shop-navigation"
 import { Suspense } from "react"
 import { Metadata } from "next"
 
@@ -47,6 +48,7 @@ export default function PageLayout({ children }: { children: React.ReactNode }) 
       {children}
       <Suspense fallback={<div className="min-h-40 bg-[#0F2D22]" />}><Footer /></Suspense>
       <WhatsAppFloatingButton />
+      <MobileShopNavigation />
     </>
   )
 }

@@ -10,6 +10,7 @@ import WishlistButton from "@modules/layout/components/wishlist-button"
 import CartTriggerButton from "@modules/layout/components/cart-trigger-button"
 import CartDrawer from "@modules/cart/templates/cart-drawer"
 import MegaNav from "@modules/layout/components/mega-nav"
+import StoreHeader from "@modules/layout/components/store-header"
 
 import NaqshLogo from "@modules/common/components/naqsh-logo"
 
@@ -21,15 +22,16 @@ export default async function Nav() {
 
   return (
     <div className="sticky top-0 inset-x-0 z-40">
+      <StoreHeader>
       {/* Top Announcement Bar */}
       <AnnouncementBar />
 
       {/* Main Header */}
       <header className="relative bg-white border-b border-[#EBE1D6] shadow-2xs transition-all duration-200">
         <div className="content-container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20 sm:h-22 gap-4">
+          <div className="naqsh-header-row grid grid-cols-[1fr_auto_1fr] lg:grid-cols-[auto_minmax(180px,1fr)_auto] items-center min-h-20 gap-x-4 gap-y-3 py-3">
             {/* Left: Mobile Menu & Quick Catalog Link */}
-            <div className="flex items-center gap-4 w-20 sm:w-auto lg:w-1/4">
+            <div className="flex items-center gap-4 order-1 lg:hidden">
               <SideMenu />
               <LocalizedClientLink
                 href="/store"
@@ -40,7 +42,7 @@ export default async function Nav() {
             </div>
 
             {/* Center: Brand Logo */}
-            <div className="flex-1 flex justify-center text-center">
+            <div className="flex justify-center text-center order-2 lg:order-1">
               <LocalizedClientLink
                 href="/"
                 className="flex items-center justify-center py-1 group"
@@ -52,16 +54,12 @@ export default async function Nav() {
             </div>
 
             {/* Right: Search, Track Order, Contact Us, Wishlist, Account, Cart */}
-            <div className="flex items-center justify-end gap-1 sm:gap-2.5 lg:gap-3 w-auto lg:w-auto">
-              {/* Autocomplete Search */}
-              <div className="block">
-                <SearchAutocomplete />
-              </div>
+            <div className="flex items-center justify-end gap-1 sm:gap-2.5 lg:gap-3 order-3">
 
               {/* Track Order Pill Button */}
               <LocalizedClientLink
                 href="/order/track"
-                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[#EBE1D6] hover:border-[#0F2D22] text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#1A1A1A] hover:text-[#FAF9F6] bg-[#FAF9F6] hover:bg-[#0F2D22] transition-all duration-200 shadow-2xs group"
+                className="hidden xl:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[#EBE1D6] hover:border-[#0F2D22] text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#1A1A1A] hover:text-[#FAF9F6] bg-[#FAF9F6] hover:bg-[#0F2D22] transition-all duration-200 shadow-2xs group"
                 title="Track Order Status"
               >
                 <svg className="w-3.5 h-3.5 text-[#B6975A] group-hover:text-amber-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -74,7 +72,7 @@ export default async function Nav() {
               {/* Contact Us Pill Button */}
               <LocalizedClientLink
                 href="/contact"
-                className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[#EBE1D6] hover:border-[#0F2D22] text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#1A1A1A] hover:text-[#FAF9F6] bg-[#FAF9F6] hover:bg-[#0F2D22] transition-all duration-200 shadow-2xs group"
+                className="hidden 2xl:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[#EBE1D6] hover:border-[#0F2D22] text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#1A1A1A] hover:text-[#FAF9F6] bg-[#FAF9F6] hover:bg-[#0F2D22] transition-all duration-200 shadow-2xs group"
                 title="Contact NAQSH Concierge"
               >
                 <svg className="w-3.5 h-3.5 text-[#B6975A] group-hover:text-amber-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -84,12 +82,12 @@ export default async function Nav() {
               </LocalizedClientLink>
 
               {/* Wishlist */}
-              <div className="hidden sm:block"><WishlistButton /></div>
+              <div><WishlistButton /></div>
 
               {/* Account Profile */}
               <LocalizedClientLink
                 href="/account"
-                className="p-2 text-[#1A1A1A] hover:text-[#0F2D22] transition-colors rounded-full hover:bg-[#EBE1D6]/40"
+                className="hidden sm:block p-2 text-[#1A1A1A] hover:text-[#0F2D22] transition-colors rounded-full hover:bg-[#EBE1D6]/40"
                 title="Account"
                 data-testid="nav-account-link"
               >
@@ -101,12 +99,14 @@ export default async function Nav() {
               {/* Slide-in Cart Drawer Trigger */}
               <Suspense fallback={<LocalizedClientLink href="/cart" className="p-2 text-xs">Bag</LocalizedClientLink>}><CartControl /></Suspense>
             </div>
+            <div className="order-4 col-span-3 lg:order-2 lg:col-span-1 w-full lg:max-w-md lg:justify-self-center"><SearchAutocomplete /></div>
           </div>
 
           {/* Desktop Mega Navigation */}
           <MegaNav categories={categories} collections={collectionsData.collections} />
         </div>
       </header>
+      </StoreHeader>
 
       {/* Slide-in Cart Drawer instance */}
       <Suspense fallback={null}><CartContent /></Suspense>

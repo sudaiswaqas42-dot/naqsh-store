@@ -53,7 +53,7 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
   }
 
   const [currentStatus, setCurrentStatus] = useState<string>(getInitialStatus())
-  const [carrier, setCarrier] = useState<string>((metadata.carrier as string) || "TCS Express")
+  const [carrier, setCarrier] = useState<string>((metadata.carrier as string) || "")
   const [trackingNumber, setTrackingNumber] = useState<string>((metadata.tracking_number as string) || "")
   const [internalNotes, setInternalNotes] = useState<string>((metadata.internal_notes as string) || "")
   const [saving, setSaving] = useState(false)
@@ -98,10 +98,10 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
       .map(
         (item: any) => `
         <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${escape(item.title || "Product")}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center;">${item.quantity}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right;">Rs. ${Number(item.unit_price || 0).toLocaleString()}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: bold;">Rs. ${(Number(item.unit_price || 0) * Number(item.quantity)).toLocaleString()}</td>
+          <td style="padding: 10px; border-bottom: 1px solid var(--border-base);">${escape(item.title || "Product")}</td>
+          <td style="padding: 10px; border-bottom: 1px solid var(--border-base); text-align: center;">${item.quantity}</td>
+          <td style="padding: 10px; border-bottom: 1px solid var(--border-base); text-align: right;">Rs. ${Number(item.unit_price || 0).toLocaleString()}</td>
+          <td style="padding: 10px; border-bottom: 1px solid var(--border-base); text-align: right; font-weight: bold;">Rs. ${(Number(item.unit_price || 0) * Number(item.quantity)).toLocaleString()}</td>
         </tr>
       `
       )
@@ -115,7 +115,7 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Invoice - #${escape(order.display_id || order.id)}</title>
+        <title>Invoice - #${escape(order.custom_display_id || order.display_id || order.id)}</title>
         <base href="${window.location.origin}/" />
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 40px; color: #1a1a1a; max-width: 800px; margin: 0 auto; }
@@ -195,7 +195,7 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
           </div>
         </div>
 
-        <div style="clear: both; margin-top: 60px; border-top: 1px solid #e5e7eb; padding-top: 20px; text-align: center; font-size: 12px; color: #888;">
+        <div style="clear: both; margin-top: 60px; border-top: 1px solid var(--border-base); padding-top: 20px; text-align: center; font-size: 12px; color: #888;">
           Thank you for choosing NAQSH. For inquiries or returns, visit naqsh.pk/order/track or WhatsApp +92 (319) 736-5388.
         </div>
       </body>
@@ -224,8 +224,8 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
           <Heading level="h2" style={{ fontSize: "18px", fontWeight: "600" }}>
             NAQSH Fulfillment & Custom Order Status
           </Heading>
-          <Text size="small" style={{ color: "#6b7280" }}>
-            Control courier dispatch, custom tracking stages, and invoice generation
+          <Text size="small" style={{ color: "var(--fg-subtle)" }}>
+            Enter a courier and tracking ID when dispatching. Tracking is shown to customers only after shipment.
           </Text>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -239,7 +239,7 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
       <p className="mb-4 text-sm text-ui-fg-subtle">Tracking labels do not execute financial operations. Use the order actions to cancel, return or refund an order and update inventory/payments.</p>
       <div className="grid gap-4 md:grid-cols-3">
         <div>
-          <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "#374151" }}>
+          <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "var(--fg-base)" }}>
             Order Status Step
           </Text>
           <select
@@ -249,8 +249,8 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
               width: "100%",
               padding: "8px 12px",
               borderRadius: "6px",
-              border: "1px solid #d1d5db",
-              backgroundColor: "#fff",
+              border: "1px solid var(--border-base)",
+              backgroundColor: "var(--bg-base)",
               fontSize: "14px",
               fontWeight: "500",
             }}
@@ -264,7 +264,7 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
         </div>
 
         <div>
-          <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "#374151" }}>
+          <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "var(--fg-base)" }}>
             Courier Partner
           </Text>
           <select
@@ -274,11 +274,12 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
               width: "100%",
               padding: "8px 12px",
               borderRadius: "6px",
-              border: "1px solid #d1d5db",
-              backgroundColor: "#fff",
+              border: "1px solid var(--border-base)",
+              backgroundColor: "var(--bg-base)",
               fontSize: "14px",
             }}
           >
+            <option value="">Select courier at dispatch</option>
             <option value="TCS Express">TCS Express</option>
             <option value="Leopards Courier">Leopards Courier</option>
             <option value="M&P Logistics">M&P Logistics</option>
@@ -288,8 +289,8 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
         </div>
 
         <div>
-          <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "#374151" }}>
-            Tracking Number
+          <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "var(--fg-base)" }}>
+            Tracking ID
           </Text>
           <Input
             value={trackingNumber}
@@ -301,7 +302,7 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
 
       <div style={{ marginTop: "16px", display: "grid", gridTemplateColumns: "3fr 1fr", gap: "16px", alignItems: "flex-end" }}>
         <div>
-          <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "#374151" }}>
+          <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "var(--fg-base)" }}>
             Internal Fulfillment Notes
           </Text>
           <Input

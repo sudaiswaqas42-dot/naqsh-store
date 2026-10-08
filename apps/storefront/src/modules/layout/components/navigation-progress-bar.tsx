@@ -2,15 +2,9 @@
 
 import React, { useEffect, useState, useRef } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
-import NaqshLogo from "@modules/common/components/naqsh-logo"
+import BrandLoader from "./brand-loader"
 
-/**
- * Luxury Brand Page Transition Screen with NAQSH Logo.
- * Displays the NAQSH emblem on an opaque luxury canvas during page transitions.
- * When Next.js completes the route change, smoothly fades out to reveal the NEW
- * destination page directly, completely eliminating any flicker or bounce back
- * to the previous page.
- */
+// Non-blocking route feedback keeps the page and navigation available.
 export default function NavigationProgressBar() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -23,7 +17,7 @@ export default function NavigationProgressBar() {
   // Listen for clicks on internal navigation links
   useEffect(() => {
     const handleDocumentClick = (e: MouseEvent) => {
-      const target = (e.target as HTMLElement).closest("a")
+      const target = e.target instanceof Element ? e.target.closest("a") : null
       if (!target || !target.href) return
 
       try {
@@ -37,6 +31,10 @@ export default function NavigationProgressBar() {
           isSameOrigin &&
           isDifferentPath &&
           !target.target &&
+          !target.hasAttribute("download") &&
+          !url.hash &&
+          e.button === 0 &&
+          !e.altKey &&
           !e.ctrlKey &&
           !e.metaKey &&
           !e.shiftKey
@@ -84,25 +82,5 @@ export default function NavigationProgressBar() {
 
   if (!isNavigating) return null
 
-  return (
-    <div
-      aria-hidden="true"
-      className={`fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#FAF9F6] transition-opacity duration-300 select-none pointer-events-none ${
-        isFadingOut ? "opacity-0" : "opacity-100 animate-fadeIn"
-      }`}
-    >
-      <div className="flex flex-col items-center justify-center text-center p-8 max-w-lg mx-auto">
-        {/* Animated Brand Logo - Prominent Luxury Scale */}
-        <div className="relative animate-pulse-subtle">
-          <NaqshLogo variant="dark" size="2xl" priority />
-        </div>
-
-        {/* Subtle Luxury Gold Shimmer Indicator */}
-        <div className="w-48 sm:w-60 md:w-72 h-[2.5px] bg-[#EBE1D6] rounded-full overflow-hidden mt-8 relative shadow-xs">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#B6975A] to-transparent animate-shimmer" />
-        </div>
-      </div>
-    </div>
-  )
+  return <BrandLoader fading={isFadingOut} />
 }
-

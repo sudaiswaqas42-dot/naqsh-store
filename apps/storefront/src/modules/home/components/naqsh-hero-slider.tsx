@@ -31,36 +31,36 @@ const pakistaniHeroSlides: Slide[] = [
     tag: "FESTIVE LUXURY LAWN '25",
     eyebrow: "The Summer Signature Edit",
     title: "Artisanal Handcrafted Lawn",
-    sub: "Exquisite chikan kari embroideries, pure silk pallu dupattas, and handcrafted Pakistani luxury tailored for celebratory occasions.",
+    sub: "Exquisite chikan kari embroideries, pure silk pallu dupattas, and handcrafted Pakistani luxury unstitched fabrics for celebratory occasions.",
     cta_text: "Shop Festive Lawn",
-    cta_link: "/store?category=women",
+    cta_link: "/categories/women",
     image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=2000&q=85",
   },
   {
-    tag: "HAUTE COUTURE & LUXURY PRET",
+    tag: "HEIRLOOM UNSTITCHED SILKS",
     eyebrow: "Heirloom Craftsmanship",
     title: "Raw Silks & Delicate Zardozi",
-    sub: "Masterfully hand-embellished resham threadwork, organza overlay coats, and timeless Pakistani formal silhouettes.",
-    cta_text: "Explore Formals",
-    cta_link: "/store?category=luxury",
+    sub: "Masterfully hand-embellished resham threadwork, organza dupatta cuts, and timeless Pakistani unstitched festive fabrics.",
+    cta_text: "Explore Festive Cuts",
+    cta_link: "/categories/silk",
     image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=2000&q=85",
   },
   {
-    tag: "EVERYDAY CONTEMPORARY PRET",
-    eyebrow: "Modern Day Co-ords",
-    title: "Printed Silks & Modern Cuts",
-    sub: "Breathable matching sets, geometric digital prints, and effortless silhouettes designed for modern day-to-evening style.",
-    cta_text: "Shop Ready-to-Wear",
-    cta_link: "/store?category=women",
+    tag: "UNSTITCHED 2-PIECE & 3-PIECE",
+    eyebrow: "Artisanal Lawn Prints",
+    title: "Printed Silks & Premium Lawn",
+    sub: "Breathable unstitched matching sets, geometric digital prints, and effortless fabric cuts for custom tailoring.",
+    cta_text: "Shop Unstitched Cuts",
+    cta_link: "/categories/women",
     image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=2000&q=85",
   },
   {
-    tag: "MEN'S FESTIVE WARDROBE",
-    eyebrow: "Eastern Grandeur",
-    title: "Royal Jacquard & Kurtas",
-    sub: "Tailored fine Egyptian cotton kurtas, subtle ban-collar embroidery, and handcrafted festive waistcoats.",
-    cta_text: "Shop Men's Wear",
-    cta_link: "/store?category=men",
+    tag: "GENTS UNSTITCHED FABRICS",
+    eyebrow: "Bespoke Suiting Lengths",
+    title: "Pure Boski & Superfine Latha",
+    sub: "Heavyweight heirloom pure silk boski, luxury Egyptian combed cotton, and wrinkle-free wash-and-wear 4.5-meter cuts.",
+    cta_text: "Shop Gents Fabrics",
+    cta_link: "/categories/men",
     image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=2000&q=85",
   },
 ]
@@ -146,10 +146,10 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
   if (!slides.length) return null
 
   return (
-    <div className="relative w-full overflow-hidden select-none bg-stone-900 font-sans">
+    <div className="naqsh-home-hero relative w-full overflow-hidden select-none bg-stone-900 font-sans">
       {/* Main Hero Slider Container */}
       <section
-        className="relative w-full h-[580px] sm:h-[660px] lg:h-[760px] overflow-hidden"
+        className="naqsh-home-hero-stage relative w-full h-[580px] sm:h-[660px] lg:h-[760px] overflow-hidden"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={handleTouchStart}
@@ -254,10 +254,10 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
           )
         })}
 
-        {/* Left Arrow */}
+        {/* Left Arrow (Hidden on mobile and mobile landscape) */}
         <button
           onClick={prevSlide}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/40 hover:bg-accent hover:text-brand border border-white/20 backdrop-blur-md text-white flex items-center justify-center transition-all duration-300 group shadow-lg"
+          className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/40 hover:bg-accent hover:text-brand border border-white/20 backdrop-blur-md text-white items-center justify-center transition-all duration-300 group shadow-lg"
           aria-label="Previous slide"
         >
           <svg className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -265,10 +265,10 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
           </svg>
         </button>
 
-        {/* Right Arrow */}
+        {/* Right Arrow (Hidden on mobile and mobile landscape) */}
         <button
           onClick={nextSlide}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/40 hover:bg-accent hover:text-brand border border-white/20 backdrop-blur-md text-white flex items-center justify-center transition-all duration-300 group shadow-lg"
+          className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/40 hover:bg-accent hover:text-brand border border-white/20 backdrop-blur-md text-white items-center justify-center transition-all duration-300 group shadow-lg"
           aria-label="Next slide"
         >
           <svg className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -276,8 +276,8 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
           </svg>
         </button>
 
-        {/* Slide Progress Indicator Timeline Bars (Khaadi / Nishat Linen standard) */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3">
+        {/* Slide Progress Indicator Circles with filling animation */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2.5 sm:gap-3">
           {slides.map((_, idx) => (
             <button
               key={idx}
@@ -285,12 +285,13 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
               className="group p-1 focus:outline-none"
               aria-label={`Go to slide ${idx + 1}`}
             >
-              <div className="w-12 sm:w-16 h-1 bg-white/30 rounded-full overflow-hidden relative">
+              <div className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border transition-all duration-300 overflow-hidden relative flex items-center justify-center ${
+                idx === current ? "border-accent bg-accent/25 scale-110 shadow-sm" : "border-white/50 bg-white/20 hover:border-white"
+              }`}>
                 <div
-                  className={`h-full bg-accent rounded-full transition-all duration-100 ${
-                    idx === current ? "opacity-100" : "opacity-0"
+                  className={`w-2 h-2 sm:w-2.5 sm:h-2.5 bg-accent rounded-full transition-all duration-300 ${
+                    idx === current ? "scale-100 opacity-100" : "scale-0 opacity-0"
                   }`}
-                  style={{ width: idx === current ? `${progress}%` : "0%" }}
                 />
               </div>
             </button>

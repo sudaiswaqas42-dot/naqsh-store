@@ -98,9 +98,9 @@ const Overview = ({ customer, orders }: OverviewProps) => {
                               </span>
                               <span
                                 data-testid="order-id"
-                                data-value={order.display_id}
+                                data-value={(order.custom_display_id || order.display_id)}
                               >
-                                #{order.display_id}
+                                #{(order.custom_display_id || order.display_id)}
                               </span>
                               <span data-testid="order-amount">
                                 {convertToLocale({
@@ -114,7 +114,7 @@ const Overview = ({ customer, orders }: OverviewProps) => {
                               data-testid="open-order-button"
                             >
                               <span className="sr-only">
-                                Go to order #{order.display_id}
+                                Go to order #{(order.custom_display_id || order.display_id)}
                               </span>
                               <ChevronDown className="-rotate-90" />
                             </button>

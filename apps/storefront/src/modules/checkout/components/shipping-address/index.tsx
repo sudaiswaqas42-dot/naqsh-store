@@ -198,12 +198,11 @@ const ShippingAddress = ({
           data-testid="shipping-email-input"
         />
         <Input
-          label="Mobile Phone (03XX XXXXXXX)"
+          label="Mobile Phone"
           name="shipping_address.phone"
           autoComplete="tel"
           type="tel"
           maxLength={20}
-          placeholder="03001234567"
           title="Please enter a valid 11-digit Pakistani mobile number (e.g. 03001234567)"
           value={formData["shipping_address.phone"]}
           onChange={handleChange}

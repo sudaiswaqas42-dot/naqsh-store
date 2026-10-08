@@ -35,5 +35,21 @@ sdk.client.fetch = async <T>(
     ...init,
     headers: newHeaders,
   }
-  return originalFetch(input, init)
+  const isServerRead = typeof window === "undefined" &&
+    (!init.method || init.method.toUpperCase() === "GET")
+  if (!isServerRead) return originalFetch(input, init)
+
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await originalFetch<T>(input, {
+        ...init,
+        signal: init.signal ?? AbortSignal.timeout(10000),
+      })
+    } catch (error) {
+      const status = (error as { status?: number }).status
+      const transient = !status || status === 408 || status === 429 || status >= 500
+      if (attempt >= 1 || !transient || init.signal?.aborted) throw error
+      await new Promise((resolve) => setTimeout(resolve, 250))
+    }
+  }
 }

@@ -27,57 +27,57 @@ const bentoCategories: {
   column4: [StyleCategoryItem, StyleCategoryItem]
 } = {
   tallItem: {
-    id: "unstitched",
-    title: "Unstitched",
-    countLabel: "2,250+ Fabrics",
-    href: "/categories/unstitched",
+    id: "ladies-unstitched",
+    title: "Ladies Unstitched",
+    countLabel: "1,250+ Fabrics",
+    href: "/categories/women",
     image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1200&q=85",
   },
   column2: [
     {
-      id: "ready-to-wear",
-      title: "Ready to Wear",
-      countLabel: "1,250+ Styles",
-      href: "/categories/women-stitched",
+      id: "3pc",
+      title: "3-Piece Luxury",
+      countLabel: "Festive Lawn & Chiffon",
+      href: "/categories/3pc",
       image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=85",
     },
     {
-      id: "festive-formals",
-      title: "Festive Formals",
-      countLabel: "Handcrafted Luxury",
-      href: "/categories/festive-formals",
+      id: "2pc",
+      title: "2-Piece Prints",
+      countLabel: "Lawn & Voile Cuts",
+      href: "/categories/2pc",
       image: "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=800&q=85",
     },
   ],
   column3: [
     {
-      id: "co-ords",
-      title: "Co-ords",
-      countLabel: "Modern Separates",
-      href: "/categories/co-ords",
-      image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=800&q=85",
+      id: "boski",
+      title: "Pure Silk Boski",
+      countLabel: "Heirloom Gents Cuts",
+      href: "/categories/boski",
+      image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=85",
     },
     {
       id: "women-unstitched",
       title: "Lawn & Silks",
-      countLabel: "1,250+ Cuts",
-      href: "/categories/women-unstitched",
+      countLabel: "1,250+ Fabrics",
+      href: "/categories/women",
       image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=85",
     },
   ],
   column4: [
     {
-      id: "men-stitched",
-      title: "Men's Stitched",
-      countLabel: "1,000+ Designs",
-      href: "/categories/men-stitched",
-      image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=85",
+      id: "wash-wear",
+      title: "Wash & Wear",
+      countLabel: "Executive Gents Cuts",
+      href: "/categories/wash-wear",
+      image: "https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?auto=format&fit=crop&w=800&q=85",
     },
     {
       id: "men-unstitched",
-      title: "Men's Unstitched",
+      title: "Gents Unstitched",
       countLabel: "1,000+ Fabric Cuts",
-      href: "/categories/men-unstitched",
+      href: "/categories/men",
       image: "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=800&q=85",
     },
   ],
@@ -171,7 +171,7 @@ export default function CategoryGrid({ section }: CategoryGridProps & { section?
             {section?.title ?? "Find Your Perfect Style"}
           </h2>
           <p className="text-xs sm:text-sm text-stone-500 mt-2 font-light">
-            {section?.subtitle ?? "From unstitched luxury fabrics to ready-to-wear kurtas"}
+            {section?.subtitle ?? "From luxury unstitched lawn & silks to premium gents fabric cuts"}
           </p>
         </div>
 

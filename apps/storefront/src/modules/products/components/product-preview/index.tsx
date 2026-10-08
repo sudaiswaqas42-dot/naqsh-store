@@ -1,4 +1,3 @@
-import ProductAttributes from "@modules/products/components/product-attributes"
 import { Text } from "@modules/common/components/ui"
 import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
@@ -37,8 +36,7 @@ export default async function ProductPreview({
           size="full"
           isFeatured={isFeatured}
         />
-        <ProductAttributes product={product} />
-        <div className="flex txt-compact-medium mt-4 justify-between">
+        <div className="flex flex-col gap-2 txt-compact-medium mt-3">
           <Text className="text-ui-fg-subtle" data-testid="product-title">
             {product.title}
           </Text>

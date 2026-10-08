@@ -41,7 +41,7 @@ const CustomerCarePage = () => {
       <Heading level="h2">{message.subject}</Heading>
       <Text>{message.name} / {message.email} / {message.phone}</Text>
       <Text className="whitespace-pre-wrap">{message.message}</Text>
-      <label className="block">Status <select aria-label="Message status" className="border p-2 rounded" value={message.status} onChange={e => setMessages(list => list.map(item => item.id === message.id ? { ...item, status: e.target.value } : item))}><option value="open">Open</option><option value="in_progress">In progress</option><option value="resolved">Resolved</option></select></label>
+      <label className="block">Status <select aria-label="Message status" className="border border-[var(--border-base)] bg-[var(--bg-base)] text-[var(--fg-base)] p-2 rounded" value={message.status} onChange={e => setMessages(list => list.map(item => item.id === message.id ? { ...item, status: e.target.value } : item))}><option value="open">Open</option><option value="in_progress">In progress</option><option value="resolved">Resolved</option></select></label>
       <Textarea aria-label="Internal notes" placeholder="Internal notes" value={message.admin_notes || ""} onChange={e => setMessages(list => list.map(item => item.id === message.id ? { ...item, admin_notes: e.target.value } : item))} />
       <Button disabled={saving === message.id} onClick={() => save(message)}>{saving === message.id ? "Saving..." : "Save"}</Button>
     </div>)}

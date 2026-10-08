@@ -42,8 +42,26 @@ export function matchesVariantFilters(product: CatalogProduct, sizes: string[], 
   })
 }
 export function isDiscounted(product: CatalogProduct) {
-  return (product.variants || []).some(variant => {
-    const price = variant.calculated_price
-    return price?.calculated_amount != null && price.original_amount != null && price.calculated_amount < price.original_amount
-  })
+  const amount = productPrice(product)
+  const original = productOriginalPrice(product)
+  return amount !== null && original !== null && original > amount
+}
+
+export function productOriginalPrice(product: CatalogProduct) {
+  const amount = productPrice(product)
+  if (amount === null) return null
+  const variant = product.variants?.find(item => item.calculated_price?.calculated_amount === amount)
+  const original = variant?.calculated_price?.original_amount
+  if (typeof original === "number" && original > amount) return original
+
+  // Imported sale prices are already the payable variant prices. Only use the
+  // recorded compare-at price when it agrees with that payable amount.
+  const metadata = product.metadata
+  const compareAt = metadata?.original_price_pkr
+  if (product.metadata?.is_sale === true &&
+    typeof compareAt === "number" && Number.isFinite(compareAt) && compareAt > amount &&
+    (metadata?.sale_price_pkr == null || metadata.sale_price_pkr === amount)) {
+    return compareAt
+  }
+  return amount
 }

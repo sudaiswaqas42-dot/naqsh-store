@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function AboutUsPage() {
   const offerings = [
-    { title: "Men's Clothing", desc: "Contemporary kurtas, waistcoats, and casual pret tailored for everyday sophistication.", icon: "👔" },
-    { title: "Women's Clothing", desc: "Stitched luxury pret, festive formals, and seasonal co-ords for every celebration.", icon: "👗" },
+    { title: "Men's Unstitched", desc: "Pure Boski, Egyptian cotton, and wrinkle-free wash-and-wear 4.5-meter suit cuts for custom tailoring.", icon: "👔" },
+    { title: "Women's Unstitched", desc: "Premium 3-piece luxury lawn, pure chiffon dupattas, and seasonal embroidered fabrics for every celebration.", icon: "👗" },
     { title: "Unstitched Collections", desc: "Premium lawn, pure organza, chiffon, and jacquard fabrics with embroidered borders.", icon: "🧵" },
     { title: "Seasonal Fashion", desc: "Curated summer lawn edits, festive Eid ensembles, and cozy winter shawls.", icon: "🌸" },
     { title: "Printed & Designer Articles", desc: "Exclusive digital prints and artisan motifs celebrating Pakistani heritage.", icon: "✨" },

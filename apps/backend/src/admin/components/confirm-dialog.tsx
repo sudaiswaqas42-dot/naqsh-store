@@ -48,10 +48,10 @@ export function ConfirmDialog({
           width: "100%",
           maxWidth: "440px",
           borderRadius: "12px",
-          backgroundColor: "#ffffff",
+          backgroundColor: "var(--bg-base)",
           padding: "24px",
           boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)",
-          border: "1px solid #e5e7eb",
+          border: "1px solid var(--border-base)",
           display: "flex",
           flexDirection: "column",
           gap: "16px",
@@ -88,7 +88,7 @@ export function ConfirmDialog({
             </svg>
           </div>
           <div style={{ flex: 1 }}>
-            <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 600, color: "#111827", lineHeight: "1.3" }}>
+            <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 600, color: "var(--fg-base)", lineHeight: "1.3" }}>
               {title}
             </h3>
             <p style={{ margin: "6px 0 0 0", fontSize: "13px", color: "#4b5563", lineHeight: "1.5" }}>

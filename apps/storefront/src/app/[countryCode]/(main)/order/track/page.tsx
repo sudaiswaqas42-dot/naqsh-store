@@ -20,8 +20,8 @@ export default function OrderTrackPage() {
     const idToUse = customId || displayId
     const emailToUse = customEmail || email
 
-    if (!idToUse) {
-      setError("Please provide your Order Number.")
+    if (!idToUse || !emailToUse.trim()) {
+      setError("Please provide your order number and checkout email.")
       return
     }
 
@@ -69,11 +69,6 @@ export default function OrderTrackPage() {
     }
   }, [initialOrderNo, initialEmail])
 
-  const fillDemoOrder = (id: string, mail: string) => {
-    setDisplayId(id)
-    setEmail(mail)
-    handleTrack(undefined, id, mail)
-  }
 
   return (
     <div className="content-container mx-auto px-4 sm:px-6 lg:px-8 py-14 max-w-4xl font-sans">
@@ -109,10 +104,11 @@ export default function OrderTrackPage() {
 
           <div className="sm:col-span-5">
             <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1.5">
-              Account / Customer Email (Optional)
+              Customer Email *
             </label>
             <input
               type="email"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="e.g. fatima.khan@example.com"
@@ -130,32 +126,6 @@ export default function OrderTrackPage() {
             </button>
           </div>
         </form>
-
-        {/* Demo Fast Buttons */}
-        <div className="mt-4 pt-4 border-t border-stone-100 flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-[11px] text-stone-400 font-medium">Quick Demo Test:</span>
-          <button
-            type="button"
-            onClick={() => fillDemoOrder("1001", "fatima.khan@example.com")}
-            className="px-2.5 py-1 bg-stone-100 hover:bg-accent/15 text-stone-700 hover:text-accent text-[11px] transition-colors rounded-sm"
-          >
-            Order #1001 (Delivered • TCS)
-          </button>
-          <button
-            type="button"
-            onClick={() => fillDemoOrder("1002", "zainab.ahmed@example.com")}
-            className="px-2.5 py-1 bg-stone-100 hover:bg-accent/15 text-stone-700 hover:text-accent text-[11px] transition-colors rounded-sm"
-          >
-            Order #1002 (Shipped • Leopards)
-          </button>
-          <button
-            type="button"
-            onClick={() => fillDemoOrder("1003", "bilal.siddiqui@example.com")}
-            className="px-2.5 py-1 bg-stone-100 hover:bg-accent/15 text-stone-700 hover:text-accent text-[11px] transition-colors rounded-sm"
-          >
-            Order #1003 (Packed • TCS)
-          </button>
-        </div>
 
         {error && (
           <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
@@ -189,26 +159,26 @@ export default function OrderTrackPage() {
                 </p>
               </div>
 
-              {orderData.tracking?.carrier && (
+              {orderData.tracking?.tracking_number ? (
                 <div className="text-right">
                   <div className="text-xs text-stone-500">Courier Partner</div>
                   <div className="font-semibold text-brand text-sm">
                     {orderData.tracking.carrier}
                   </div>
                   <div className="text-xs font-mono text-accent mt-0.5">
-                    Waybill: #{orderData.tracking.tracking_number}
+                    Tracking ID: {orderData.tracking.tracking_number}
                   </div>
                 </div>
-              )}
+              ) : <p className="max-w-xs text-sm text-stone-500">Your courier and tracking ID will appear here once your order has been dispatched.</p>}
             </div>
 
-            {/* 7-Step Progression Bar */}
+            {/* 6-Step Progression Bar */}
             <div className="py-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-400 mb-6">
-                Delivery Progression (7 Stages)
+                Delivery Progression (6 Stages)
               </h3>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                 {orderData.tracking?.steps?.map((step: any, idx: number) => {
                   const isDone = step.status === "completed"
                   const isCurrent = step.status === "current"
@@ -236,8 +206,8 @@ export default function OrderTrackPage() {
                       <div className="text-[11px] font-medium leading-tight">
                         {step.name}
                       </div>
-                      <div className="text-[9px] mt-1 opacity-75">
-                        {isDone ? "Completed" : isCurrent ? "Active" : "Pending"}
+                      <div className="text-[9px] mt-1 opacity-75 min-h-[14px]">
+                        {isDone ? "" : isCurrent ? "Processing" : "Pending"}
                       </div>
                     </div>
                   )

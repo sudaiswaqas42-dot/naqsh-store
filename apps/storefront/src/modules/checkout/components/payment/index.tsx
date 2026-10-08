@@ -233,7 +233,7 @@ const Payment = ({
                       <CreditCard />
                     )}
                   </Container>
-                  <Text>Another step will appear</Text>
+                  <Text>{activeSession?.provider_id === "pp_system_default" ? "Pay when your order is delivered" : "Confirm your payment to place the order"}</Text>
                 </div>
               </div>
             </div>

@@ -29,6 +29,7 @@ const types: Record<string, string> = {
   fabric_strip: "Fabric cards",
   instagram_feed: "Instagram reels",
   cards_grid: "Custom cards",
+  newsletter: "Newsletter",
 }
 const listKeys: Record<string, string> = {
   hero_slider: "slides",

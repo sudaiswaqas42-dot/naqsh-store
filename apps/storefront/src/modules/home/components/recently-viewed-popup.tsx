@@ -27,11 +27,14 @@ export default function RecentlyViewedPopup() {
         const parsed: RecentlyViewedItem[] = JSON.parse(stored)
         if (Array.isArray(parsed) && parsed.length > 0) {
           setItems(parsed)
-          // Gentle auto-open delay (1.2s) when user lands on home page
-          const timer = setTimeout(() => {
-            setIsOpen(true)
-          }, 1200)
-          return () => clearTimeout(timer)
+          // Only auto-open on desktop; never auto-open on mobile so screen is never covered
+          const isMobile = typeof window !== "undefined" && window.innerWidth < 768
+          if (!isMobile) {
+            const timer = setTimeout(() => {
+              setIsOpen(true)
+            }, 1200)
+            return () => clearTimeout(timer)
+          }
         }
       }
     } catch {}
@@ -65,7 +68,7 @@ export default function RecentlyViewedPopup() {
             setIsOpen(true)
             setIsMinimized(false)
           }}
-          className="fixed bottom-6 right-20 sm:right-24 z-40 bg-stone-900 hover:bg-black text-white px-4 py-2.5 rounded-full shadow-2xl border border-white/20 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-all duration-300 hover:scale-105 active:scale-95 group font-sans"
+          className="hidden sm:flex fixed bottom-6 right-20 sm:right-24 z-40 bg-stone-900 hover:bg-black text-white px-4 py-2.5 rounded-full shadow-2xl border border-white/20 items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-all duration-300 hover:scale-105 active:scale-95 group font-sans"
           aria-label="View recently viewed products"
         >
           <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
@@ -79,7 +82,7 @@ export default function RecentlyViewedPopup() {
 
       {/* 2. Expanded Luxury Popup Drawer: Positioned neatly ABOVE WhatsApp button without any overflow or overlap */}
       {isOpen && (
-        <div className="fixed bottom-22 right-4 sm:bottom-24 sm:right-6 z-40 w-[min(94vw,390px)] bg-white/95 backdrop-blur-md border border-stone-300 shadow-2xl rounded-xs overflow-hidden animate-slideUp font-sans text-stone-900 select-none">
+        <div className="hidden sm:block fixed bottom-22 right-4 sm:bottom-24 sm:right-6 z-40 w-[min(94vw,390px)] bg-white/95 backdrop-blur-md border border-stone-300 shadow-2xl rounded-xs overflow-hidden animate-slideUp font-sans text-stone-900 select-none">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-stone-900 text-white">
             <div className="flex items-center gap-2">

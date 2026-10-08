@@ -102,12 +102,11 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
 
       <div className="mt-4">
         <Input
-          label="Phone (03XX XXXXXXX)"
+          label="Phone"
           name="billing_address.phone"
           autoComplete="tel"
           type="tel"
           maxLength={20}
-          placeholder="03001234567"
           title="Please enter a valid 11-digit Pakistani mobile number"
           value={formData["billing_address.phone"]}
           onChange={handleChange}

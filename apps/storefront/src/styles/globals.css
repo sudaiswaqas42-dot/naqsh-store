@@ -236,3 +236,63 @@ nextjs-portal {
 }
 
 
+@keyframes naqsh-logo-fill {
+  0% { clip-path: inset(0 100% 0 0); }
+  65%, 100% { clip-path: inset(0 0 0 0); }
+}
+
+.naqsh-logo-fill { animation: naqsh-logo-fill 1.8s ease-in-out infinite alternate; }
+
+@media (prefers-reduced-motion: reduce) {
+  .naqsh-logo-fill { animation: none; }
+}
+
+@media (max-width: 1023px) {
+  .product-detail-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 12px; }
+  .product-detail-actions > * { grid-column: 1 / -1; }
+  .product-detail-actions > h1 { grid-column: 1; grid-row: 1; font-family: inherit; font-size: 22px; line-height: 1.25; font-weight: 600; }
+  .product-detail-actions > h1 + p { font-size: 12px; }
+  .product-detail-actions > .text-xl { grid-column: 2; grid-row: 1; align-self: center; font-size: 16px; text-align: right; }
+  .product-description { order: 30; }
+  .product-buy-actions { order: 40; }
+  .product-inquiry { order: 50; }
+  .product-buy-actions button { border-radius: 14px; }
+}
+.fabric-swatch {
+  background-image: repeating-linear-gradient(0deg, transparent 0 3px, #ffffff35 3px 4px), repeating-linear-gradient(90deg, transparent 0 3px, #ffffff35 3px 4px);
+}
+
+.naqsh-mobile-heart { display: none; }
+
+@media (max-width: 767px) and (orientation: portrait) {
+  .naqsh-header-row { min-height: 64px; gap: 8px; padding-block: 8px; }
+  .naqsh-header-row [data-testid="nav-store-link"] img { height: 66px; max-width: 130px; }
+  .naqsh-product-card { overflow: hidden; border-radius: 18px; background: #eeece8; }
+  .naqsh-product-card > a { position: relative; min-height: 240px; }
+  .naqsh-product-media { aspect-ratio: 3 / 4.8; }
+  .naqsh-product-media img { object-fit: cover; object-position: top center; }
+  .naqsh-product-details { position: absolute; inset: auto 0 0; gap: 5px; padding: 34px 10px 12px; background: linear-gradient(transparent, #eeece8e8 35%, #eeece8 75%); }
+  .naqsh-product-details h3 { font-size: 11px; line-height: 1.4; font-weight: 500; }
+  .naqsh-product-details > div { font-size: 12px; gap: 5px; }
+  .naqsh-mobile-heart { display: flex; position: absolute; top: 9px; right: 9px; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 11px; background: #fffffff2; color: #142b23; }
+  .naqsh-mobile-heart[aria-pressed="true"] { color: #a63f45; }
+  .naqsh-mobile-home .hero-slider-container { border-radius: 24px; overflow: hidden; }
+}
+.mobile-shop-dock-space, .mobile-home-departments { display: none; }
+
+@media (max-width: 767px) and (orientation: portrait) {
+  .mobile-shop-dock-space { display: block; height: calc(88px + env(safe-area-inset-bottom)); }
+  .mobile-shop-dock { position: fixed; z-index: 35; left: 50%; bottom: calc(12px + env(safe-area-inset-bottom)); display: flex; gap: 8px; padding: 7px; border: 1px solid #e4e4e7; border-radius: 23px; background: #ffffffed; backdrop-filter: blur(12px); box-shadow: 0 6px 30px #152c221a; transform: translateX(-50%); }
+  body:has(.mobile-shop-dock) .naqsh-whatsapp { bottom: calc(94px + env(safe-area-inset-bottom)); right: 14px; }
+  .mobile-home-departments { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 14px 20px; background: white; }
+  .mobile-home-departments a { padding: 12px; border-radius: 14px; background: #eeece8; color: #23362f; text-align: center; font-size: 12px; }
+  .mobile-home-departments a:first-child { background: #122f24; color: white; }
+  .naqsh-home-hero { width: auto; margin: 0 16px 12px; border-radius: 23px; }
+  .naqsh-home-hero-stage { height: 355px; }
+  .naqsh-home-hero .content-container { padding: 24px 20px; }
+  .naqsh-home-hero h1 { max-width: 75%; margin-bottom: 10px; font-size: 27px; line-height: 1.12; letter-spacing: -0.02em; }
+  .naqsh-home-hero p { max-width: 78%; font-size: 11px; line-height: 1.5; }
+  .naqsh-home-hero a { padding: 10px 13px; font-size: 9px; }
+  .naqsh-home-hero .animate-marquee { font-size: 8px; padding-block: 5px; }
+  .naqsh-home-hero button[aria-label="Previous slide"], .naqsh-home-hero button[aria-label="Next slide"] { display: none; }
+}

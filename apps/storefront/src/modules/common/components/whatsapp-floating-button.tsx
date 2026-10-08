@@ -12,7 +12,7 @@ export default function WhatsAppFloatingButton() {
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${defaultMessage}`
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end font-sans">
+    <div className="naqsh-whatsapp fixed bottom-6 right-6 z-50 flex flex-col items-end font-sans">
       {/* Tooltip Dialog Bubble */}
       {isOpen && (
         <div className="mb-3 p-4 bg-white border border-stone-200 shadow-xl rounded-lg max-w-xs text-xs animate-fadeIn text-stone-800">

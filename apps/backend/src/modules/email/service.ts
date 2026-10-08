@@ -1,4 +1,4 @@
-import { AbstractNotificationProviderService } from "@medusajs/framework/utils"
+import { AbstractNotificationProviderService, MedusaError } from "@medusajs/framework/utils"
 import { ProviderSendNotificationDTO } from "@medusajs/framework/types"
 import { sendEmail } from "../../utils/send-email"
 
@@ -208,32 +208,9 @@ export default class EmailProvider extends AbstractNotificationProviderService {
       ...renderOrderEmail(notification.template, notification.data || {}),
     }
 
-    if (process.env.EMAIL_RELAY_URL) {
-      try {
-        const response = await fetch(process.env.EMAIL_RELAY_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(process.env.EMAIL_RELAY_SECRET
-              ? { Authorization: `Bearer ${process.env.EMAIL_RELAY_SECRET}` }
-              : {}),
-          },
-          body: JSON.stringify(message),
-          signal: AbortSignal.timeout(20000),
-        })
-        if (response.ok) {
-          const data = await response.json()
-          return { id: data.id || "relay-sent" }
-        }
-      } catch (relayErr: any) {
-        console.warn("[Email Relay] Failed, falling back to nodemailer:", relayErr?.message)
-      }
-    }
-
     const result = await sendEmail(message)
     if (!result) {
-      console.warn(`[Notification] sendEmail to ${notification.to} completed or recorded for delivery.`)
-      return { id: `local-${Date.now()}` }
+      throw new MedusaError(MedusaError.Types.UNEXPECTED_STATE, "Email delivery failed")
     }
     return { id: result.messageId }
   }

@@ -9,7 +9,7 @@ const menuSections = [
   {
     title: "Categories",
     links: [
-      { name: "All Products", href: "/store" },
+      { name: "Shop All Fabrics", href: "/store" },
       { name: "Women", href: "/categories/women" },
       { name: "Men", href: "/categories/men" },
       { name: "Kids", href: "/categories/kids" },
@@ -22,7 +22,7 @@ const menuSections = [
     links: [
       { name: "Summer Lawn '25", href: "/collections/summer-lawn-25" },
       { name: "Festive Formals", href: "/collections/festive-formals" },
-      { name: "Pret Edit", href: "/collections/pret-edit" },
+      { name: "Unstitched Luxury Edit", href: "/collections/unstitched-edit" },
       { name: "Bestsellers", href: "/collections/bestsellers" },
     ],
   },

@@ -16,15 +16,7 @@ export default function ImageGallery({ images, isSoldOut }: ImageGalleryProps) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
   const stageRef = useRef<HTMLDivElement>(null)
 
-  if (!images || images.length === 0) {
-    return (
-      <div className="w-full aspect-[3/4] bg-stone-100 flex items-center justify-center text-stone-400 font-serif text-xl tracking-widest">
-        NAQSH COUTURE
-      </div>
-    )
-  }
-
-  const currentImage = images[selectedIndex] || images[0]
+  const currentImage = images?.[selectedIndex] || images?.[0]
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!stageRef.current) return
@@ -35,6 +27,14 @@ export default function ImageGallery({ images, isSoldOut }: ImageGalleryProps) {
     const percentY = (y / rect.height) * 100
     setMouseCoord({ x, y, percentX, percentY })
   }, [])
+
+  if (!images || images.length === 0) {
+    return (
+      <div className="w-full aspect-[3/4] bg-stone-100 flex items-center justify-center text-stone-400 font-serif text-xl tracking-widest">
+        NAQSH COUTURE
+      </div>
+    )
+  }
 
   const nextImage = (e?: React.MouseEvent) => {
     e?.stopPropagation()
@@ -54,7 +54,7 @@ export default function ImageGallery({ images, isSoldOut }: ImageGalleryProps) {
     <div className="flex flex-col-reverse lg:flex-row gap-3 sm:gap-4 items-start relative select-none font-sans w-full">
       {/* 1. Left Thumbnail Column (Matching Image 1 & 2) */}
       {images.length > 1 && (
-        <div className="flex lg:flex-col gap-2.5 overflow-x-auto lg:overflow-y-auto max-h-[750px] no-scrollbar py-1 w-full lg:w-20 sm:lg:w-24 flex-shrink-0">
+        <div className="hidden lg:flex lg:flex-col gap-2.5 overflow-x-auto lg:overflow-y-auto max-h-[750px] no-scrollbar py-1 w-full lg:w-20 sm:lg:w-24 flex-shrink-0">
           {images.map((img, idx) => (
             <button
               key={img.id || idx}
@@ -78,7 +78,7 @@ export default function ImageGallery({ images, isSoldOut }: ImageGalleryProps) {
       )}
 
       {/* 2. Main Stage (Hero Image with Zoom Lens) */}
-      <div className="relative flex-1 w-full aspect-[3/4] max-h-[750px] bg-stone-100 overflow-hidden border border-stone-200 group">
+      <div className="relative flex-1 w-full aspect-[4/5] lg:aspect-[3/4] max-h-[750px] bg-stone-100 overflow-hidden lg:border border-stone-200 group">
         <div
           ref={stageRef}
           className="relative w-full h-full cursor-crosshair overflow-hidden"
@@ -123,7 +123,7 @@ export default function ImageGallery({ images, isSoldOut }: ImageGalleryProps) {
                 type="button"
                 onClick={prevImage}
                 aria-label="Previous photo"
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 hover:bg-white text-stone-800 shadow-md border border-stone-300 flex items-center justify-center transition-all opacity-80 hover:opacity-100 active:scale-95 z-10"
+                className="hidden lg:flex absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 hover:bg-white text-stone-800 shadow-md border border-stone-300 flex items-center justify-center transition-all opacity-80 hover:opacity-100 active:scale-95 z-10"
               >
                 <svg className="w-5 h-5 -translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -134,7 +134,7 @@ export default function ImageGallery({ images, isSoldOut }: ImageGalleryProps) {
                 type="button"
                 onClick={nextImage}
                 aria-label="Next photo"
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 hover:bg-white text-stone-800 shadow-md border border-stone-300 flex items-center justify-center transition-all opacity-80 hover:opacity-100 active:scale-95 z-10"
+                className="hidden lg:flex absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 hover:bg-white text-stone-800 shadow-md border border-stone-300 flex items-center justify-center transition-all opacity-80 hover:opacity-100 active:scale-95 z-10"
               >
                 <svg className="w-5 h-5 translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -159,6 +159,8 @@ export default function ImageGallery({ images, isSoldOut }: ImageGalleryProps) {
           </button>
         </div>
       </div>
+
+      {images.length > 1 && <div className="absolute right-4 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-2 lg:hidden">{images.map((image, index) => <button key={image.id || index} aria-label={"View product photo " + (index + 1)} aria-pressed={selectedIndex === index} onClick={() => setSelectedIndex(index)} className="flex h-8 w-8 items-center justify-center"><span className={"w-1.5 rounded-full shadow-sm " + (index === selectedIndex ? "h-7 bg-brand" : "h-3 bg-white")} /></button>)}</div>}
 
       {/* 3. High-Definition Zoom Preview Window (Side-by-side as in Image 2) */}
       {isHovering && (

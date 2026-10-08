@@ -1025,9 +1025,9 @@ export default async function naqsh_seed({
             },
             banner_right: {
               label: "New Season",
-              title: "Contemporary Pret & Co-ords",
+              title: "Festive Chiffon & Organza Edit",
               cta: "Discover",
-              link: "/categories/co-ords",
+              link: "/categories/silk",
               bg: "linear-gradient(135deg, #1a2535, #1e3a5f, #4a7fb5)",
             },
           },

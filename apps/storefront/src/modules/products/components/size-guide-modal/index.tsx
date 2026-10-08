@@ -93,7 +93,7 @@ export default function SizeGuideModal({ isOpen, onClose }: SizeGuideModalProps)
                   : "bg-stone-100 text-stone-600 hover:bg-stone-200"
               }`}
             >
-              Women's Pret & Formals
+              Women&apos;s Unstitched Fabrics
             </button>
             <button
               onClick={() => setActiveTab("men")}
@@ -103,7 +103,7 @@ export default function SizeGuideModal({ isOpen, onClose }: SizeGuideModalProps)
                   : "bg-stone-100 text-stone-600 hover:bg-stone-200"
               }`}
             >
-              Men's Kurta & Waistcoat
+              Men&apos;s Unstitched Suiting
             </button>
           </div>
 

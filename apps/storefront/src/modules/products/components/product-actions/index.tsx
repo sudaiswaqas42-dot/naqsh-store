@@ -1,13 +1,11 @@
 "use client"
 
-import { useIntersection } from "@lib/hooks/use-in-view"
 import { HttpTypes } from "@medusajs/types"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
 import { isEqual } from "lodash"
 import { useParams, usePathname, useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ProductPrice from "../product-price"
-import MobileActions from "./mobile-actions"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { useToast } from "@lib/context/toast-context"
 import { useWishlist } from "@lib/context/wishlist-context"
@@ -90,7 +88,7 @@ export default function ProductActions({
         product.metadata?.colours ||
         product.metadata?.color ||
         product.metadata?.colour ||
-        ["Midnight Blue", "Sand Beige"]
+        []
       const colorValues = Array.isArray(rawColors)
         ? rawColors
         : String(rawColors)
@@ -109,7 +107,7 @@ export default function ProductActions({
       const rawSizes =
         product.metadata?.sizes ||
         product.metadata?.size ||
-        ["Small", "Medium", "Large", "XL"]
+        []
       const sizeValues = Array.isArray(rawSizes)
         ? rawSizes
         : String(rawSizes)
@@ -125,7 +123,7 @@ export default function ProductActions({
     }
 
     // Sort to ensure Color comes before Size matching Image 1
-    return result.sort((a, b) => {
+    return result.filter(option => option.values?.length).sort((a, b) => {
       const order = ["color", "size"]
       const aIdx = order.indexOf((a.title || "").toLowerCase())
       const bIdx = order.indexOf((b.title || "").toLowerCase())
@@ -203,7 +201,7 @@ export default function ProductActions({
       return product.variants[0]
     }
 
-    return found || product.variants[0]
+    return found
   }, [product.variants, options])
 
   // update the options when a variant is selected
@@ -322,7 +320,6 @@ export default function ProductActions({
   }, [selectedVariant, product.variants])
 
   const actionsRef = useRef<HTMLDivElement>(null)
-  const inView = useIntersection(actionsRef, "0px")
 
   // add the selected variant to the cart
   const handleAddToCart = async () => {
@@ -334,7 +331,7 @@ export default function ProductActions({
       return null
     }
 
-    if (!selectedVariant?.id) {
+    if (!selectedVariant?.id || !isValidVariant || !inStock) {
       showToast("Please select valid options first.", "info")
       return null
     }
@@ -398,7 +395,7 @@ export default function ProductActions({
 
   return (
     <>
-      <div className="flex flex-col gap-y-4 font-sans text-stone-900 select-none" ref={actionsRef}>
+      <div className="product-detail-actions flex flex-col gap-y-4 font-sans text-stone-900" ref={actionsRef}>
         {/* 1. Product Title (Matching Image 1) */}
         <h1 className="text-2xl sm:text-3xl font-serif font-medium tracking-tight text-stone-900">
           {product.title}
@@ -430,10 +427,10 @@ export default function ProductActions({
           ))}
         </div>
 
-        <ProductAttributes product={product} />
+        <div className="hidden lg:block"><ProductAttributes product={product} /></div>
 
         {/* 5. Action Buttons with Dynamic Enabled/Disabled State & Validation Animation */}
-        <div className="space-y-3 pt-1">
+        <div className="product-buy-actions space-y-3 pt-1">
           {/* If all options are chosen and that specific variant is out of stock */}
           {allOptionsSelected && selectedVariant && !inStock ? (
             <>
@@ -555,12 +552,12 @@ export default function ProductActions({
         </div>
 
         {/* 6. Advance Payment Notice (Matching Image 1: Note: A 50% advance payment is required...) */}
-        <p className="text-xs text-stone-800 leading-relaxed font-normal pt-1">
+        <p className="hidden lg:block text-xs text-stone-800 leading-relaxed font-normal pt-1">
           <span className="font-bold text-stone-900">Note:</span> A 50% advance payment is required for order processing and stitching confirmation.
         </p>
 
         {/* 7. Accordions on soft light-gray bars with black square toggle (Matching Image 1 & 2) */}
-        <div className="space-y-2 pt-2">
+        <div className="product-description space-y-2 pt-2">
           {/* Description Accordion */}
           <div className="border border-stone-200/60 overflow-hidden">
             <button
@@ -619,7 +616,7 @@ export default function ProductActions({
 
 
         {/* 9. COD Notice (Matching Image 1) */}
-        <p className="text-xs text-stone-700 font-normal">
+        <p className="hidden lg:block text-xs text-stone-700 font-normal">
           International orders will not be available on COD.
         </p>
 
@@ -629,7 +626,7 @@ export default function ProductActions({
         </p>
 
         {/* 11. Social Media Links (Matching Image 1: Facebook, Instagram, TikTok) */}
-        <div className="flex items-center gap-4 text-stone-800 pt-1">
+        <div className="hidden lg:flex items-center gap-4 text-stone-800 pt-1">
           {/* Facebook */}
           <a
             href="https://facebook.com"
@@ -671,7 +668,7 @@ export default function ProductActions({
         </div>
 
         {/* WhatsApp Direct Product Inquiry Button */}
-        <div className="pt-2">
+        <div className="product-inquiry pt-2">
           <a
             href={`https://wa.me/923197365388?text=${encodeURIComponent(
               `Assalam-o-Alaikum NAQSH, I want to inquire about: ${product.title} (SKU: ${selectedVariant?.sku || product.handle}). Is this available for immediate dispatch?`
@@ -686,18 +683,6 @@ export default function ProductActions({
             <span>Inquire on WhatsApp</span>
           </a>
         </div>
-
-        <MobileActions
-          product={product}
-          variant={selectedVariant}
-          options={options}
-          updateOptions={setOptionValue}
-          inStock={inStock}
-          handleAddToCart={handleAddToCart}
-          isAdding={isAdding}
-          show={!inView}
-          optionsDisabled={!!disabled || isAdding}
-        />
       </div>
 
     </>

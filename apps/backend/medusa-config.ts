@@ -1,11 +1,19 @@
 import { loadEnv, defineConfig } from '@medusajs/framework/utils'
 import path from "node:path"
+import { container } from "@medusajs/framework"
+import { customizeDashboard } from "./src/admin-policy"
+import OrderNumberModuleService from "./src/modules/order-number/service"
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
 module.exports = defineConfig({
   admin: {
     vite: () => ({
+      plugins: [{
+        name: "naqsh-order-edit-policy",
+        enforce: "pre" as const,
+        transform: customizeDashboard,
+      }],
       server: {
         hmr: {
           overlay: false,
@@ -36,6 +44,13 @@ module.exports = defineConfig({
     }
   },
   modules: [
+    { resolve: path.resolve(__dirname, "src/modules/order-number") },
+    {
+      resolve: "@medusajs/medusa/order",
+      options: {
+        generateCustomDisplayId: () => container.resolve<OrderNumberModuleService>("orderNumber").allocateReference(),
+      },
+    },
     { resolve: path.resolve(__dirname, "src/modules/instagram") },
     {
       resolve: "@medusajs/medusa/notification",

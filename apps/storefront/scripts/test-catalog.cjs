@@ -27,7 +27,7 @@ async function main() {
   split.variants.push({ ...split.variants[0], id: "second", options: [{ option_id: "size", value: "L" }, { option_id: "color", value: "White" }] })
   assert.equal(util.matchesVariantFilters(split, ["M"], ["White"], true), false, "size and colour must match the same variant")
   assert.equal(util.matchesVariantFilters(split, ["L"], ["White"], true), true)
-  const inventory = Array.from({ length: 105 }, (_, index) => makeProduct(index, index >= 100 ? "L" : "M", "Black", index + 1))
+  const inventory = Array.from({ length: 255 }, (_, index) => makeProduct(index, index >= 250 ? "L" : "M", "Black", index + 1))
   let calls = 0
   const catalog = load("src/lib/data/catalog.ts", { "server-only": {}, "./categories": { listCategories: async () => [{ id: "cat_parent", handle: "women" }, { id: "cat_child", handle: "pret", parent_category_id: "cat_parent" }] }, "./regions": { getRegion: async () => ({ id: "region" }) }, "@lib/util/catalog": util }, {
     fetch: async url => {
@@ -35,23 +35,42 @@ async function main() {
       const params = new URL(url).searchParams
       if (url.includes("catalog-rankings")) return { ok: true, json: async () => ({ rankings: { prod_3: { sold: 900, recent: 900 } } }) }
       const offset = Number(params.get("offset"))
-      return { ok: true, json: async () => ({ products: inventory.slice(offset, offset + 100), count: inventory.length }) }
+      return { ok: true, json: async () => ({ products: inventory.slice(offset, offset + Number(params.get("limit"))), count: inventory.length }) }
     },
   })
   const outsideScope = await catalog.getCatalog("pk", { category: "women" }, { categoryIds: ["cat_men"] })
   assert.equal(outsideScope.count, 0, "category filters must respect the current category scope")
-  const filtered = await catalog.getCatalog("pk", { size: "L", color: "Black", min: "102", sortBy: "price-desc", stock: "1" })
+  const filtered = await catalog.getCatalog("pk", { size: "L", color: "Black", min: "252", sortBy: "price-desc", stock: "1" })
   assert.equal(filtered.count, 4, "filters must include products beyond the first backend page")
-  assert.equal(filtered.products[0].id, "prod_104")
+  assert.equal(filtered.products[0].id, "prod_254")
   assert.equal(calls, 2)
   const secondPage = await catalog.getCatalog("pk", { page: "2", sortBy: "price-asc" })
-  assert.equal(secondPage.count, 105)
+  assert.equal(secondPage.count, 255)
   assert.equal(secondPage.products[0].id, "prod_12", "paginate after globally sorting prices")
   const ranked = await catalog.getCatalog("pk", { sortBy: "best-selling" })
   assert.equal(ranked.products[0].id, "prod_3")
   inventory.forEach(product => product.variants[0].calculated_price.original_amount = product.variants[0].calculated_price.calculated_amount)
   const sale = await catalog.getCatalog("pk", {}, { isSalePage: true })
   assert.equal(sale.count, 0, "never estimate the sale count or return full-price products")
+  inventory[254].metadata = { is_sale: true, sale_price_pkr: 255, original_price_pkr: 500 }
+  const importedSale = await catalog.getCatalog("pk", {}, { isSalePage: true })
+  assert.equal(importedSale.count, 1, "include imported sale prices beyond the first batch")
+  assert.equal(importedSale.products[0].id, "prod_254")
+  assert.equal(util.productPrice(importedSale.products[0]), 255, "never change the payable price")
+  assert.equal(util.productOriginalPrice(importedSale.products[0]), 500)
+  inventory[254].metadata.sale_price_pkr = 200
+  assert.equal(util.isDiscounted(inventory[254]), false, "ignore stale metadata that disagrees with checkout")
+  let attempts = 0
+  const resilient = load("src/lib/data/catalog.ts", { "server-only": {}, "./categories": {}, "./regions": { getRegion: async () => ({ id: "region" }) }, "@lib/util/catalog": util }, {
+    setTimeout,
+    fetch: async () => {
+      attempts++
+      if (attempts === 1) return { ok: false, status: 503 }
+      return { ok: true, json: async () => ({ products: [inventory[0]], count: 1 }) }
+    },
+  })
+  assert.equal((await resilient.getCatalog("pk")).count, 1)
+  assert.equal(attempts, 2, "retry a transient backend failure once")
   console.log("Catalog regression checks passed: same-variant filters, full-catalog filtering, price order, pagination, rankings, sale counts")
 }
 main().catch(error => { console.error(error); process.exitCode = 1 })

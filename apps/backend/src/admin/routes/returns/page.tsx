@@ -53,7 +53,7 @@ const ReturnsAdminPage = () => {
           <Heading level="h1" style={{ fontSize: "28px", fontWeight: "600" }}>
             Return & Exchange Management
           </Heading>
-          <Text style={{ color: "#6b7280", marginTop: "4px" }}>
+          <Text style={{ color: "var(--fg-subtle)", marginTop: "4px" }}>
             Review customer return/exchange submissions, update approval status, and leave internal resolution notes
           </Text>
         </div>
@@ -65,10 +65,10 @@ const ReturnsAdminPage = () => {
 
       <Container style={{ padding: "20px" }}>
         {loading ? (
-          <Text style={{ color: "#6b7280" }}>Loading return requests...</Text>
+          <Text style={{ color: "var(--fg-subtle)" }}>Loading return requests...</Text>
         ) : requests.length === 0 ? (
           <div style={{ textAlign: "center", padding: "32px 0" }}>
-            <Text style={{ color: "#6b7280" }}>No return or exchange requests currently submitted.</Text>
+            <Text style={{ color: "var(--fg-subtle)" }}>No return or exchange requests currently submitted.</Text>
           </div>
         ) : (
           <Table>
@@ -91,19 +91,19 @@ const ReturnsAdminPage = () => {
                   <Table.Cell>
                     <div>
                       <Text size="small" style={{ fontWeight: "500" }}>{req.customer_name || "Customer"}</Text>
-                      <Text size="xsmall" style={{ color: "#6b7280" }}>{req.customer_email}</Text>
+                      <Text size="xsmall" style={{ color: "var(--fg-subtle)" }}>{req.customer_email}</Text>
                     </div>
                   </Table.Cell>
                   <Table.Cell>
                     <Badge color="orange">{req.reason}</Badge>
                     {req.notes && (
-                      <Text size="xsmall" style={{ color: "#6b7280", marginTop: "4px", maxWidth: "200px" }}>
+                      <Text size="xsmall" style={{ color: "var(--fg-subtle)", marginTop: "4px", maxWidth: "200px" }}>
                         "{req.notes}"
                       </Text>
                     )}
                   </Table.Cell>
                   <Table.Cell>
-                    <Text size="small" style={{ fontWeight: "600", color: "#111827" }}>
+                    <Text size="small" style={{ fontWeight: "600", color: "var(--fg-base)" }}>
                       {req.action_requested}
                     </Text>
                   </Table.Cell>

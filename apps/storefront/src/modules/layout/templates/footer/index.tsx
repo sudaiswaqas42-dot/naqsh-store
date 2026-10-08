@@ -8,73 +8,28 @@ export default async function Footer() {
   const socialLinks = await getSocialLinks()
 
   return (
-    <footer className="bg-[#0F2D22] text-[#FAF9F6] border-t border-[#081B14] font-sans">
-      {/* Brand Guarantee Bar (Image 1) */}
-      <div className="border-b border-white/10 bg-[#081B14]/60 py-8">
-        <div className="content-container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div className="flex flex-col items-center space-y-1.5 p-2">
-              <span className="text-2xl text-[#B6975A]">🚚</span>
-              <span className="text-xs font-semibold uppercase tracking-wider text-white">
-                Fast & Reliable Delivery
-              </span>
-              <span className="text-[11px] text-stone-300 font-light">
-                Nationwide express delivery
-              </span>
-            </div>
-
-            <div className="flex flex-col items-center space-y-1.5 p-2">
-              <span className="text-2xl text-[#B6975A]">🛡️</span>
-              <span className="text-xs font-semibold uppercase tracking-wider text-white">
-                Secure Payments
-              </span>
-              <span className="text-[11px] text-stone-300 font-light">
-                Cash on Delivery & Bank transfer
-              </span>
-            </div>
-
-            <div className="flex flex-col items-center space-y-1.5 p-2">
-              <span className="text-2xl text-[#B6975A]">🔄</span>
-              <span className="text-xs font-semibold uppercase tracking-wider text-white">
-                Easy Exchange (30 Days)
-              </span>
-              <span className="text-[11px] text-stone-300 font-light">
-                Hassle-free doorstep exchange
-              </span>
-            </div>
-
-            <div className="flex flex-col items-center space-y-1.5 p-2">
-              <span className="text-2xl text-[#B6975A]">🎧</span>
-              <span className="text-xs font-semibold uppercase tracking-wider text-white">
-                Dedicated Support
-              </span>
-              <span className="text-[11px] text-stone-300 font-light">
-                Mon - Sat: 9 AM to 9 PM PKT
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="content-container mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
-        {/* Top Newsletter & Brand Statement */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-16 border-b border-white/10">
-          <div className="lg:col-span-5 flex flex-col items-start gap-2">
-            <LocalizedClientLink href="/" className="inline-block transition-opacity hover:opacity-90 -ml-1">
-              <NaqshLogo variant="light" size="md" />
+    <>
+    <section aria-label="Newsletter" className="border-t border-stone-200 bg-[#f2eee6] py-12 sm:py-16"><div className="content-container"><FooterNewsletter /></div></section>
+    <footer className="bg-[#0B2219] text-[#FAF9F6] border-t border-[#071710] font-sans">
+      <div className="content-container mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10">
+        {/* Brand Header & Insiders Circle Top Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] items-center gap-10 lg:gap-24 pb-12 border-b border-white/10">
+          <div className="flex flex-col items-start gap-4 max-w-lg">
+            <LocalizedClientLink href="/" className="inline-block transition-opacity hover:opacity-90">
+              <NaqshLogo variant="light" size="lg" />
             </LocalizedClientLink>
-            <p className="text-xs sm:text-sm text-stone-300/90 font-light leading-relaxed max-w-sm">
-              Premium men's and women's fashion in Pakistan. An homage to timeless heritage craftsmanship, reimagined for the contemporary wardrobe.
+            <p className="text-xs sm:text-sm text-stone-300 font-light leading-relaxed">
+              Premium men&apos;s and women&apos;s fashion in Pakistan. An homage to timeless heritage craftsmanship, reimagined for the contemporary wardrobe.
             </p>
 
-            {/* Social Links matching circular buttons */}
-            <div className="flex items-center gap-3 pt-2">
+            {/* Social Links matching circular outline buttons */}
+            <div className="flex items-center gap-3 pt-1">
               <a
                 href={socialLinks.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="w-9 h-9 rounded-full border border-white/20 bg-white/5 text-stone-200 hover:text-white hover:border-[#B6975A] hover:bg-[#B6975A]/20 flex items-center justify-center text-xs font-semibold lowercase tracking-tight transition-all duration-300 hover:scale-105 shadow-xs"
+                className="w-8 h-8 rounded-full border border-white/25 bg-white/5 text-stone-300 hover:text-white hover:border-[#C5A869] hover:bg-[#C5A869]/20 flex items-center justify-center text-xs font-serif lowercase transition-all duration-200"
               >
                 f
               </a>
@@ -83,7 +38,7 @@ export default async function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="w-9 h-9 rounded-full border border-white/20 bg-white/5 text-stone-200 hover:text-white hover:border-[#B6975A] hover:bg-[#B6975A]/20 flex items-center justify-center text-xs font-semibold lowercase tracking-tight transition-all duration-300 hover:scale-105 shadow-xs"
+                className="w-8 h-8 rounded-full border border-white/25 bg-white/5 text-stone-300 hover:text-white hover:border-[#C5A869] hover:bg-[#C5A869]/20 flex items-center justify-center text-xs font-serif lowercase transition-all duration-200"
               >
                 in
               </a>
@@ -92,7 +47,7 @@ export default async function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TikTok"
-                className="w-9 h-9 rounded-full border border-white/20 bg-white/5 text-stone-200 hover:text-white hover:border-[#B6975A] hover:bg-[#B6975A]/20 flex items-center justify-center text-xs font-semibold lowercase tracking-tight transition-all duration-300 hover:scale-105 shadow-xs"
+                className="w-8 h-8 rounded-full border border-white/25 bg-white/5 text-stone-300 hover:text-white hover:border-[#C5A869] hover:bg-[#C5A869]/20 flex items-center justify-center text-xs font-serif lowercase transition-all duration-200"
               >
                 tk
               </a>
@@ -101,153 +56,166 @@ export default async function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Pinterest"
-                className="w-9 h-9 rounded-full border border-white/20 bg-white/5 text-stone-200 hover:text-white hover:border-[#B6975A] hover:bg-[#B6975A]/20 flex items-center justify-center text-xs font-semibold lowercase tracking-tight transition-all duration-300 hover:scale-105 shadow-xs"
+                className="w-8 h-8 rounded-full border border-white/25 bg-white/5 text-stone-300 hover:text-white hover:border-[#C5A869] hover:bg-[#C5A869]/20 flex items-center justify-center text-xs font-serif lowercase transition-all duration-200"
               >
                 p
               </a>
             </div>
           </div>
 
-          <div className="lg:col-span-7 flex flex-col justify-center">
-            <FooterNewsletter />
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 lg:gap-6">
+            {[
+              { title: "Unstitched, always", text: "Fabric collections for women, men and children." },
+              { title: "Across Pakistan", text: "Delivered to your doorstep, wherever you call home." },
+              { title: "Here to help", text: "Get support with fabrics, delivery and your order." },
+            ].map((item, index) => <div key={item.title} className="border-t border-[#c5a869]/40 pt-4"><span className="text-[10px] tracking-widest text-[#c5a869]">0{index + 1}</span><h3 className="mt-2 font-serif text-base text-white">{item.title}</h3><p className="mt-2 text-xs leading-relaxed text-stone-300/80">{item.text}</p></div>)}
           </div>
         </div>
 
-        {/* Navigation Columns */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-14 border-b border-stone-800 text-xs">
-          {/* Shop */}
+        {/* 4 Navigation Columns */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12 py-12 text-xs">
+          {/* 1. COLLECTIONS */}
           <div className="space-y-4">
-            <h4 className="font-serif text-base text-white tracking-wider uppercase font-semibold">
+            <h4 className="font-serif text-xs font-semibold text-white tracking-[0.2em] uppercase">
               Collections
             </h4>
-            <ul className="space-y-2.5 text-stone-400">
+            <ul className="space-y-2.5 text-stone-300/80 font-light">
               <li>
-                <LocalizedClientLink href="/categories/women" className="hover:text-accent transition-colors">
-                  Women's Pret & Formals
+                <LocalizedClientLink href="/categories/women" className="hover:text-[#C5A869] transition-colors">
+                  Women&apos;s Unstitched Fabrics
                 </LocalizedClientLink>
               </li>
               <li>
-                <LocalizedClientLink href="/categories/unstitched" className="hover:text-accent transition-colors">
-                  Unstitched Luxury Lawn
+                <LocalizedClientLink href="/categories/boski" className="hover:text-[#C5A869] transition-colors">
+                  Pure Silk Boski &amp; Heirloom Cuts
                 </LocalizedClientLink>
               </li>
               <li>
-                <LocalizedClientLink href="/categories/co-ords" className="hover:text-accent transition-colors">
-                  Printed Silk Co-ords
+                <LocalizedClientLink href="/categories/3pc" className="hover:text-[#C5A869] transition-colors">
+                  3-Piece Luxury Suits
                 </LocalizedClientLink>
               </li>
               <li>
-                <LocalizedClientLink href="/categories/men" className="hover:text-accent transition-colors">
-                  Men's Kurta & Waistcoats
+                <LocalizedClientLink href="/categories/2pc" className="hover:text-[#C5A869] transition-colors">
+                  2-Piece Printed &amp; Embroidered
                 </LocalizedClientLink>
               </li>
               <li>
-                <LocalizedClientLink href="/categories/kids" className="hover:text-accent transition-colors">
-                  Kids Festive Eastern
+                <LocalizedClientLink href="/categories/men" className="hover:text-[#C5A869] transition-colors">
+                  Men&apos;s Unstitched Fabrics
                 </LocalizedClientLink>
               </li>
               <li>
-                <LocalizedClientLink href="/categories/accessories" className="hover:text-accent transition-colors">
-                  Shawls, Khussas & Jewellery
+                <LocalizedClientLink href="/categories/children" className="hover:text-[#C5A869] transition-colors">
+                  Kids Unstitched Fabrics
                 </LocalizedClientLink>
               </li>
               <li>
-                <LocalizedClientLink href="/categories/sale" className="text-amber-500 hover:text-amber-400 transition-colors">
-                  Sale & Clearance
+                <LocalizedClientLink href="/categories/wool" className="hover:text-[#C5A869] transition-colors">
+                  Wool &amp; Winter Fabrics
+                </LocalizedClientLink>
+              </li>
+              <li>
+                <LocalizedClientLink href="/categories/sale" className="text-[#C5A869] font-medium hover:text-amber-300 transition-colors">
+                  Sale &amp; Clearance
                 </LocalizedClientLink>
               </li>
             </ul>
           </div>
 
-          {/* Customer Care */}
+          {/* 2. CUSTOMER CARE */}
           <div className="space-y-4">
-            <h4 className="font-serif text-base text-white tracking-wider uppercase font-semibold">
+            <h4 className="font-serif text-xs font-semibold text-white tracking-[0.2em] uppercase">
               Customer Care
             </h4>
-            <ul className="space-y-2.5 text-stone-400">
-              <li><LocalizedClientLink href="/customer-service" className="hover:text-accent transition-colors">Customer Service</LocalizedClientLink></li>
+            <ul className="space-y-2.5 text-stone-300/80 font-light">
               <li>
-                <LocalizedClientLink href="/account" className="hover:text-accent transition-colors flex items-center gap-1.5">
-                  Order History & Status
+                <LocalizedClientLink href="/customer-service" className="hover:text-[#C5A869] transition-colors">
+                  Customer Service
                 </LocalizedClientLink>
               </li>
               <li>
-                <LocalizedClientLink href="/return-policy" className="hover:text-accent transition-colors">
-                  Return & Exchange Portal
+                <LocalizedClientLink href="/account" className="hover:text-[#C5A869] transition-colors">
+                  Order History &amp; Status
                 </LocalizedClientLink>
               </li>
               <li>
-                <LocalizedClientLink href="/size-guide" className="hover:text-accent transition-colors">
-                  Size Guide & Measurements
+                <LocalizedClientLink href="/return-policy" className="hover:text-[#C5A869] transition-colors">
+                  Return &amp; Exchange Portal
                 </LocalizedClientLink>
               </li>
               <li>
-                <LocalizedClientLink href="/shipping-policy" className="hover:text-accent transition-colors">
-                  Shipping & Delivery Info
+                <LocalizedClientLink href="/size-guide" className="hover:text-[#C5A869] transition-colors">
+                  Size Guide &amp; Measurements
                 </LocalizedClientLink>
               </li>
               <li>
-                <LocalizedClientLink href="/faq" className="hover:text-accent transition-colors">
+                <LocalizedClientLink href="/shipping-policy" className="hover:text-[#C5A869] transition-colors">
+                  Shipping &amp; Delivery Info
+                </LocalizedClientLink>
+              </li>
+              <li>
+                <LocalizedClientLink href="/faq" className="hover:text-[#C5A869] transition-colors">
                   Frequently Asked Questions
                 </LocalizedClientLink>
               </li>
               <li>
-                <LocalizedClientLink href="/contact-us" className="hover:text-accent transition-colors">
-                  Contact Us & WhatsApp
+                <LocalizedClientLink href="/contact" className="hover:text-[#C5A869] transition-colors">
+                  Contact Us &amp; WhatsApp
                 </LocalizedClientLink>
               </li>
             </ul>
           </div>
 
-          {/* About NAQSH */}
+          {/* 3. ABOUT NAQSH */}
           <div className="space-y-4">
-            <h4 className="font-serif text-base text-white tracking-wider uppercase font-semibold">
+            <h4 className="font-serif text-xs font-semibold text-white tracking-[0.2em] uppercase">
               About NAQSH
             </h4>
-            <ul className="space-y-2.5 text-stone-400">
+            <ul className="space-y-2.5 text-stone-300/80 font-light">
               <li>
-                <LocalizedClientLink href="/about-us" className="hover:text-accent transition-colors">
-                  Our Heritage & Story
+                <LocalizedClientLink href="/about-us" className="hover:text-[#C5A869] transition-colors">
+                  Our Heritage &amp; Story
                 </LocalizedClientLink>
               </li>
               <li>
-                <LocalizedClientLink href="/blog" className="hover:text-accent transition-colors">
+                <LocalizedClientLink href="/blog" className="hover:text-[#C5A869] transition-colors">
                   The Editorial Journal
                 </LocalizedClientLink>
               </li>
               <li>
-                <LocalizedClientLink href="/privacy-policy" className="hover:text-accent transition-colors">
+                <LocalizedClientLink href="/privacy-policy" className="hover:text-[#C5A869] transition-colors">
                   Privacy Policy
                 </LocalizedClientLink>
               </li>
               <li>
-                <LocalizedClientLink href="/terms" className="hover:text-accent transition-colors">
+                <LocalizedClientLink href="/terms" className="hover:text-[#C5A869] transition-colors">
                   Terms of Service
                 </LocalizedClientLink>
               </li>
             </ul>
           </div>
 
-          {/* Store Concierge & Guarantees */}
+          {/* 4. CONCIERGE */}
           <div className="space-y-4">
-            <h4 className="font-serif text-base text-white tracking-wider uppercase font-semibold">
+            <h4 className="font-serif text-xs font-semibold text-white tracking-[0.2em] uppercase">
               Concierge
             </h4>
-            <div className="space-y-3 text-stone-400 text-xs">
+            <div className="space-y-3 text-stone-300/80 font-light text-xs">
               <p>
-                <strong className="text-stone-200">Customer Helpline:</strong><br />
-                0800-62774 (NAQSH)
+                <span className="font-medium text-stone-200">Customer Helpline:</span><br />
+                <LocalizedClientLink href="/contact" className="text-stone-300 underline underline-offset-4">Contact customer care</LocalizedClientLink>
               </p>
               <p>
-                <strong className="text-stone-200">WhatsApp Concierge:</strong><br />
-                +92 300 1234567
+                <span className="font-medium text-stone-200">WhatsApp Concierge:</span><br />
+                <span className="text-stone-300">+92 319 7365388</span>
               </p>
               <p>
-                <strong className="text-stone-200">Hours:</strong><br />
-                Mon - Sat: 9:00 AM - 9:00 PM PKT
+                <span className="font-medium text-stone-200">Hours:</span><br />
+                <span className="text-stone-300">Mon - Sat: 9:00 AM - 9:00 PM PKT</span>
               </p>
-              <div className="pt-1">
-                <span className="inline-block bg-accent/20 text-accent border border-accent/30 text-[10px] uppercase tracking-wider font-semibold px-2.5 py-1">
+              <div className="pt-2">
+                <span className="inline-block border border-[#C5A869]/50 text-[#C5A869] bg-[#071710]/50 text-[10px] uppercase tracking-[0.15em] font-medium px-3 py-1.5 rounded-none">
                   Cash on Delivery Across Pakistan
                 </span>
               </div>
@@ -255,55 +223,57 @@ export default async function Footer() {
           </div>
         </div>
 
-        {/* Image 1 Quick Links Strip: About | Contact | Shipping & Returns | Privacy Policy | Terms & Conditions */}
-        <div className="py-6 border-t border-white/10 border-b border-white/10 my-4 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs text-stone-300 font-light select-none">
-          <LocalizedClientLink href="/about-us" className="hover:text-[#B6975A] transition-colors">
+        {/* Quick Links Strip: About | Contact | Shipping & Returns | Privacy Policy | Terms & Conditions */}
+        <div className="py-6 border-t border-white/10 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs text-stone-300/90 font-light">
+          <LocalizedClientLink href="/about-us" className="hover:text-[#C5A869] transition-colors">
             About
           </LocalizedClientLink>
           <span className="text-white/20">|</span>
-          <LocalizedClientLink href="/contact" className="hover:text-[#B6975A] transition-colors">
+          <LocalizedClientLink href="/contact" className="hover:text-[#C5A869] transition-colors">
             Contact
           </LocalizedClientLink>
           <span className="text-white/20">|</span>
-          <LocalizedClientLink href="/shipping-policy" className="hover:text-[#B6975A] transition-colors">
-            Shipping & Returns
+          <LocalizedClientLink href="/shipping-policy" className="hover:text-[#C5A869] transition-colors">
+            Shipping &amp; Returns
           </LocalizedClientLink>
           <span className="text-white/20">|</span>
-          <LocalizedClientLink href="/privacy-policy" className="hover:text-[#B6975A] transition-colors">
+          <LocalizedClientLink href="/privacy-policy" className="hover:text-[#C5A869] transition-colors">
             Privacy Policy
           </LocalizedClientLink>
           <span className="text-white/20">|</span>
-          <LocalizedClientLink href="/terms" className="hover:text-[#B6975A] transition-colors">
-            Terms & Conditions
+          <LocalizedClientLink href="/terms" className="hover:text-[#C5A869] transition-colors">
+            Terms &amp; Conditions
           </LocalizedClientLink>
         </div>
 
-        {/* Bottom Bar: Payment icons & Copyright */}
-        <div className="pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-stone-400">
-          <div>
-            © {new Date().getFullYear()} NAQSH Apparel (Private) Limited. All rights reserved. • Where Identity Begins.
+        {/* Bottom Bar: Copyright on left, Payment badges on right */}
+        <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-stone-400">
+          <div className="text-center md:text-left leading-relaxed">
+            &copy; 2026 NAQSH Apparel (Private) Limited. All rights reserved. &bull; Where Identity Begins.
           </div>
 
-          {/* Payment Badges */}
-          <div className="flex flex-wrap items-center gap-2 text-[11px] text-stone-300">
-            <span className="px-2 py-1 bg-black/40 border border-white/10 rounded">
-              💵 Cash on Delivery
+          {/* Payment Badges styled cleanly like Image 2 */}
+          <div className="flex flex-wrap justify-center md:justify-end items-center gap-2 text-[11px] text-stone-300">
+            <span className="flex items-center gap-1 px-2.5 py-1 bg-black/50 border border-white/10 text-stone-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
+              Cash on Delivery
             </span>
-            <span className="px-2 py-1 bg-black/40 border border-white/10 rounded font-semibold text-white">
+            <span className="px-2.5 py-1 bg-black/50 border border-white/10 font-bold text-white tracking-wider">
               VISA
             </span>
-            <span className="px-2 py-1 bg-black/40 border border-white/10 rounded font-semibold text-white">
+            <span className="px-2.5 py-1 bg-black/50 border border-white/10 font-bold text-white tracking-wider">
               Mastercard
             </span>
-            <span className="px-2 py-1 bg-black/40 border border-white/10 rounded text-red-300">
+            <span className="px-2.5 py-1 bg-black/50 border border-white/10 font-bold text-amber-400 tracking-wider">
               JazzCash
             </span>
-            <span className="px-2 py-1 bg-black/40 border border-white/10 rounded text-emerald-300">
+            <span className="px-2.5 py-1 bg-black/50 border border-white/10 font-bold text-emerald-400 tracking-wider">
               EasyPaisa
             </span>
           </div>
         </div>
       </div>
     </footer>
+    </>
   )
 }

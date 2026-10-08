@@ -16,6 +16,7 @@ const sendOrderEmailStep = createStep("send-order-email", async (input: Input, {
     fields: [
       "id",
       "display_id",
+      "custom_display_id",
       "email",
       "currency_code",
       "total",
@@ -42,7 +43,7 @@ const sendOrderEmailStep = createStep("send-order-email", async (input: Input, {
     resource_type: "order",
     idempotency_key: `order-${order.id}-${kind}-${Date.now()}`,
     data: {
-      display_id: order.display_id,
+      display_id: order.custom_display_id || order.display_id,
       total: order.total,
       currency_code: order.currency_code,
       name: order.shipping_address?.first_name,
@@ -50,7 +51,7 @@ const sendOrderEmailStep = createStep("send-order-email", async (input: Input, {
       shipping_address: order.shipping_address,
       custom_status: input.custom_status || order.metadata?.custom_status,
       tracking_number: input.tracking_number || order.metadata?.tracking_number,
-      carrier: input.carrier || order.metadata?.carrier || "TCS Express",
+      carrier: input.carrier || order.metadata?.carrier || "",
       kind,
     },
   })

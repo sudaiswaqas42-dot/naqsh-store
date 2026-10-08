@@ -30,15 +30,15 @@ const articles = [
     collectionLabel: "Explore Festive Formals",
   },
   {
-    slug: "modern-monochrome-pret",
-    title: "Quiet Luxury: The Rise of Monochromatic Co-ords in Contemporary Pret",
+    slug: "modern-monochrome-unstitched",
+    title: "Quiet Luxury: The Art of Monochromatic 2-Piece & 3-Piece Unstitched Cuts",
     category: "Style Guide",
     date: "February 12, 2025",
     readTime: "4 min read",
     image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=800&q=80",
-    excerpt: "How effortless matching sets and tonal draping are replacing heavy multi-colored lawn prints for modern South Asian urban dressing.",
-    collectionLink: "/categories/co-ords",
-    collectionLabel: "View Silk Co-ords",
+    excerpt: "How effortless matching sets and tonal draping are redefining unstitched lawn prints for modern South Asian urban dressing.",
+    collectionLink: "/categories/2pc",
+    collectionLabel: "View Unstitched 2-Piece",
   },
 ]
 
@@ -61,6 +61,7 @@ export default function BlogPage() {
         {articles.map((post) => (
           <article
             key={post.slug}
+            id={post.slug}
             className="group flex flex-col bg-white border border-stone-200 overflow-hidden shadow-xs hover:shadow-md transition-shadow"
           >
             <div className="relative aspect-[16/10] bg-stone-100 overflow-hidden">
