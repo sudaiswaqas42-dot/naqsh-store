@@ -65,6 +65,7 @@ export default function ProductActions({
       }
       const updated = [newItem, ...filtered].slice(0, 10)
       localStorage.setItem("naqsh_recently_viewed", JSON.stringify(updated))
+      window.dispatchEvent(new Event("naqsh_recently_viewed_updated"))
     } catch {}
   }, [product])
 

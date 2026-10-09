@@ -10,6 +10,7 @@ import Footer from "@modules/layout/templates/footer"
 import Nav from "@modules/layout/templates/nav"
 import FreeShippingPriceNudge from "@modules/shipping/components/free-shipping-price-nudge"
 import WhatsAppFloatingButton from "@modules/common/components/whatsapp-floating-button"
+import RecentlyViewedPopup from "@modules/home/components/recently-viewed-popup"
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
@@ -48,6 +49,7 @@ export default function PageLayout({ children }: { children: React.ReactNode }) 
       {children}
       <Suspense fallback={<div className="min-h-40 bg-[#0F2D22]" />}><Footer /></Suspense>
       <WhatsAppFloatingButton />
+      <RecentlyViewedPopup />
       <MobileShopNavigation />
     </>
   )

@@ -21,8 +21,37 @@ export default function CatalogControls({ count, categories, collections, facets
     next.delete("page")
     startTransition(() => router.replace(pathname + "?" + next, { scroll: false }))
   }
+  const EXCLUDED_CATEGORY_KEYS = new Set([
+    "shirts", "sweatshirts", "merch", "pants", "women", "men", "kids", "sale",
+    "ready to wear", "ready-to-wear", "co-ords sets", "co-ords", "festive formals",
+    "kurta & shalwar", "kurta-shalwar", "waistcoats", "casual shirts", "casual-men",
+    "special offers", "special-offers", "clearance", "children", "children eastern collection",
+    "girls ready to wear", "girls-stitched", "boys ready to wear", "boys-stitched",
+    "women's stitched pret", "women-stitched", "men's stitched eastern", "men-stitched",
+    "unstitched fabric", "unstitched", "women's unstitched lawn & silks", "women-unstitched",
+    "men's unstitched fabric", "men-unstitched", "girls eastern", "girls-eastern", "boys eastern", "boys-eastern"
+  ])
+
+  const FRIENDLY_UNSTITCHED_LABELS: Record<string, string> = {
+    italian: "Italian Suiting", boski: "Pure Boski", "wash-wear": "Wash & Wear",
+    wool: "Winter Wool", "kamalia-khaddar": "Kamalia Khaddar", dhanak: "Dhanak",
+    khaddar: "Khaddar", linen: "Linen", karandi: "Karandi", silk: "Festive Silk",
+    printed: "Printed Cuts", "embroidery-waly": "Embroidery Waly",
+    "2pc": "2-Piece Unstitched", "3pc": "3-Piece Luxury Unstitched",
+    "girls-unstitched": "Girls Unstitched", "boys-unstitched": "Boys Unstitched",
+  }
+
+  const unstitchedCategories = categories
+    .filter(c => !EXCLUDED_CATEGORY_KEYS.has(c.label.toLowerCase().trim()) && !EXCLUDED_CATEGORY_KEYS.has(c.id.toLowerCase().trim()))
+    .map(c => {
+      const labelKey = c.label.toLowerCase().trim()
+      const idKey = c.id.toLowerCase().trim()
+      const matched = Object.entries(FRIENDLY_UNSTITCHED_LABELS).find(([key]) => labelKey === key || idKey === key || labelKey.includes(key) || idKey.includes(key))
+      return { id: c.id, label: matched ? matched[1] : c.label }
+    })
+
   const groups = [
-    { key: "category", title: "Category", choices: categories },
+    { key: "category", title: "Unstitched Category", choices: unstitchedCategories },
     { key: "collection", title: "Collection", choices: collections },
     { key: "size", title: "Size", choices: facets.sizes.map(value => ({ id: value, label: value })) },
     { key: "color", title: "Colour", choices: facets.colors.map(value => ({ id: value, label: value })) },

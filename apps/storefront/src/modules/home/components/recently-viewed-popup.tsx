@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { convertToLocale } from "@lib/util/money"
 
@@ -17,28 +17,48 @@ interface RecentlyViewedItem {
 export default function RecentlyViewedPopup() {
   const [items, setItems] = useState<RecentlyViewedItem[]>([])
   const [isOpen, setIsOpen] = useState(false)
-  const [isMinimized, setIsMinimized] = useState(false)
-  const [hasInteracted, setHasInteracted] = useState(false)
 
-  useEffect(() => {
+  const loadItems = useCallback(() => {
     try {
       const stored = localStorage.getItem("naqsh_recently_viewed")
       if (stored) {
         const parsed: RecentlyViewedItem[] = JSON.parse(stored)
         if (Array.isArray(parsed) && parsed.length > 0) {
           setItems(parsed)
-          // Only auto-open on desktop; never auto-open on mobile so screen is never covered
-          const isMobile = typeof window !== "undefined" && window.innerWidth < 768
-          if (!isMobile) {
-            const timer = setTimeout(() => {
-              setIsOpen(true)
-            }, 1200)
-            return () => clearTimeout(timer)
-          }
+          return parsed
         }
       }
     } catch {}
+    setItems([])
+    return []
   }, [])
+
+  useEffect(() => {
+    const loaded = loadItems()
+    const handleUpdate = () => loadItems()
+    window.addEventListener("naqsh_recently_viewed_updated", handleUpdate)
+    window.addEventListener("storage", handleUpdate)
+
+    // On desktop, auto-open once if items exist
+    if (loaded && loaded.length > 0 && typeof window !== "undefined") {
+      const isMobile = window.innerWidth < 768
+      if (!isMobile) {
+        const timer = setTimeout(() => {
+          setIsOpen(true)
+        }, 1500)
+        return () => {
+          clearTimeout(timer)
+          window.removeEventListener("naqsh_recently_viewed_updated", handleUpdate)
+          window.removeEventListener("storage", handleUpdate)
+        }
+      }
+    }
+
+    return () => {
+      window.removeEventListener("naqsh_recently_viewed_updated", handleUpdate)
+      window.removeEventListener("storage", handleUpdate)
+    }
+  }, [loadItems])
 
   const handleClear = () => {
     try {
@@ -50,8 +70,6 @@ export default function RecentlyViewedPopup() {
 
   const handleClose = () => {
     setIsOpen(false)
-    setIsMinimized(true)
-    setHasInteracted(true)
   }
 
   if (items.length === 0) {
@@ -60,37 +78,34 @@ export default function RecentlyViewedPopup() {
 
   return (
     <>
-      {/* 1. Minimized Floating Badge: Cleanly positioned alongside WhatsApp button */}
+      {/* 1. Minimized Floating Trigger Pill (Visible on both Mobile & Desktop when popup is closed) */}
       {!isOpen && (
         <button
           type="button"
-          onClick={() => {
-            setIsOpen(true)
-            setIsMinimized(false)
-          }}
-          className="hidden sm:flex fixed bottom-6 right-20 sm:right-24 z-40 bg-stone-900 hover:bg-black text-white px-4 py-2.5 rounded-full shadow-2xl border border-white/20 items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-all duration-300 hover:scale-105 active:scale-95 group font-sans"
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-20 left-3 sm:bottom-6 sm:left-auto sm:right-24 z-40 bg-stone-900/95 hover:bg-black text-white px-3.5 py-2 rounded-full shadow-2xl border border-stone-700/60 flex items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-wider transition-all duration-300 hover:scale-105 active:scale-95 group font-sans backdrop-blur-md"
           aria-label="View recently viewed products"
         >
-          <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-          <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+          <span className="w-2 h-2 rounded-full bg-[#B6975A] animate-pulse" />
+          <svg className="w-3.5 h-3.5 text-[#B6975A]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75">
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          <span>Recently Viewed ({items.length})</span>
+          <span className="whitespace-nowrap">Recently Viewed ({items.length})</span>
         </button>
       )}
 
-      {/* 2. Expanded Luxury Popup Drawer: Positioned neatly ABOVE WhatsApp button without any overflow or overlap */}
+      {/* 2. Compact Popup Card: On Mobile it sits neatly above the bottom dock without covering the screen; on Desktop it floats at bottom right */}
       {isOpen && (
-        <div className="hidden sm:block fixed bottom-22 right-4 sm:bottom-24 sm:right-6 z-40 w-[min(94vw,390px)] bg-white/95 backdrop-blur-md border border-stone-300 shadow-2xl rounded-xs overflow-hidden animate-slideUp font-sans text-stone-900 select-none">
+        <div className="fixed bottom-20 left-3 right-3 sm:left-auto sm:right-6 sm:bottom-24 z-50 sm:w-[380px] max-h-[360px] bg-white/98 backdrop-blur-lg border border-stone-300 shadow-2xl rounded-2xl overflow-hidden font-sans text-stone-900 flex flex-col transition-all duration-300 animate-in fade-in zoom-in-95">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-stone-900 text-white">
+          <div className="flex items-center justify-between px-4 py-2.5 bg-stone-900 text-white shrink-0">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
-              <span className="font-serif text-sm font-medium tracking-wide">
-                Pick Up Where You Left Off
+              <span className="w-2 h-2 rounded-full bg-[#B6975A] animate-ping" />
+              <span className="font-serif text-xs sm:text-sm font-medium tracking-wide">
+                Recently Viewed
               </span>
-              <span className="text-[10px] bg-accent/20 text-accent px-1.5 py-0.2 rounded-full font-bold">
+              <span className="text-[10px] bg-[#B6975A]/25 text-[#FAF9F6] px-1.5 py-0.2 rounded-full font-bold">
                 {items.length}
               </span>
             </div>
@@ -98,42 +113,34 @@ export default function RecentlyViewedPopup() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={handleClose}
-                className="text-stone-400 hover:text-white p-1 text-sm font-bold transition-colors"
-                title="Minimize"
+                onClick={handleClear}
+                className="text-[10px] text-stone-400 hover:text-red-400 transition-colors uppercase tracking-wider underline mr-1"
+                title="Clear history"
               >
-                &minus;
+                Clear
               </button>
               <button
                 type="button"
                 onClick={handleClose}
-                className="text-stone-400 hover:text-white p-1 text-lg leading-none transition-colors"
-                title="Close"
+                className="w-6 h-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white text-base leading-none transition-colors"
+                aria-label="Close popup"
               >
                 &times;
               </button>
             </div>
           </div>
 
-          {/* Subheader hint */}
-          <div className="flex items-center justify-between px-4 py-2 bg-stone-50 border-b border-stone-200 text-[10px] text-stone-500 font-medium">
-            <span>Recently visited pieces on NAQSH</span>
-            <button
-              type="button"
-              onClick={handleClear}
-              className="text-stone-400 hover:text-red-600 transition-colors underline"
-            >
-              Clear
-            </button>
-          </div>
-
-          {/* Product Items Carousel / List */}
-          <div className="max-h-[310px] overflow-y-auto divide-y divide-stone-100 p-2">
+          {/* Product Items: Compact scrollable list */}
+          <div className="overflow-y-auto flex-1 divide-y divide-stone-100 p-2 max-h-[240px]">
             {items.map((item) => (
-              <div key={item.id} className="p-2 flex items-center gap-3 hover:bg-stone-50 transition-colors rounded-xs group">
+              <div
+                key={item.id}
+                className="p-1.5 flex items-center gap-3 hover:bg-stone-50 transition-colors rounded-lg group"
+              >
                 <LocalizedClientLink
                   href={`/products/${item.handle}`}
-                  className="w-14 h-18 bg-stone-100 relative overflow-hidden flex-shrink-0 border border-stone-200"
+                  onClick={handleClose}
+                  className="w-12 h-15 bg-stone-100 relative overflow-hidden shrink-0 border border-stone-200 rounded-sm"
                 >
                   {item.thumbnail ? (
                     <img
@@ -151,7 +158,8 @@ export default function RecentlyViewedPopup() {
                 <div className="flex-1 min-w-0">
                   <LocalizedClientLink
                     href={`/products/${item.handle}`}
-                    className="font-serif text-xs font-medium text-stone-900 group-hover:text-accent truncate block transition-colors"
+                    onClick={handleClose}
+                    className="font-serif text-xs font-medium text-stone-900 group-hover:text-[#B6975A] truncate block transition-colors leading-tight"
                   >
                     {item.title}
                   </LocalizedClientLink>
@@ -165,7 +173,8 @@ export default function RecentlyViewedPopup() {
 
                   <LocalizedClientLink
                     href={`/products/${item.handle}`}
-                    className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold text-accent hover:text-brand mt-1.5 transition-colors"
+                    onClick={handleClose}
+                    className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold text-[#B6975A] hover:text-stone-900 mt-1 transition-colors"
                   >
                     <span>View Piece</span>
                     <span>&rarr;</span>
@@ -176,20 +185,21 @@ export default function RecentlyViewedPopup() {
           </div>
 
           {/* Bottom Action Footer */}
-          <div className="p-3 bg-stone-50 border-t border-stone-200 flex items-center justify-between gap-2">
+          <div className="px-3 py-2 bg-stone-50 border-t border-stone-200 flex items-center justify-between gap-2 shrink-0">
             <LocalizedClientLink
               href="/store"
-              className="flex-1 py-2 bg-stone-900 hover:bg-black text-white text-[10px] font-bold uppercase tracking-widest text-center transition-colors shadow-2xs"
+              onClick={handleClose}
+              className="flex-1 py-1.5 bg-stone-900 hover:bg-black text-white text-[10px] font-bold uppercase tracking-widest text-center transition-colors rounded-sm"
             >
-              Explore Full Collection
+              Explore Collection
             </LocalizedClientLink>
 
             <button
               type="button"
               onClick={handleClose}
-              className="px-3 py-2 border border-stone-300 text-stone-700 hover:border-black text-[10px] font-semibold uppercase tracking-wider transition-colors"
+              className="px-3 py-1.5 border border-stone-300 text-stone-700 hover:border-black text-[10px] font-semibold uppercase tracking-wider transition-colors rounded-sm"
             >
-              Dismiss
+              Close
             </button>
           </div>
         </div>
