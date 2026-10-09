@@ -34,8 +34,12 @@ export default async function Home({ params }: { params: Promise<{ countryCode: 
   const reviews = section("customer_reviews", "customer_reviews")
 
   return <div className="flex w-full flex-col">
-    <HomeArrival />
-    <nav aria-label="Shop departments" className="mobile-home-departments"><LocalizedClientLink href="/categories/women">Women</LocalizedClientLink><LocalizedClientLink href="/categories/men">Men</LocalizedClientLink><LocalizedClientLink href="/categories/children">Kids</LocalizedClientLink></nav>
+    <nav aria-label="Shop departments" className="mobile-home-departments">
+      <LocalizedClientLink href="/categories/women">Women</LocalizedClientLink>
+      <LocalizedClientLink href="/categories/men">Men</LocalizedClientLink>
+      <LocalizedClientLink href="/categories/children">Kids</LocalizedClientLink>
+      <LocalizedClientLink href="/categories/sale">Sale</LocalizedClientLink>
+    </nav>
     {hero?.is_active !== false && <NaqshHeroSlider section={hero} />}
     {departments?.is_active !== false && <ShopDepartments section={departments} />}
     {brands?.is_active !== false && <FeaturedBrands section={brands} />}

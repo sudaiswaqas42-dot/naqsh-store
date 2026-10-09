@@ -92,56 +92,42 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
         }))
       : FABRIC_CATEGORIES
 
-  // Update scroll arrows state
-  const updateScrollButtons = () => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
-      setCanScrollLeft(scrollLeft > 20)
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 20)
-    }
+  const [active, setActive] = useState(0)
+  const position = useRef(0)
+
+  const jump = (index: number) => {
+    const element = scrollRef.current
+    if (!element || element.children.length < 2) return
+    const stride = (element.children[1] as HTMLElement).offsetLeft - (element.children[0] as HTMLElement).offsetLeft
+    position.current = index
+    setActive(index)
+    element.scrollTo({
+      left: index * stride,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+    })
   }
 
+  // Smooth auto-sliding right-to-left when not hovered or dragged
   useEffect(() => {
-    const el = scrollRef.current
-    if (!el) return
-    updateScrollButtons()
-    el.addEventListener("scroll", updateScrollButtons, { passive: true })
-    window.addEventListener("resize", updateScrollButtons)
-    return () => {
-      el.removeEventListener("scroll", updateScrollButtons)
-      window.removeEventListener("resize", updateScrollButtons)
-    }
-  }, [])
-
-  // Smooth auto-sliding right-to-left every 3.8s when not hovered or dragged
-  useEffect(() => {
-    if (isHovered || isDragging) return
-
-    const interval = setInterval(() => {
-      if (scrollRef.current) {
-        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
-        const maxScroll = scrollWidth - clientWidth
-        // If reached end, smoothly loop back to start
-        if (scrollLeft >= maxScroll - 20) {
-          scrollRef.current.scrollTo({ left: 0, behavior: "smooth" })
-        } else {
-          scrollRef.current.scrollBy({ left: 280, behavior: "smooth" })
-        }
+    if (isHovered || isDragging || categories.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    let reset: ReturnType<typeof setTimeout>
+    const timer = setInterval(() => {
+      const element = scrollRef.current
+      if (!element || element.children.length < 2 || document.hidden) return
+      const stride = (element.children[1] as HTMLElement).offsetLeft - (element.children[0] as HTMLElement).offsetLeft
+      position.current += 1
+      setActive(position.current % categories.length)
+      element.scrollTo({ left: position.current * stride, behavior: "smooth" })
+      if (position.current >= categories.length) {
+        reset = setTimeout(() => {
+          element.scrollTo({ left: 0, behavior: "instant" })
+          position.current = 0
+        }, 650)
       }
-    }, 3800)
+    }, 2000)
 
-    return () => clearInterval(interval)
-  }, [isHovered, isDragging])
-
-  const scroll = (direction: "left" | "right") => {
-    if (scrollRef.current) {
-      const step = Math.max(300, Math.floor(scrollRef.current.clientWidth * 0.65))
-      scrollRef.current.scrollBy({
-        left: direction === "left" ? -step : step,
-        behavior: "smooth",
-      })
-    }
-  }
+    return () => { clearInterval(timer); clearTimeout(reset) }
+  }, [isHovered, isDragging, categories.length])
 
   // Mouse Drag-to-Scroll Handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -189,69 +175,13 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
               {section?.subtitle ?? "Explore pure Pima lawn, artisanal formals, and handloom wraps tailored for modern celebrations."}
             </p>
           </div>
-
-          {/* Top Pill Indicators & Pause State */}
-          <div className="flex items-center gap-3">
-            <span className="hidden md:inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-stone-400 bg-stone-100 px-3 py-1 rounded-full border border-stone-200">
-              <span className={`w-1.5 h-1.5 rounded-full ${isHovered ? "bg-amber-500" : "bg-emerald-500 animate-pulse"}`} />
-              {isHovered ? "Paused • Drag or Click" : "Auto Moving"}
-            </span>
-
-            {/* Header Mini Controls */}
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => scroll("left")}
-                disabled={!canScrollLeft}
-                aria-label="Previous categories"
-                className="w-10 h-10 rounded-full border border-stone-300 bg-white flex items-center justify-center text-stone-700 hover:border-brand hover:bg-brand hover:text-white transition-all shadow-xs disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-stone-700 disabled:cursor-not-allowed"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                onClick={() => scroll("right")}
-                disabled={!canScrollRight}
-                aria-label="Next categories"
-                className="w-10 h-10 rounded-full border border-stone-300 bg-white flex items-center justify-center text-stone-700 hover:border-brand hover:bg-brand hover:text-white transition-all shadow-xs disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-stone-700 disabled:cursor-not-allowed"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-          </div>
         </div>
 
-        {/* Carousel Container with Big Floating Side Arrows */}
+        {/* Carousel Container */}
         <div className="relative group/track">
-          {/* Big Left Floating Arrow */}
-          <button
-            onClick={() => scroll("left")}
-            disabled={!canScrollLeft}
-            aria-label="Scroll Left"
-            className={`absolute left-0 sm:-left-3 top-1/2 -translate-y-1/2 z-20 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/95 backdrop-blur-md shadow-2xl border border-stone-200/90 text-stone-900 flex items-center justify-center hover:bg-brand hover:text-white hover:border-brand transition-all duration-300 transform active:scale-95 disabled:opacity-0 disabled:pointer-events-none ${
-              canScrollLeft ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <svg className="w-6 h-6 transform -translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          {/* Big Right Floating Arrow */}
-          <button
-            onClick={() => scroll("right")}
-            disabled={!canScrollRight}
-            aria-label="Scroll Right"
-            className={`absolute right-0 sm:-right-3 top-1/2 -translate-y-1/2 z-20 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/95 backdrop-blur-md shadow-2xl border border-stone-200/90 text-stone-900 flex items-center justify-center hover:bg-brand hover:text-white hover:border-brand transition-all duration-300 transform active:scale-95 disabled:opacity-0 disabled:pointer-events-none ${
-              canScrollRight ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <svg className="w-6 h-6 transform translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+          {/* Subtle edge fades for soft cut */}
+          <div className="pointer-events-none absolute -top-4 -bottom-4 right-0 z-10 w-20 sm:w-36 bg-gradient-to-l from-stone-50 via-stone-50/80 to-transparent" />
+          <div className="pointer-events-none absolute -top-4 -bottom-4 left-0 z-10 w-12 sm:w-20 bg-gradient-to-r from-stone-50 to-transparent" />
 
           {/* Horizontal Sliding Track (Bigger Circles) */}
           <div
@@ -264,7 +194,7 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
             }`}
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
-            {categories.map((cat, idx) => (
+            {[...categories, ...categories].map((cat, idx) => (
               <LocalizedClientLink
                 key={idx}
                 href={cat.href}
@@ -315,6 +245,26 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
               </LocalizedClientLink>
             ))}
           </div>
+        </div>
+
+        {/* Bottom Dot Indicators */}
+        <div className="mt-5 flex justify-center gap-1" aria-label="Choose seasonal category">
+          {categories.map((cat, index) => (
+            <button
+              key={cat.title + index}
+              onClick={() => jump(index)}
+              aria-label={"Show " + cat.title}
+              aria-current={active === index ? "true" : undefined}
+              className="flex h-7 w-7 items-center justify-center"
+            >
+              <span
+                className={
+                  "h-2 rounded-full transition-all " +
+                  (active === index ? "w-5 bg-brand" : "w-2 bg-stone-300")
+                }
+              />
+            </button>
+          ))}
         </div>
         {section?.cta_text && <div className="mt-8 text-center"><LocalizedClientLink href={section.cta_link || "/store"} className="text-sm underline">{section.cta_text}</LocalizedClientLink></div>}
       </div>

@@ -125,18 +125,6 @@ export default async function BrandPage({ params, searchParams }: Props) {
         <div className="absolute inset-0 bg-radial from-transparent via-[#081B14]/40 to-[#081B14]/80 pointer-events-none" />
 
         <div className="content-container mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 relative z-10 text-center">
-          {/* Brand Logo & Pill */}
-          <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-[#B6975A]/40 mb-4 shadow-xs">
-            <img
-              src={`/images/brands/${brandData.image}`}
-              alt={brandData.name}
-              className="h-5 w-auto object-contain brightness-0 invert"
-            />
-            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#FAF9F6]">
-              Featured Brand Partner
-            </span>
-          </div>
-
           {/* Grand Brand Name */}
           <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-white font-normal drop-shadow-md tracking-tight">
             {brandData.name}
@@ -157,12 +145,6 @@ export default async function BrandPage({ params, searchParams }: Props) {
       )}
       {genderFilter === "women" && (
         <FabricCategories gender="women" brand={brandData.handle} active={String(query.category || "")} />
-      )}
-      {!genderFilter && (
-        <>
-          <FabricCategories gender="women" brand={brandData.handle} active={String(query.category || "")} />
-          <FabricCategories gender="men" brand={brandData.handle} active={String(query.category || "")} />
-        </>
       )}
 
       {/* Product Cards Grid */}

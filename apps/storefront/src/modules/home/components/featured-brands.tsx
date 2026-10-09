@@ -67,23 +67,29 @@ export default function FeaturedBrands({ section }: { section?: HomepageSection 
           </div>
 
         </div>
-        <div ref={rail} onTouchStart={() => setPaused(true)} onTouchEnd={() => setPaused(false)} className="relative flex gap-6 overflow-x-auto pb-3 no-scrollbar sm:gap-10">
-          {[...displayBrands, ...displayBrands].map((brand: any, index: number) => (
-            <LocalizedClientLink key={brand.name + index} aria-hidden={index >= displayBrands.length ? true : undefined} tabIndex={index >= displayBrands.length ? -1 : 0} href={"/brands/" + brand.handle} className="group w-36 shrink-0 snap-start text-center sm:w-48 lg:w-56">
-              <div className="flex aspect-square items-center justify-center rounded-full border-[5px] border-[#EDE5CE] bg-white p-6 shadow-sm transition-colors group-hover:border-accent sm:p-8">
-                <img
-                  src={brand.image.startsWith("http") || brand.image.startsWith("/") ? brand.image : "/images/brands/" + brand.image}
-                  alt={brand.name + " logo"}
-                  width={180}
-                  height={100}
-                  loading="lazy"
-                  className="max-h-20 w-full object-contain"
-                />
-              </div>
-              <h3 className="mt-4 font-serif text-lg text-brand">{brand.name}</h3>
-              <p className="mt-1 text-xs text-stone-500">Explore collection</p>
-            </LocalizedClientLink>
-          ))}
+        <div className="relative">
+          {/* Soft shadow / fade cut on the right edge so brand cards don't have a sharp cut */}
+          <div className="pointer-events-none absolute -top-4 -bottom-4 right-0 z-10 w-24 sm:w-44 bg-gradient-to-l from-[#FAF9F6] via-[#FAF9F6]/85 to-transparent" />
+          <div className="pointer-events-none absolute -top-4 -bottom-4 left-0 z-10 w-12 sm:w-24 bg-gradient-to-r from-[#FAF9F6] to-transparent" />
+
+          <div ref={rail} onTouchStart={() => setPaused(true)} onTouchEnd={() => setPaused(false)} className="relative flex gap-6 overflow-x-auto pb-3 no-scrollbar sm:gap-10">
+            {[...displayBrands, ...displayBrands].map((brand: any, index: number) => (
+              <LocalizedClientLink key={brand.name + index} aria-hidden={index >= displayBrands.length ? true : undefined} tabIndex={index >= displayBrands.length ? -1 : 0} href={"/brands/" + brand.handle} className="group w-36 shrink-0 snap-start text-center sm:w-48 lg:w-56">
+                <div className="flex aspect-square items-center justify-center rounded-full border-[5px] border-[#EDE5CE] bg-white p-6 shadow-sm transition-colors group-hover:border-accent sm:p-8">
+                  <img
+                    src={brand.image.startsWith("http") || brand.image.startsWith("/") ? brand.image : "/images/brands/" + brand.image}
+                    alt={brand.name + " logo"}
+                    width={180}
+                    height={100}
+                    loading="lazy"
+                    className="max-h-20 w-full object-contain"
+                  />
+                </div>
+                <h3 className="mt-4 font-serif text-lg text-brand">{brand.name}</h3>
+                <p className="mt-1 text-xs text-stone-500">Explore collection</p>
+              </LocalizedClientLink>
+            ))}
+          </div>
         </div>
         <div className="mt-5 flex justify-center gap-1" aria-label="Choose featured brand">{displayBrands.map((brand: any, index: number) => <button key={brand.handle} onClick={() => jump(index)} aria-label={"Show " + brand.name} aria-current={active === index ? "true" : undefined} className="flex h-7 w-7 items-center justify-center"><span className={"h-2 rounded-full transition-all " + (active === index ? "w-5 bg-brand" : "w-2 bg-stone-300")} /></button>)}</div>
       </div>
