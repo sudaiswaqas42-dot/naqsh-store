@@ -11,10 +11,13 @@ export function orderTracking(order: any) {
     else status = "Confirmed"
   }
   const currentIndex = trackingStages.indexOf(status)
-  const dispatched = ["Shipped", "Out for Delivery", "Delivered"].includes(status)
-  const fulfillment = fulfillments.find((item: any) => item.shipped_at && item.labels?.some((label: any) => label.tracking_number))
-  const trackingNumber = dispatched ? String(order.metadata?.tracking_number || fulfillment?.labels?.[0]?.tracking_number || "").trim() || null : null
-  const carrier = dispatched ? String(order.metadata?.carrier || "").trim() || null : null
+  const fulfillment = fulfillments.find((item: any) => item.labels?.some((label: any) => label.tracking_number))
+  const rawTracking = String(order.metadata?.tracking_number || fulfillment?.labels?.[0]?.tracking_number || "").trim()
+  const rawCarrier = String(order.metadata?.carrier || "").trim()
+  const isDispatched = ["Shipped", "Out for Delivery", "Delivered"].includes(status) || Boolean(rawTracking)
+
+  const trackingNumber = isDispatched && rawTracking ? rawTracking : null
+  const carrier = isDispatched && trackingNumber ? (rawCarrier || "Courier Express") : null
   const steps = trackingStages.map((name, index) => ({
     name,
     status: index < currentIndex || status === "Delivered" ? "completed" : index === currentIndex ? "current" : "pending",

@@ -159,14 +159,14 @@ export default function OrderTrackPage() {
                 </p>
               </div>
 
-              {orderData.tracking?.tracking_number ? (
+              {(orderData.tracking?.tracking_number || orderData.tracking_number) ? (
                 <div className="text-right">
                   <div className="text-xs text-stone-500">Courier Partner</div>
                   <div className="font-semibold text-brand text-sm">
-                    {orderData.tracking.carrier}
+                    {orderData.tracking?.carrier || orderData.carrier || "Courier Delivery"}
                   </div>
-                  <div className="text-xs font-mono text-accent mt-0.5">
-                    Tracking ID: {orderData.tracking.tracking_number}
+                  <div className="text-xs font-mono text-accent mt-0.5 font-bold">
+                    Tracking ID: {orderData.tracking?.tracking_number || orderData.tracking_number}
                   </div>
                 </div>
               ) : <p className="max-w-xs text-sm text-stone-500">Your courier and tracking ID will appear here once your order has been dispatched.</p>}
