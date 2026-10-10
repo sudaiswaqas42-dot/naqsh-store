@@ -266,7 +266,7 @@ nextjs-portal {
 
 @media (max-width: 767px) and (orientation: portrait) {
   .naqsh-header-row { min-height: 64px; gap: 8px; padding-block: 8px; }
-  .naqsh-header-row [data-testid="nav-store-link"] img { height: 66px; max-width: 130px; }
+  .naqsh-header-row [data-testid="nav-store-link"] img { height: auto; max-height: 52px; max-width: 175px; width: auto; }
   .naqsh-product-card { overflow: hidden; border-radius: 18px; background: #eeece8; }
   .naqsh-product-card > a { position: relative; min-height: 240px; }
   .naqsh-product-media { aspect-ratio: 3 / 4.8; }

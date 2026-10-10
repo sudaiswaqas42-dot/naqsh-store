@@ -25,8 +25,8 @@ export default function BrandLoader({ fading = false }: { fading?: boolean }) {
     <div className="brand-loader-content relative flex w-full max-w-2xl flex-col items-center px-8 pb-10 text-center">
       <p className="mb-2 text-[9px] font-medium uppercase tracking-[0.4em] text-[#967b46] sm:text-[11px]">The Unstitched Collection</p>
       <div className="relative w-[min(82vw,520px)]" aria-hidden="true">
-        <img src="/images/naqsh-logo-tight.png" alt="" width={1495} height={963} className="block h-auto w-full opacity-[0.12] grayscale" />
-        <img src="/images/naqsh-logo-tight.png" alt="" width={1495} height={963} className="brand-loader-fill absolute inset-0 h-auto w-full" />
+        <img src="/images/naqsh-logo-tight.png" alt="" width={1447} height={505} className="block h-auto w-full opacity-[0.12] grayscale" />
+        <img src="/images/naqsh-logo-tight.png" alt="" width={1447} height={505} className="brand-loader-fill absolute inset-0 h-auto w-full" />
       </div>
       <div className="relative mt-2 h-px w-32 overflow-hidden bg-[#c1a16a]/20 sm:w-48"><div className="brand-loader-line absolute inset-0 bg-[#ab8644]" /></div>
       <span className="mt-5 text-[10px] uppercase tracking-[0.25em] text-stone-500">Preparing your collection</span>
