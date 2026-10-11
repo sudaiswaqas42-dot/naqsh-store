@@ -336,3 +336,19 @@ nextjs-portal {
   .naqsh-reveal-pending { opacity: 1; transform: none; transition: none; }
   .naqsh-banner-letter { animation: none; }
 }
+
+@keyframes naqsh-eye-breathe {
+  0%, 100% {
+    opacity: 0.32;
+    transform: scale(0.96);
+    filter: drop-shadow(0 0 2px rgba(182, 151, 90, 0.2));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+    filter: drop-shadow(0 0 10px rgba(182, 151, 90, 0.7));
+  }
+}
+.naqsh-eye-breathe {
+  animation: naqsh-eye-breathe 2s ease-in-out infinite;
+}

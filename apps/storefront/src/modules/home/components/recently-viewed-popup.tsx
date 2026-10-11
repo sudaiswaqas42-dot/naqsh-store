@@ -68,20 +68,21 @@ export default function RecentlyViewedPopup() {
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="recently-viewed-trigger fixed bottom-6 right-20 sm:right-[84px] z-40 flex h-11 w-11 items-center justify-center rounded-full border border-[#B6975A]/70 bg-white text-stone-900 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 focus:outline-none"
+          className="recently-viewed-trigger fixed bottom-6 right-20 sm:right-[84px] z-40 flex h-11 w-11 items-center justify-center rounded-full bg-white text-stone-900 shadow-md hover:shadow-xl transition-transform duration-300 hover:scale-110 focus:outline-none"
           aria-label="View recently viewed products"
           title="Recently Viewed Products"
         >
-          {/* Exact glowing pulse rings matching Image 2 dot animation */}
-          <span className="absolute inset-0 rounded-full bg-[#B6975A] opacity-30 animate-ping pointer-events-none" />
-          <span className="absolute -inset-1 rounded-full border-2 border-[#B6975A]/60 animate-pulse pointer-events-none" />
+          {/* Double gold circular ring from Image 3 breathing smoothly from light to dark */}
+          <span className="absolute -inset-[3px] rounded-full border border-[#B6975A] pointer-events-none naqsh-eye-breathe" />
+          <span className="absolute inset-0 rounded-full border border-[#B6975A] pointer-events-none naqsh-eye-breathe" />
 
+          {/* Eye Icon itself breathing smoothly from light to dark */}
           <svg
-            className="relative z-10 h-5 w-5 text-stone-800"
+            className="relative z-10 h-5 w-5 text-stone-900 naqsh-eye-breathe"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            strokeWidth="1.75"
+            strokeWidth="1.8"
           >
             <path
               strokeLinecap="round"
@@ -103,7 +104,7 @@ export default function RecentlyViewedPopup() {
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-2.5 bg-stone-900 text-white shrink-0">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#B6975A] animate-ping" />
+              <span className="w-2 h-2 rounded-full bg-[#B6975A] naqsh-eye-breathe" />
               <span className="font-serif text-xs sm:text-sm font-medium tracking-wide">
                 Recently Viewed
               </span>

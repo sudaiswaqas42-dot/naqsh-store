@@ -1,55 +1,196 @@
 :root {
-  --bg-base: #faf8f5;
-  --bg-subtle: #f4efe6;
-  --bg-component: #ffffff;
-  --bg-field: #ffffff;
-  --bg-field-hover: #f7f4ee;
-  --bg-base-hover: #f4efe6;
-  --fg-base: #122f24;
-  --fg-subtle: #314a3e;
-  --fg-muted: #536c61;
-  --fg-interactive: #122f24;
-  --fg-interactive-hover: #205b43;
-  --button-inverted: #122f24;
-  --button-inverted-hover: #1c4737;
-  --border-base: #e6dfd5;
-  --border-strong: #c1a16a;
-}
-.dark {
-  --bg-base: #14251e;
-  --bg-subtle: #102019;
-  --bg-component: #1a3026;
-  --bg-field: #102019;
-  --bg-field-hover: #1c352a;
-  --bg-base-hover: #1c352a;
-  --bg-base-pressed: #254336;
-  --fg-base: #f5f3e9;
-  --fg-subtle: #c4d0c7;
-  --fg-muted: #a1b7a8;
-  --fg-interactive: #ddbe80;
-  --fg-interactive-hover: #f2dba4;
-  --border-base: #354c3e;
-  --border-strong: #637569;
-  --button-inverted: #ddbe80;
-  --button-inverted-hover: #f2dba4;
+  /* NAQSH Luxury Brand Color Palette - Light Theme */
+  --bg-base: #FAF9F6 !important;           /* Ivory - Site background */
+  --bg-subtle: #F5EFE9 !important;         /* Sand Light - Sidebar / secondary surfaces */
+  --bg-component: #FFFFFF !important;      /* Clean White - Cards, tables, modals */
+  --bg-component-hover: #FAF9F6 !important;
+  --bg-field: #FFFFFF !important;          /* Clean White - Inputs, selects, search */
+  --bg-field-hover: #F5EFE9 !important;
+  --bg-base-hover: #F5EFE9 !important;
+  --bg-base-pressed: #EBE1D6 !important;
+  --bg-subtle-hover: #EBE1D6 !important;
+  --bg-subtle-pressed: #E5DACD !important;
+
+  --fg-base: #0F2D22 !important;           /* NAQSH Brand Forest Green (Deep Text) */
+  --fg-subtle: #2D4A3E !important;         /* Elegant Dark Greenish Grey */
+  --fg-muted: #5E756C !important;          /* Muted Sage */
+  --fg-interactive: #0F2D22 !important;    /* Primary brand actions */
+  --fg-interactive-hover: #B6975A !important; /* Gold hover */
+  --fg-on-color: #FAF9F6 !important;
+  --fg-on-inverted: #FAF9F6 !important;
+
+  --border-base: #EBE1D6 !important;       /* Sand border matching site */
+  --border-strong: #B6975A !important;     /* Gold accent border */
+  --border-interactive: #0F2D22 !important;/* Focus rings */
+
+  --button-inverted: #0F2D22 !important;   /* Primary dark forest buttons */
+  --button-inverted-hover: #184233 !important;
+  --button-neutral: #FFFFFF !important;
+  --button-neutral-hover: #F5EFE9 !important;
+
+  /* Status Tags (Image 2 - NAQSH Theme) */
+  /* Fulfilled / Delivered / Captured -> Brand Forest Green */
+  --tag-green-icon: #0F2D22 !important;
+  --tag-green-text: #0F2D22 !important;
+  --tag-green-bg: #EBF2EE !important;
+  --tag-green-border: #C8DCD1 !important;
+
+  /* Authorized / Shipped / In-Progress -> Brand Muted Gold */
+  --tag-orange-icon: #B6975A !important;
+  --tag-orange-text: #8A6F3B !important;
+  --tag-orange-bg: #FBF8F1 !important;
+  --tag-orange-border: #E8DAC0 !important;
+
+  /* Not fulfilled / Canceled / Alert -> Luxury Rose/Ruby */
+  --tag-red-icon: #9E3B42 !important;
+  --tag-red-text: #7A282E !important;
+  --tag-red-bg: #FBF0F1 !important;
+  --tag-red-border: #F2CCD0 !important;
+
+  /* Neutral / Grey */
+  --tag-neutral-icon: #758A80 !important;
+  --tag-neutral-text: #3D544A !important;
+  --tag-neutral-bg: #F5EFE9 !important;
+  --tag-neutral-border: #EBE1D6 !important;
+
+  /* Blue -> Mapped to Brand Forest Green */
+  --tag-blue-icon: #0F2D22 !important;
+  --tag-blue-text: #0F2D22 !important;
+  --tag-blue-bg: #EBF2EE !important;
+  --tag-blue-border: #C8DCD1 !important;
 }
 
-/* Ensure select and dropdown options are strictly visible in dark and light modes */
+.dark {
+  --bg-base: #0F2D22 !important;
+  --bg-subtle: #081B14 !important;
+  --bg-component: #14382B !important;
+  --bg-field: #081B14 !important;
+  --bg-field-hover: #184233 !important;
+  --bg-base-hover: #184233 !important;
+  --bg-base-pressed: #225643 !important;
+  --fg-base: #FAF9F6 !important;
+  --fg-subtle: #D6C7B7 !important;
+  --fg-muted: #A3B8AC !important;
+  --fg-interactive: #B6975A !important;
+  --fg-interactive-hover: #D4BE8D !important;
+  --border-base: #25493B !important;
+  --border-strong: #B6975A !important;
+  --button-inverted: #B6975A !important;
+  --button-inverted-hover: #D4BE8D !important;
+
+  --tag-green-icon: #34D399 !important;
+  --tag-green-text: #A7F3D0 !important;
+  --tag-green-bg: #0E3324 !important;
+  --tag-green-border: #18523A !important;
+
+  --tag-orange-icon: #D4BE8D !important;
+  --tag-orange-text: #F5EFE3 !important;
+  --tag-orange-bg: #332A15 !important;
+  --tag-orange-border: #574624 !important;
+
+  --tag-red-icon: #F87171 !important;
+  --tag-red-text: #FECACA !important;
+  --tag-red-bg: #3B1419 !important;
+  --tag-red-border: #6B2129 !important;
+
+  --tag-neutral-icon: #A3B8AC !important;
+  --tag-neutral-text: #FAF9F6 !important;
+  --tag-neutral-bg: #1A382C !important;
+  --tag-neutral-border: #2A5241 !important;
+}
+
+/* Explicit table status dots & badge icon color overrides (Image 2) */
+.bg-ui-tag-green-icon,
+[class*="bg-ui-tag-green-icon"],
+div.bg-ui-tag-green-icon,
+[class*="[&_div]:bg-ui-tag-green-icon"] div {
+  background-color: #0F2D22 !important;
+}
+
+.bg-ui-tag-orange-icon,
+[class*="bg-ui-tag-orange-icon"],
+div.bg-ui-tag-orange-icon,
+[class*="[&_div]:bg-ui-tag-orange-icon"] div {
+  background-color: #B6975A !important;
+}
+
+.bg-ui-tag-red-icon,
+[class*="bg-ui-tag-red-icon"],
+div.bg-ui-tag-red-icon,
+[class*="[&_div]:bg-ui-tag-red-icon"] div {
+  background-color: #9E3B42 !important;
+}
+
+.bg-ui-tag-neutral-icon,
+[class*="bg-ui-tag-neutral-icon"],
+div.bg-ui-tag-neutral-icon,
+[class*="[&_div]:bg-ui-tag-neutral-icon"] div {
+  background-color: #758A80 !important;
+}
+
+.bg-ui-tag-blue-icon,
+[class*="bg-ui-tag-blue-icon"],
+div.bg-ui-tag-blue-icon,
+[class*="[&_div]:bg-ui-tag-blue-icon"] div {
+  background-color: #0F2D22 !important;
+}
+
+/* Dark mode status dots */
+.dark .bg-ui-tag-green-icon,
+.dark [class*="bg-ui-tag-green-icon"],
+.dark div.bg-ui-tag-green-icon,
+.dark [class*="[&_div]:bg-ui-tag-green-icon"] div {
+  background-color: #34D399 !important;
+}
+
+.dark .bg-ui-tag-orange-icon,
+.dark [class*="bg-ui-tag-orange-icon"],
+.dark div.bg-ui-tag-orange-icon,
+.dark [class*="[&_div]:bg-ui-tag-orange-icon"] div {
+  background-color: #D4BE8D !important;
+}
+
+.dark .bg-ui-tag-red-icon,
+.dark [class*="bg-ui-tag-red-icon"],
+.dark div.bg-ui-tag-red-icon,
+.dark [class*="[&_div]:bg-ui-tag-red-icon"] div {
+  background-color: #F87171 !important;
+}
+
+.dark .bg-ui-tag-neutral-icon,
+.dark [class*="bg-ui-tag-neutral-icon"],
+.dark div.bg-ui-tag-neutral-icon,
+.dark [class*="[&_div]:bg-ui-tag-neutral-icon"] div {
+  background-color: #A3B8AC !important;
+}
+
+/* Dropdown menus & Select popovers */
 select {
-  background-color: #ffffff !important;
-  color: #122f24 !important;
+  background-color: #FFFFFF !important;
+  color: #0F2D22 !important;
 }
 select option {
-  background-color: #ffffff !important;
-  color: #122f24 !important;
+  background-color: #FFFFFF !important;
+  color: #0F2D22 !important;
 }
 .dark select {
-  background-color: #14251e !important;
-  color: #f5f3e9 !important;
+  background-color: #14382B !important;
+  color: #FAF9F6 !important;
 }
 .dark select option {
-  background-color: #14251e !important;
-  color: #f5f3e9 !important;
+  background-color: #14382B !important;
+  color: #FAF9F6 !important;
+}
+
+[role="listbox"], [role="menu"], [data-radix-popper-content-wrapper] > div {
+  background-color: #FFFFFF !important;
+  border-color: #EBE1D6 !important;
+  color: #0F2D22 !important;
+}
+.dark [role="listbox"], .dark [role="menu"], .dark [data-radix-popper-content-wrapper] > div {
+  background-color: #14382B !important;
+  border-color: #25493B !important;
+  color: #FAF9F6 !important;
 }
 
 /* Hide duplicate native fulfillment section when NAQSH interactive fulfillment panel is active */
