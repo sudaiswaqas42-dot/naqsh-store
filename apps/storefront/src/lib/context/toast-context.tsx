@@ -13,7 +13,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const showToast = useCallback((message: string, type: Toast["type"] = "success") => {
     if (timer.current) clearTimeout(timer.current)
     setToast({ id: ++sequence.current, message, type })
-    timer.current = setTimeout(() => setToast(null), 1000)
+    timer.current = setTimeout(() => setToast(null), 1250)
   }, [])
 
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current) }, [])
@@ -24,14 +24,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       <div
         aria-live="polite"
         aria-atomic="true"
-        className="pointer-events-none fixed bottom-24 left-1/2 z-[9999] flex w-full max-w-[90vw] -translate-x-1/2 justify-center sm:bottom-8 sm:max-w-md"
+        className="pointer-events-none fixed bottom-24 sm:bottom-12 left-1/2 z-[99999] flex w-full max-w-[90vw] -translate-x-1/2 justify-center sm:max-w-md"
       >
         {toast && (
           <div
             key={toast.id}
-            className="naqsh-toast pointer-events-auto flex items-center gap-2.5 rounded-full border border-[#c1a16a]/30 bg-[#122f24]/95 px-5 py-2.5 text-xs sm:text-sm font-medium tracking-wide text-white shadow-2xl backdrop-blur-md"
+            className="naqsh-toast pointer-events-auto flex items-center gap-2.5 rounded-full border border-[#c1a16a]/50 bg-[#122f24]/95 px-5 py-2.5 text-xs sm:text-sm font-medium tracking-wide text-white shadow-2xl backdrop-blur-md"
             style={{
-              boxShadow: "0 10px 30px -5px rgba(18, 47, 36, 0.45), 0 0 20px rgba(193, 161, 106, 0.25)",
+              boxShadow:
+                "0 10px 30px -5px rgba(18, 47, 36, 0.5), 0 0 25px rgba(193, 161, 106, 0.45)",
             }}
           >
             <span
@@ -40,11 +41,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 toast.type === "error"
                   ? "bg-rose-500 text-white"
                   : toast.type === "info"
-                  ? "bg-[#c1a16a]/25 text-[#e5caa0]"
+                  ? "bg-[#c1a16a]/30 text-[#e5caa0]"
                   : "bg-[#c1a16a] text-[#122f24]"
               }`}
             >
-              {toast.type === "error" ? "!" : toast.type === "info" ? "ℹ" : "✓"}
+              {toast.type === "error" ? "!" : toast.type === "info" ? "♥" : "✓"}
             </span>
             <span>{toast.message}</span>
           </div>

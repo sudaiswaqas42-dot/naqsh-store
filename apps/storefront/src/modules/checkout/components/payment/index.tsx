@@ -34,8 +34,18 @@ const Payment = ({
   const [error, setError] = useState<string | null>(null)
   const [paymentComplete, setPaymentComplete] = useState(false)
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
-    activeSession?.provider_id ?? (availablePaymentMethods.length === 1 ? availablePaymentMethods[0].id : "")
+    activeSession?.provider_id ?? (availablePaymentMethods.length === 1 ? availablePaymentMethods[0].id : (availablePaymentMethods.find(m => /manual|system_default|cod/i.test(m.id))?.id || ""))
   )
+
+  useEffect(() => {
+    if (!selectedPaymentMethod && availablePaymentMethods.length > 0) {
+      const codMethod = availablePaymentMethods.find(m => /manual|system_default|cod/i.test(m.id))
+      const target = codMethod?.id || (availablePaymentMethods.length === 1 ? availablePaymentMethods[0].id : "")
+      if (target) {
+        setSelectedPaymentMethod(target)
+      }
+    }
+  }, [availablePaymentMethods, selectedPaymentMethod])
 
   const searchParams = useSearchParams()
   const router = useRouter()

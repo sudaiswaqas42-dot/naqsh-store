@@ -111,17 +111,24 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
     if (isHovered || isDragging || categories.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     let frame = 0
     let previous = 0
-    let offset = scrollRef.current?.scrollLeft || 0
     const tick = (time: number) => {
       const element = scrollRef.current
-      if (element && element.children.length > categories.length) {
+      if (element && element.children.length >= categories.length * 2) {
         const first = element.children[0] as HTMLElement
-        const clone = element.children[categories.length] as HTMLElement
-        const cycle = clone.offsetLeft - first.offsetLeft
-        if (previous && !document.hidden && cycle > 0) {
-          offset = (offset + Math.min(time - previous, 50) * 0.035) % cycle
-          element.scrollTo({ left: offset, behavior: "instant" })
-          setActive(Math.floor(offset / (cycle / categories.length)) % categories.length)
+        const middle = element.children[categories.length] as HTMLElement
+        const cycle = middle.offsetLeft - first.offsetLeft
+        if (cycle > 0) {
+          if (element.scrollLeft >= cycle * 2) {
+            element.scrollLeft -= cycle
+          } else if (element.scrollLeft <= 0) {
+            element.scrollLeft += cycle
+          }
+          if (previous && !document.hidden) {
+            const delta = Math.min(time - previous, 50) * 0.035
+            element.scrollLeft += delta
+            const stride = cycle / categories.length
+            setActive(Math.floor((element.scrollLeft % cycle) / stride) % categories.length)
+          }
         }
       }
       previous = time
@@ -198,7 +205,7 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
             }`}
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
-            {[...categories, ...categories].map((cat, idx) => (
+            {[...categories, ...categories, ...categories].map((cat, idx) => (
               <LocalizedClientLink
                 key={idx}
                 href={cat.href}

@@ -211,8 +211,8 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
                   </span>
                 )}
 
-                <h1 key={isActive ? "active" : "idle"} aria-label={slide.title} className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal tracking-wide text-white leading-tight mb-4 drop-shadow-lg max-w-2xl">
-                  <span aria-hidden="true">{Array.from(slide.title).map((letter, index) => <span key={index} className={isActive ? "naqsh-banner-letter" : ""} style={{ animationDelay: index * Math.min(0.016, 0.4 / slide.title.length) + "s" }}>{letter === " " ? "\u00a0" : letter}</span>)}</span>
+                <h1 key={isActive ? `active-slide-${current}` : `idle-${index}`} aria-label={slide.title} className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal tracking-wide text-white leading-tight mb-4 drop-shadow-lg max-w-2xl">
+                  <span aria-hidden="true">{Array.from(slide.title).map((letter, idx) => <span key={idx} className={isActive ? "naqsh-banner-letter" : ""} style={{ animationDelay: `${idx * 0.02}s` }}>{letter === " " ? "\u00a0" : letter}</span>)}</span>
                 </h1>
 
                 <p className="text-xs sm:text-base text-stone-200 font-light leading-relaxed mb-8 max-w-xl drop-shadow-md">

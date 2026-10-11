@@ -420,6 +420,20 @@ export default function ProductActions({
                 </button>
               </div>
 
+              {/* Buy Now button placed directly below Add to Cart */}
+              <button
+                type="button"
+                disabled={isAdding || !!disabled || (allOptionsSelected && !inStock)}
+                onClick={() => handleAddToCart(true)}
+                className={`product-buy-now h-12 w-full rounded-full font-bold text-xs uppercase tracking-widest transition-all duration-300 ease-out flex items-center justify-center ${
+                  allOptionsSelected && isValidVariant && inStock
+                    ? "bg-[#B6975A] hover:bg-[#a38448] text-white shadow-md hover:shadow-lg cursor-pointer active:scale-[0.99]"
+                    : "bg-stone-100 text-stone-500 border border-stone-200 cursor-not-allowed hover:bg-stone-100"
+                }`}
+              >
+                BUY NOW
+              </button>
+
               {/* Validation helper badge when options are still pending */}
               {!allOptionsSelected && (
                 <div className="flex items-center gap-1.5 text-[11px] text-stone-600 transition-all duration-300">
@@ -436,8 +450,6 @@ export default function ProductActions({
             </div>
           )}
         </div>
-
-        <button type="button" disabled={isAdding || !!disabled || !inStock} onClick={() => handleAddToCart(true)} className="product-buy-now h-12 w-full rounded-full border border-brand bg-white text-xs font-semibold uppercase tracking-widest text-brand hover:bg-stone-50 disabled:opacity-40">Buy Now</button>
 
         {/* 6. Advance Payment Notice (Matching Image 1: Note: A 50% advance payment is required...) */}
         <p className="hidden lg:block text-xs text-stone-800 leading-relaxed font-normal pt-1">

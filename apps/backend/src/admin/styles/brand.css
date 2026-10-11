@@ -1,4 +1,7 @@
 :root {
+  --fg-base: #122f24;
+  --fg-subtle: #4b6357;
+  --fg-muted: #6f857a;
   --fg-interactive: #205b43;
   --fg-interactive-hover: #123b2b;
   --button-inverted: #14382a;
