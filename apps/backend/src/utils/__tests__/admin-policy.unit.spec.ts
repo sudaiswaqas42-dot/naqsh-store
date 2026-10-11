@@ -20,4 +20,14 @@ describe("admin order edit policy", () => {
     const source = 'jsx(StackedFocusModal.Trigger, { children: t("actions.addItems") })'
     expect(customizeDashboard(source, directory + "/order-create-exchange-test.mjs")).toBeUndefined()
   })
+
+  it("replaces the native fulfillment section without breaking the order detail bundle", () => {
+    const file = path.join(directory, fs.readdirSync(directory).find(name => /^order-detail-.*\.mjs$/.test(name))!)
+    const source = fs.readFileSync(file, "utf8")
+    const result = customizeDashboard(source, file)!
+    expect(result.code).not.toMatch(/jsx\d*\(OrderFulfillmentSection,\s*\{\s*order\s*\}\)/)
+    expect(result.code).toContain("OrderPaymentSection")
+    const parsed = ts.transpileModule(result.code, { reportDiagnostics: true, compilerOptions: { target: ts.ScriptTarget.ES2021 } })
+    expect(parsed.diagnostics?.filter(diagnostic => diagnostic.category === ts.DiagnosticCategory.Error)).toEqual([])
+  })
 })

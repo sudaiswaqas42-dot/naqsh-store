@@ -11,19 +11,23 @@ const trackOrderStep = createStep("track-naqsh-order", async (input: Input, { co
     throw new MedusaError(MedusaError.Types.INVALID_DATA, "Enter your order number and checkout email.")
   }
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
-  const { data: orders } = await query.graph({
+  let { data: orders } = await query.graph({
     entity: "order",
     fields: ["id", "display_id", "custom_display_id", "status", "total", "subtotal", "discount_total", "shipping_total", "currency_code", "created_at", "email", "metadata", "fulfillments.*", "fulfillments.labels.*", "shipping_address.*", "items.*"],
-    filters: { email, ...(/^\d+$/.test(reference) ? { $or: [{ custom_display_id: reference }, { display_id: reference }] } : reference.startsWith("order_") ? { id: reference } : { custom_display_id: reference }) },
+    filters: { email, ...(/^\d+$/.test(reference) ? { $or: [{ display_id: reference }, { custom_display_id: reference, display_id: { $lt: "1310" } }] } : reference.startsWith("order_") ? { id: reference } : { custom_display_id: reference }) },
     pagination: { take: 2 },
   })
+  if (/^\d+$/.test(reference)) {
+    const exact = orders.filter(order => Number(order.display_id) >= 1310 && String(order.display_id) === reference)
+    if (exact.length) orders = exact
+  }
   if (!orders.length) throw new MedusaError(MedusaError.Types.NOT_FOUND, "No order found. Check your order number and checkout email.")
   if (orders.length > 1) throw new MedusaError(MedusaError.Types.INVALID_DATA, "This order number has more than one match. Please use the full order reference from your confirmation or contact support.")
   const order = orders[0]
   const tracking = orderTracking(order)
   return new StepResponse({
     id: order.id,
-    display_id: order.custom_display_id || order.display_id,
+    display_id: Number(order.display_id) >= 1310 ? order.display_id : order.custom_display_id || order.display_id,
     status: order.status,
     custom_status: tracking.status,
     custom_status_label: tracking.status,

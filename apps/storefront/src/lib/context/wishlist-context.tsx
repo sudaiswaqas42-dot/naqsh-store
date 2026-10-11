@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect } from "react"
+import React, { createContext, useContext, useState, useEffect, useRef } from "react"
 import { useToast } from "./toast-context"
 
 export interface WishlistItem {
@@ -23,23 +23,26 @@ const WishlistContext = createContext<WishlistContextType | null>(null)
 
 export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<WishlistItem[]>([])
+  const currentItems = useRef<WishlistItem[]>([])
   const { showToast } = useToast()
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem("naqsh_wishlist")
       if (stored) {
-        setItems(JSON.parse(stored))
+        currentItems.current = JSON.parse(stored)
+        setItems(currentItems.current)
       }
     } catch {}
   }, [])
 
   const toggleWishlist = (item: WishlistItem) => {
-    const exists = items.some((i) => i.id === item.id)
+    const exists = currentItems.current.some((i) => i.id === item.id)
     const next = exists
-      ? items.filter((i) => i.id !== item.id)
-      : [...items, item]
+      ? currentItems.current.filter((i) => i.id !== item.id)
+      : [...currentItems.current, item]
 
+    currentItems.current = next
     setItems(next)
 
     try {
@@ -47,9 +50,9 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch {}
 
     if (exists) {
-      showToast(`Removed from wishlist: ${item.title}`, "info")
+      showToast("Removed from wishlist", "info")
     } else {
-      showToast(`Added to wishlist: ${item.title}`, "success")
+      showToast("Added to wishlist", "success")
     }
   }
 

@@ -1,9 +1,10 @@
 import logo from "../assets/naqsh-logo.png"
+import lightLogo from "../assets/naqsh-logo-light.png"
+import "../styles/brand.css"
 
-const BrandLogo = () => (
-  <div style={{ background: "var(--bg-base)", display: "flex", justifyContent: "center", borderRadius: 8 }}>
-    <img src={logo} alt="NAQSH — Where Identity Begins" style={{ width: 210, height: 140, objectFit: "contain" }} />
+export default function BrandLogo() {
+  return <div className="flex justify-center rounded-lg bg-ui-bg-base p-5">
+    <img src={logo} alt="NAQSH" className="block h-24 w-56 object-contain dark:hidden" />
+    <img src={lightLogo} alt="NAQSH" className="hidden h-24 w-56 object-contain dark:block" />
   </div>
-)
-
-export default BrandLogo
+}

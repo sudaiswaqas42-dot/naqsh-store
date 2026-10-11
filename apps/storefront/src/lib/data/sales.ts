@@ -1,4 +1,6 @@
-const BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ||
+  "https://naqsh-backend-production.up.railway.app"
 
 export type ProductSaleOverride = {
   on_sale: boolean

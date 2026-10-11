@@ -56,7 +56,7 @@ export default function WishlistPage() {
       openCart()
     } catch (err: any) {
       console.error(err)
-      showToast(err?.message || "Failed to add to bag.", "error")
+      showToast(err?.message || "Failed to add to cart.", "error")
     } finally {
       setMovingId(null)
     }

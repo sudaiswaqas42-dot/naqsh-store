@@ -1,3 +1,5 @@
+import OrderFulfillmentPanel from "../components/order-fulfillment-panel"
+import "../styles/brand.css"
 import { defineWidgetConfig } from "@medusajs/admin-sdk"
 import { Check, ArrowDownTray, PencilSquare, DocumentText } from "@medusajs/icons"
 import { Container, Heading, Text, Badge, Button, Input, Select } from "@medusajs/ui"
@@ -59,34 +61,6 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
   const [saving, setSaving] = useState(false)
   const [savedMsg, setSavedMsg] = useState(false)
 
-  const handleSave = async () => {
-    setSaving(true)
-    try {
-      const res = await fetch(`/admin/orders/${order.id}/custom-status`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          custom_status: currentStatus,
-          carrier,
-          tracking_number: trackingNumber,
-          internal_notes: internalNotes,
-        }),
-      })
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.message || body.error || "Could not update order")
-      }
-      if (res.ok) {
-        setSavedMsg(true)
-        setTimeout(() => setSavedMsg(false), 3000)
-      }
-    } catch (err: any) {
-      alert("Error updating order status: " + err.message)
-    } finally {
-      setSaving(false)
-    }
-  }
-
   const printInvoice = () => {
     const printWindow = window.open("", "_blank")
     if (!printWindow) return
@@ -115,7 +89,7 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Invoice - #${escape(order.custom_display_id || order.display_id || order.id)}</title>
+        <title>Invoice - #${escape(Number(order.display_id) >= 1310 ? order.display_id : order.custom_display_id || order.display_id || order.id)}</title>
         <base href="${window.location.origin}/" />
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 40px; color: #1a1a1a; max-width: 800px; margin: 0 auto; }
@@ -140,7 +114,7 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
             <h2 style="margin: 0; font-size: 20px; text-transform: uppercase; color: #0F2D22; letter-spacing: 1px;">Official Invoice</h2>
             <p style="margin: 4px 0; font-size: 14px;"><strong>Order #:</strong> ${escape(order.display_id || order.id)}</p>
             <p style="margin: 4px 0; font-size: 13px; color: #666;"><strong>Date:</strong> ${new Date(order.created_at).toLocaleDateString()}</p>
-            <p style="margin: 4px 0; font-size: 13px;"><strong>Status:</strong> ${escape(currentStatus)}</p>
+            <p style="margin: 4px 0; font-size: 13px;"><strong>Status:</strong> ${escape(order.metadata?.custom_status || getInitialStatus())}</p>
           </div>
         </div>
 
@@ -155,8 +129,8 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
           <div style="text-align: right;">
             <h4 style="margin: 0 0 6px 0; font-size: 12px; text-transform: uppercase; color: #888;">Payment & Courier:</h4>
             <p style="margin: 2px 0; font-size: 13px;"><strong>Payment Method:</strong> ${escape(paymentMethod)}</p>
-            <p style="margin: 2px 0; font-size: 13px;"><strong>Courier Partner:</strong> ${escape(carrier)}</p>
-            <p style="margin: 2px 0; font-size: 13px;"><strong>Tracking #:</strong> ${escape(trackingNumber || "Assigned upon dispatch")}</p>
+            <p style="margin: 2px 0; font-size: 13px;"><strong>Courier Partner:</strong> ${escape(order.metadata?.carrier || "Assigned at dispatch")}</p>
+            <p style="margin: 2px 0; font-size: 13px;"><strong>Tracking #:</strong> ${escape(order.metadata?.tracking_number || "Assigned upon dispatch")}</p>
           </div>
         </div>
 
@@ -217,111 +191,11 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
     }
   }
 
-  return (
-    <Container style={{ padding: "20px", marginBottom: "20px", borderLeft: "4px solid #c9a96e" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-        <div>
-          <Heading level="h2" style={{ fontSize: "18px", fontWeight: "600" }}>
-            NAQSH Fulfillment & Custom Order Status
-          </Heading>
-          <Text size="small" style={{ color: "var(--fg-subtle)" }}>
-            Enter a courier and tracking ID when dispatching. Tracking is shown to customers only after shipment.
-          </Text>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <Button variant="secondary" size="small" onClick={printInvoice}>
-            <ArrowDownTray /> Print / Save invoice PDF
-          </Button>
-          {savedMsg && <Badge color="green">Changes Saved ✓</Badge>}
-        </div>
-      </div>
-
-      <p className="mb-4 text-sm text-ui-fg-subtle">Tracking labels do not execute financial operations. Use the order actions to cancel, return or refund an order and update inventory/payments.</p>
-      <div className="grid gap-4 md:grid-cols-3">
-        <div>
-          <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "var(--fg-base)" }}>
-            Order Status Step
-          </Text>
-          <select
-            value={currentStatus}
-            onChange={(e) => setCurrentStatus(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "8px 12px",
-              borderRadius: "6px",
-              border: "1px solid var(--border-base)",
-              backgroundColor: "var(--bg-base)",
-              fontSize: "14px",
-              fontWeight: "500",
-            }}
-          >
-            {ALL_STATUSES.map((st) => (
-              <option key={st} value={st}>
-                {st}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "var(--fg-base)" }}>
-            Courier Partner
-          </Text>
-          <select
-            value={carrier}
-            onChange={(e) => setCarrier(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "8px 12px",
-              borderRadius: "6px",
-              border: "1px solid var(--border-base)",
-              backgroundColor: "var(--bg-base)",
-              fontSize: "14px",
-            }}
-          >
-            <option value="">Select courier at dispatch</option>
-            <option value="TCS Express">TCS Express</option>
-            <option value="Leopards Courier">Leopards Courier</option>
-            <option value="M&P Logistics">M&P Logistics</option>
-            <option value="Trax Courier">Trax Courier</option>
-            <option value="DHL Express">DHL Express</option>
-          </select>
-        </div>
-
-        <div>
-          <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "var(--fg-base)" }}>
-            Tracking ID
-          </Text>
-          <Input
-            value={trackingNumber}
-            placeholder="e.g. 774910281"
-            onChange={(e) => setTrackingNumber(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div style={{ marginTop: "16px", display: "grid", gridTemplateColumns: "3fr 1fr", gap: "16px", alignItems: "flex-end" }}>
-        <div>
-          <Text size="xsmall" style={{ fontWeight: "600", marginBottom: "4px", color: "var(--fg-base)" }}>
-            Internal Fulfillment Notes
-          </Text>
-          <Input
-            value={internalNotes}
-            placeholder="Add internal notes about special stitching, customer calls, or delivery instructions..."
-            onChange={(e) => setInternalNotes(e.target.value)}
-          />
-        </div>
-
-        <Button variant="primary" onClick={handleSave} disabled={saving}>
-          <Check /> {saving ? "Saving..." : "Update Order"}
-        </Button>
-      </div>
-    </Container>
-  )
+  return <OrderFulfillmentPanel order={order} onPrint={printInvoice} />
 }
 
 export const config = defineWidgetConfig({
-  zone: "order.details.before",
+  zone: "order.details.after",
 })
 
 export default OrderStatusWidget

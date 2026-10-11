@@ -1,0 +1,30 @@
+:root {
+  --fg-interactive: #205b43;
+  --fg-interactive-hover: #123b2b;
+  --button-inverted: #14382a;
+  --button-inverted-hover: #0d291e;
+}
+.dark {
+  --bg-base: #14251e;
+  --bg-subtle: #102019;
+  --bg-component: #1a3026;
+  --bg-field: #102019;
+  --bg-field-hover: #1c352a;
+  --bg-base-hover: #1c352a;
+  --bg-base-pressed: #254336;
+  --fg-base: #f5f3e9;
+  --fg-subtle: #c4d0c7;
+  --fg-muted: #a1b7a8;
+  --fg-interactive: #ddbe80;
+  --fg-interactive-hover: #f2dba4;
+  --border-base: #354c3e;
+  --border-strong: #637569;
+  --button-inverted: #ddbe80;
+  --button-inverted-hover: #f2dba4;
+}
+
+/* Hide duplicate native fulfillment section when NAQSH interactive fulfillment panel is active */
+[data-section-id="OrderFulfillmentSection"]:not([data-naqsh-fulfillment="true"]),
+#OrderFulfillmentSection:not([data-naqsh-fulfillment="true"]) {
+  display: none !important;
+}

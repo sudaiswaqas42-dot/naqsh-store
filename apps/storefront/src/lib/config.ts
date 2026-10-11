@@ -1,17 +1,23 @@
 import { getLocaleHeader } from "@lib/util/get-locale-header"
 import Medusa, { FetchArgs, FetchInput } from "@medusajs/js-sdk"
 
-// Defaults to standard port for Medusa server
-let MEDUSA_BACKEND_URL = "http://localhost:9000"
+export const FALLBACK_MEDUSA_BACKEND_URL = "https://naqsh-backend-production.up.railway.app"
 
-if (process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL) {
-  MEDUSA_BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
-}
+// Defaults to standard port for Medusa server, or Railway production URL
+let MEDUSA_BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || FALLBACK_MEDUSA_BACKEND_URL
 
 export const sdk = new Medusa({
   baseUrl: MEDUSA_BACKEND_URL,
   debug: process.env.NODE_ENV === "development",
   publishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
+})
+
+export const fallbackSdk = new Medusa({
+  baseUrl: FALLBACK_MEDUSA_BACKEND_URL,
+  debug: false,
+  publishableKey:
+    process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ||
+    "pk_f5e00e96956d20bf784d23ee9052f3bf80ebab9ad4b48167b399385c4fea50a0",
 })
 
 const originalFetch = sdk.client.fetch.bind(sdk.client)
@@ -35,21 +41,31 @@ sdk.client.fetch = async <T>(
     ...init,
     headers: newHeaders,
   }
-  const isServerRead = typeof window === "undefined" &&
-    (!init.method || init.method.toUpperCase() === "GET")
-  if (!isServerRead) return originalFetch(input, init)
 
-  for (let attempt = 0; ; attempt++) {
+  const isServerRead =
+    typeof window === "undefined" &&
+    (!init.method || init.method.toUpperCase() === "GET")
+
+  const tryFetch = async (targetInput: FetchInput, timeoutMs = 8000): Promise<T> => {
+    return await originalFetch<T>(targetInput, {
+      ...init,
+      signal: init?.signal ?? AbortSignal.timeout(timeoutMs),
+    })
+  }
+
+  try {
+    return await tryFetch(input, isServerRead ? 4000 : 10000)
+  } catch (error: any) {
+    // If local backend is down or unreachable, seamlessly fallback to live Railway production backend
     try {
-      return await originalFetch<T>(input, {
+      return await fallbackSdk.client.fetch<T>(input, {
         ...init,
-        signal: init.signal ?? AbortSignal.timeout(10000),
+        signal: init?.signal ?? AbortSignal.timeout(10000),
       })
-    } catch (error) {
-      const status = (error as { status?: number }).status
-      const transient = !status || status === 408 || status === 429 || status >= 500
-      if (attempt >= 1 || !transient || init.signal?.aborted) throw error
-      await new Promise((resolve) => setTimeout(resolve, 250))
+    } catch (fallbackError) {
+      console.warn("Fallback backend fetch error:", fallbackError)
     }
+
+    throw error
   }
 }

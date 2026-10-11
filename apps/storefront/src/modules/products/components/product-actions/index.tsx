@@ -2,7 +2,7 @@
 
 import { HttpTypes } from "@medusajs/types"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
-import { isEqual } from "lodash"
+import { selectableOptions } from "@lib/util/selectable-options"
 import { useParams, usePathname, useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ProductPrice from "../product-price"
@@ -35,7 +35,7 @@ export default function ProductActions({
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const { addItem } = useCartDrawer()
+  const { addItem, closeCart } = useCartDrawer()
   const { showToast } = useToast()
   const { isInWishlist, toggleWishlist } = useWishlist()
 
@@ -69,141 +69,30 @@ export default function ProductActions({
     } catch {}
   }, [product])
 
-  const prevProductIdRef = useRef(product.id)
-  const isInitialMount = useRef(true)
   const [validationShake, setValidationShake] = useState(false)
-
-  // Effective options: Combine real product options with metadata sizes/colors
-  const effectiveOptions = useMemo(() => {
-    const existing = (product.options || []).filter(
-      (opt) => opt.title?.toLowerCase() !== "default option"
-    )
-    const hasColor = existing.some((o) => /colou?r/i.test(o.title || ""))
-    const hasSize = existing.some((o) => /size/i.test(o.title || ""))
-
-    const result = [...existing]
-
-    if (!hasColor) {
-      const rawColors =
-        product.metadata?.colors ||
-        product.metadata?.colours ||
-        product.metadata?.color ||
-        product.metadata?.colour ||
-        []
-      const colorValues = Array.isArray(rawColors)
-        ? rawColors
-        : String(rawColors)
-            .split(",")
-            .map((c) => c.trim())
-            .filter(Boolean)
-
-      result.unshift({
-        id: "color",
-        title: "Color",
-        values: colorValues.map((v) => ({ id: `val-${v}`, value: v })),
-      } as any)
-    }
-
-    if (!hasSize) {
-      const rawSizes =
-        product.metadata?.sizes ||
-        product.metadata?.size ||
-        []
-      const sizeValues = Array.isArray(rawSizes)
-        ? rawSizes
-        : String(rawSizes)
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean)
-
-      result.push({
-        id: "size",
-        title: "Size",
-        values: sizeValues.map((v) => ({ id: `val-${v}`, value: v })),
-      } as any)
-    }
-
-    // Sort to ensure Color comes before Size matching Image 1
-    return result.filter(option => option.values?.length).sort((a, b) => {
-      const order = ["color", "size"]
-      const aIdx = order.indexOf((a.title || "").toLowerCase())
-      const bIdx = order.indexOf((b.title || "").toLowerCase())
-      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx
-      if (aIdx !== -1) return -1
-      if (bIdx !== -1) return 1
-      return 0
+  const effectiveOptions = useMemo(() => selectableOptions(product), [product])
+  const previousProduct = useRef("")
+  useEffect(() => {
+    const changed = previousProduct.current !== product.id
+    previousProduct.current = product.id
+    setOptions(previous => {
+      const next = changed ? {} : { ...previous }
+      for (const option of effectiveOptions) {
+        const values = Array.from(new Set(option.values?.map(value => value.value)))
+        if (values.length === 1) next[option.id] = values[0]
+      }
+      return next
     })
-  }, [product.options, product.metadata])
-
-  // Preselect from URL params on initial mount, or if single variant
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false
-      const vId = searchParams.get("v_id")
-      if (vId && product.variants?.length) {
-        const found = product.variants.find((v) => v.id === vId)
-        if (found) {
-          setOptions(optionsAsKeymap(found.options) ?? {})
-          return
-        }
-      }
-      if (product.variants?.length === 1 && (product.options || []).length === 0) {
-        // Preselect first available color and size
-        const initialOpts: Record<string, string> = {}
-        effectiveOptions.forEach((opt) => {
-          if (opt.values?.[0]?.value) {
-            initialOpts[opt.id] = opt.values[0].value
-          }
-        })
-        if (Object.keys(initialOpts).length > 0) {
-          setOptions(initialOpts)
-          return
-        }
-      }
-      if (product.variants?.length === 1) {
-        const variantOptions = optionsAsKeymap(product.variants[0].options)
-        setOptions(variantOptions ?? {})
-      }
-    }
-  }, [searchParams, product.variants, effectiveOptions, product.options])
-
-  // Only reset options when navigating to a DIFFERENT product
-  useEffect(() => {
-    if (prevProductIdRef.current !== product.id) {
-      prevProductIdRef.current = product.id
-      if (product.variants?.length === 1 && (product.options || []).length === 0) {
-        const initialOpts: Record<string, string> = {}
-        effectiveOptions.forEach((opt) => {
-          if (opt.values?.[0]?.value) {
-            initialOpts[opt.id] = opt.values[0].value
-          }
-        })
-        setOptions(initialOpts)
-      } else if (product.variants?.length === 1) {
-        const variantOptions = optionsAsKeymap(product.variants[0].options)
-        setOptions(variantOptions ?? {})
-      } else {
-        setOptions({})
-      }
-    }
-  }, [product.id, product.variants, effectiveOptions, product.options])
+  }, [product.id, effectiveOptions])
 
   const selectedVariant = useMemo(() => {
-    if (!product.variants || product.variants.length === 0) {
-      return
-    }
-
-    const found = product.variants.find((v) => {
-      const variantOptions = optionsAsKeymap(v.options)
-      return isEqual(variantOptions, options)
-    })
-
-    if (!found && product.variants.length === 1) {
-      return product.variants[0]
-    }
-
-    return found
-  }, [product.variants, options])
+    const candidates = (product.variants || []).filter(variant => effectiveOptions.every(option => {
+      if (!product.options?.some(real => real.id === option.id)) return true
+      return !!options[option.id] && variant.options?.some(value => value.option_id === option.id && value.value === options[option.id])
+    }))
+    const available = candidates.filter(variant => !variant.manage_inventory || variant.allow_backorder || (variant.inventory_quantity || 0) > 0)
+    return (available.length ? available : candidates).sort((a, b) => (a.calculated_price?.calculated_amount || 0) - (b.calculated_price?.calculated_amount || 0))[0]
+  }, [product, effectiveOptions, options])
 
   // update the options when a variant is selected
   const setOptionValue = (optionId: string, value: string) => {
@@ -214,13 +103,7 @@ export default function ProductActions({
   }
 
   // check if the selected options produce a valid variant
-  const isValidVariant = useMemo(() => {
-    if (product.variants?.length === 1) return true
-    return product.variants?.some((v) => {
-      const variantOptions = optionsAsKeymap(v.options)
-      return isEqual(variantOptions, options)
-    })
-  }, [product.variants, options])
+  const isValidVariant = !!selectedVariant
 
   // Options validation: all options configured on product must be chosen
   const missingOptions = useMemo(() => {
@@ -323,10 +206,11 @@ export default function ProductActions({
   const actionsRef = useRef<HTMLDivElement>(null)
 
   // add the selected variant to the cart
-  const handleAddToCart = async () => {
+  const handleAddToCart = async (buyNow = false) => {
+    if (isAdding || disabled) return
     if (!allOptionsSelected) {
       const missingTitles = missingOptions.map((o) => o.title || "Option").join(" and ")
-      showToast(`Please select ${missingTitles} before adding to bag.`, "info")
+      showToast(`Please select ${missingTitles} before adding to cart.`, "info")
       setValidationShake(true)
       setTimeout(() => setValidationShake(false), 500)
       return null
@@ -357,12 +241,14 @@ export default function ProductActions({
         variantId: selectedVariant.id,
         quantity: 1,
         countryCode,
+        openDrawer: !buyNow,
         preview: { title: itemTitle, thumbnail: product.thumbnail || product.images?.[0]?.url, unit_price: selectedVariant.calculated_price?.calculated_amount ?? 0 },
       })
-      showToast(`Added ${itemTitle} to your bag!`, "success")
+      if (buyNow) { closeCart(); router.push(`/${countryCode}/checkout`) }
+      else showToast("Added to cart", "success")
 
     } catch (err: any) {
-      showToast(err?.message || "Failed to add to bag.", "error")
+      showToast(err?.message || "Failed to add to cart.", "error")
     } finally {
       setIsAdding(false)
     }
@@ -387,7 +273,6 @@ export default function ProductActions({
       price: rawPrice,
       currency_code: "pkr",
     })
-    showToast(isFavorited ? "Removed from Wishlist" : "Saved to Wishlist", "info")
   }
 
   const handleNotifyMe = () => {
@@ -494,7 +379,7 @@ export default function ProductActions({
                 */}
                 <button
                   type="button"
-                  onClick={handleAddToCart}
+                  onClick={() => handleAddToCart()}
                   disabled={isAdding || !!disabled}
                   aria-disabled={!allOptionsSelected}
                   className={`flex-1 h-12 rounded-full font-bold text-xs uppercase tracking-widest transition-all duration-300 ease-out flex items-center justify-center ${
@@ -506,11 +391,11 @@ export default function ProductActions({
                   }`}
                 >
                   {isAdding ? (
-                    "ADDING TO BAG..."
+                    "ADDING TO CART..."
                   ) : allOptionsSelected ? (
-                    "ADD TO BAG"
+                    "ADD TO CART"
                   ) : (
-                    "ADD TO BAG"
+                    "ADD TO CART"
                   )}
                 </button>
 
@@ -544,13 +429,15 @@ export default function ProductActions({
                     <strong className="text-stone-900 font-semibold">
                       {missingOptions.map((o) => o.title).join(" & ")}
                     </strong>{" "}
-                    to enable Add to Bag
+                    to enable Add to Cart
                   </span>
                 </div>
               )}
             </div>
           )}
         </div>
+
+        <button type="button" disabled={isAdding || !!disabled || !inStock} onClick={() => handleAddToCart(true)} className="product-buy-now h-12 w-full rounded-full border border-brand bg-white text-xs font-semibold uppercase tracking-widest text-brand hover:bg-stone-50 disabled:opacity-40">Buy Now</button>
 
         {/* 6. Advance Payment Notice (Matching Image 1: Note: A 50% advance payment is required...) */}
         <p className="hidden lg:block text-xs text-stone-800 leading-relaxed font-normal pt-1">

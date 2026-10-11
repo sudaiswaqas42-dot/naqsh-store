@@ -34,7 +34,7 @@ const Payment = ({
   const [error, setError] = useState<string | null>(null)
   const [paymentComplete, setPaymentComplete] = useState(false)
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
-    activeSession?.provider_id ?? ""
+    activeSession?.provider_id ?? (availablePaymentMethods.length === 1 ? availablePaymentMethods[0].id : "")
   )
 
   const searchParams = useSearchParams()

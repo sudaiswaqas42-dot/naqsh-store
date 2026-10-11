@@ -284,10 +284,9 @@ export default function MegaNav({ categories, collections }: MegaNavProps) {
                 </h4>
                 <ul className="space-y-2.5 text-xs text-stone-600 font-normal">
                   {[
-                    { key: "3pc", label: "3-Piece Luxury Suits", href: "/categories/3pc" },
-                    { key: "2pc", label: "2-Piece Sets", href: "/categories/2pc" },
-                    { key: "1piece", label: "1-Piece Shirt Cut", href: "/categories/women" },
-                    { key: "women-unstitched", label: "All Ladies Unstitched (1,250+)", href: "/categories/women" },
+                    { key: "3pc", label: "3pc", href: "/categories/3pc" },
+                    { key: "2pc", label: "2pc", href: "/categories/2pc" },
+
                   ].map((item) => {
                     const isHovered = hoveredKey === item.key
                     const catalogItem = fashionCatalog[item.key]
@@ -320,12 +319,11 @@ export default function MegaNav({ categories, collections }: MegaNavProps) {
                 </h4>
                 <ul className="space-y-2.5 text-xs text-stone-600 font-normal">
                   {[
-                    { key: "lawn", label: "Pure Swiss Lawn", href: "/categories/women" },
-                    { key: "silk", label: "Pure Heirloom Silk", href: "/categories/silk" },
-                    { key: "linen", label: "Fine Linen Cuts", href: "/categories/linen" },
-                    { key: "dhanak", label: "Winter Dhanak", href: "/categories/dhanak" },
-                    { key: "khaddar", label: "Kamalia Khaddar", href: "/categories/khaddar" },
-                    { key: "karandi", label: "Luxury Karandi", href: "/categories/karandi" },
+                    { key: "silk", label: "Silk", href: "/categories/silk" },
+                    { key: "linen", label: "Linen", href: "/categories/linen" },
+                    { key: "dhanak", label: "Dhanak", href: "/categories/dhanak" },
+                    { key: "khaddar", label: "Khaddar", href: "/categories/khaddar" },
+                    { key: "karandi", label: "Karandi", href: "/categories/karandi" },
                   ].map((item) => {
                     const isHovered = hoveredKey === item.key
                     const catalogItem = fashionCatalog[item.key]
@@ -359,7 +357,7 @@ export default function MegaNav({ categories, collections }: MegaNavProps) {
                 <ul className="space-y-2.5 text-xs text-stone-600 font-normal">
                   {[
                     { key: "embroidery", label: "Embroidery Waly", href: "/categories/embroidery-waly" },
-                    { key: "printed", label: "Digital Printed", href: "/categories/printed" },
+                    { key: "printed", label: "Printed", href: "/categories/printed" },
                   ].map((item) => {
                     const isHovered = hoveredKey === item.key
                     const catalogItem = fashionCatalog[item.key]
@@ -451,9 +449,8 @@ export default function MegaNav({ categories, collections }: MegaNavProps) {
                 </h4>
                 <ul className="space-y-2.5 text-xs text-stone-600 font-normal">
                   {[
-                    { key: "boski", label: "Pure Silk Boski (Heavyweight)", href: "/categories/boski" },
-                    { key: "italian", label: "Italian Superfine Combed Cotton", href: "/categories/italian" },
-                    { key: "men-unstitched", label: "All Gents Unstitched (1,000+ Cuts)", href: "/categories/men" },
+                    { key: "boski", label: "Boski", href: "/categories/boski" },
+                    { key: "italian", label: "Italian", href: "/categories/italian" },
                   ].map((item) => {
                     const isHovered = hoveredKey === item.key
                     const catalogItem = fashionCatalog[item.key]
@@ -486,9 +483,9 @@ export default function MegaNav({ categories, collections }: MegaNavProps) {
                 </h4>
                 <ul className="space-y-2.5 text-xs text-stone-600 font-normal">
                   {[
-                    { key: "wash-wear", label: "Wrinkle-Free Wash & Wear", href: "/categories/wash-wear" },
-                    { key: "kamalia-khaddar", label: "Handspun Kamalia Khaddar", href: "/categories/kamalia-khaddar" },
-                    { key: "wool", label: "Fine Merino Wool Cuts", href: "/categories/wool" },
+                    { key: "wash-wear", label: "Wash & Wear", href: "/categories/wash-wear" },
+                    { key: "kamalia-khaddar", label: "Kamalia Khaddar", href: "/categories/kamalia-khaddar" },
+                    { key: "wool", label: "Wool", href: "/categories/wool" },
                   ].map((item) => {
                     const isHovered = hoveredKey === item.key
                     const catalogItem = fashionCatalog[item.key]

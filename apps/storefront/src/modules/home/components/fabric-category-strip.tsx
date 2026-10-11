@@ -107,26 +107,28 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
     })
   }
 
-  // Smooth auto-sliding right-to-left when not hovered or dragged
   useEffect(() => {
     if (isHovered || isDragging || categories.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-    let reset: ReturnType<typeof setTimeout>
-    const timer = setInterval(() => {
+    let frame = 0
+    let previous = 0
+    let offset = scrollRef.current?.scrollLeft || 0
+    const tick = (time: number) => {
       const element = scrollRef.current
-      if (!element || element.children.length < 2 || document.hidden) return
-      const stride = (element.children[1] as HTMLElement).offsetLeft - (element.children[0] as HTMLElement).offsetLeft
-      position.current += 1
-      setActive(position.current % categories.length)
-      element.scrollTo({ left: position.current * stride, behavior: "smooth" })
-      if (position.current >= categories.length) {
-        reset = setTimeout(() => {
-          element.scrollTo({ left: 0, behavior: "instant" })
-          position.current = 0
-        }, 650)
+      if (element && element.children.length > categories.length) {
+        const first = element.children[0] as HTMLElement
+        const clone = element.children[categories.length] as HTMLElement
+        const cycle = clone.offsetLeft - first.offsetLeft
+        if (previous && !document.hidden && cycle > 0) {
+          offset = (offset + Math.min(time - previous, 50) * 0.035) % cycle
+          element.scrollTo({ left: offset, behavior: "instant" })
+          setActive(Math.floor(offset / (cycle / categories.length)) % categories.length)
+        }
       }
-    }, 2000)
-
-    return () => { clearInterval(timer); clearTimeout(reset) }
+      previous = time
+      frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
   }, [isHovered, isDragging, categories.length])
 
   // Mouse Drag-to-Scroll Handlers
@@ -180,16 +182,18 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
         {/* Carousel Container */}
         <div className="relative group/track">
           {/* Subtle edge fades for soft cut */}
-          <div className="pointer-events-none absolute -top-4 -bottom-4 right-0 z-10 w-20 sm:w-36 bg-gradient-to-l from-stone-50 via-stone-50/80 to-transparent" />
-          <div className="pointer-events-none absolute -top-4 -bottom-4 left-0 z-10 w-12 sm:w-20 bg-gradient-to-r from-stone-50 to-transparent" />
+          <div className="hidden md:block pointer-events-none absolute -top-4 -bottom-4 right-0 z-10 w-20 sm:w-36 bg-gradient-to-l from-stone-50 via-stone-50/80 to-transparent" />
+          <div className="hidden md:block pointer-events-none absolute -top-4 -bottom-4 left-0 z-10 w-12 sm:w-20 bg-gradient-to-r from-stone-50 to-transparent" />
 
           {/* Horizontal Sliding Track (Bigger Circles) */}
           <div
             ref={scrollRef}
+            onTouchStart={() => setIsHovered(true)}
+            onTouchEnd={() => setIsHovered(false)}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={stopDragging}
-            className={`flex items-center gap-6 sm:gap-9 overflow-x-auto pb-6 pt-3 px-2 no-scrollbar scroll-smooth cursor-grab ${
+            className={`flex items-center gap-6 sm:gap-9 overflow-x-auto pb-6 pt-3 px-2 no-scrollbar cursor-grab ${
               isDragging ? "cursor-grabbing" : ""
             }`}
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}

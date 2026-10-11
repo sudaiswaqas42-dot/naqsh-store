@@ -34,7 +34,15 @@ export function formatSizeList(val: string): string {
 }
 
 export function productAttributes(product: ProductDetails) {
-  const attributes = (product.options || []).map((option) => {
+  const metadata = product.metadata || {}
+  const sizing = Boolean(
+    metadata.enable_sizing === true ||
+    metadata.enable_sizing === "true" ||
+    metadata.enable_sizing === 1 ||
+    metadata.sizing === true ||
+    metadata.sizing === "true"
+  )
+  const attributes = (product.options || []).filter(option => sizing || !/size|sizing/i.test(option.title)).map((option) => {
     let rawVal = Array.from(new Set([
       ...(option.values || []).map((value) => value.value),
       ...(product.variants || []).flatMap((variant) => (variant.options || [])
@@ -51,12 +59,11 @@ export function productAttributes(product: ProductDetails) {
     }
   }).filter((attribute) => attribute.value && attribute.label.toLowerCase() !== "default option")
 
-  const metadata = product.metadata || {}
   // Only known customer-facing metadata is exposed; internal notes stay private.
   // Matching Image 1 order: Color first, then Size, then Material
   for (const [label, value] of [
-    ["Color", metadata.colors || metadata.colours || metadata.color || metadata.colour || ["Midnight Blue", "Sand Beige"]],
-    ["Size", metadata.sizes || metadata.size || ["Small", "Medium", "Large", "XL"]],
+    ["Color", metadata.colors || metadata.colours || metadata.color || metadata.colour],
+    ["Size", sizing ? metadata.sizes || metadata.size : null],
     ["Material", product.material || metadata.material || metadata.fabric],
     ["Fabric type", metadata.fabric_type],
   ]) {

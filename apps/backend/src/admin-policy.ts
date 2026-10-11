@@ -6,6 +6,7 @@ export function customizeDashboard(source: string, id: string): { code: string; 
   const file = id.replace(/\\/g, "/")
   if (!file.includes("@medusajs/dashboard/")) return undefined
   let code = source
+  code = code.replace(/(\w+\.accessor)\("display_id",\s*\{/g, '$1((order) => Number(order.display_id) >= 1310 ? order.display_id : order.custom_display_id || order.display_id, { id: "display_id",')
   if (/order-create-edit-[^/]+\.mjs$/.test(file)) {
     const tree = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
     const edits: { start: number; end: number }[] = []
@@ -20,5 +21,5 @@ export function customizeDashboard(source: string, id: string): { code: string; 
     for (const edit of edits.sort((a, b) => b.start - a.start)) code = code.slice(0, edit.start) + "null" + code.slice(edit.end)
     return { code, map: null }
   }
-  return undefined
+  return code === source ? undefined : { code, map: null }
 }

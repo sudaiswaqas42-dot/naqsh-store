@@ -1,4 +1,5 @@
 import MobileShopNavigation from "@modules/layout/components/mobile-shop-navigation"
+import ScrollReveal from "@modules/layout/components/scroll-reveal"
 import { Suspense } from "react"
 import { Metadata } from "next"
 
@@ -42,6 +43,7 @@ async function CartNotices() {
 export default function PageLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
+      <ScrollReveal />
       <Suspense fallback={<div className="h-36 border-b border-stone-200 bg-white flex items-center justify-center font-serif text-3xl tracking-[0.3em]">NAQSH</div>}>
         <Nav />
       </Suspense>

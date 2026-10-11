@@ -88,26 +88,11 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
   const touchStartX = useRef<number>(0)
   const touchEndX = useRef<number>(0)
 
-  // Smooth auto-sliding with live progress timer (6.5 seconds per slide)
   useEffect(() => {
-    if (isPaused || !slides.length) return
-
-    const slideDuration = 6500
-    const intervalStep = 50
-    const stepIncrement = (intervalStep / slideDuration) * 100
-
-    const progressTimer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          setCurrent((curr) => (curr + 1) % slides.length)
-          return 0
-        }
-        return prev + stepIncrement
-      })
-    }, intervalStep)
-
-    return () => clearInterval(progressTimer)
-  }, [slides.length, isPaused, current])
+    if (isPaused || slides.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    const timer = setInterval(() => { setCurrent(index => (index + 1) % slides.length); setProgress(0) }, 1000)
+    return () => clearInterval(timer)
+  }, [slides.length, isPaused])
 
   // Reset progress when slide changes manually
   const goToSlide = (index: number) => {
@@ -128,6 +113,7 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
   // Touch handlers for mobile swipe
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.targetTouches[0].clientX
+    touchEndX.current = e.targetTouches[0].clientX
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -182,7 +168,7 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
             <div
               key={index}
               aria-hidden={!isActive}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              className={`absolute inset-0 transition-opacity duration-300 ease-in-out ${
                 isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
               }`}
             >
@@ -209,7 +195,8 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
 
               {/* Text & Content Container */}
-              <div className="relative h-full content-container mx-auto px-6 sm:px-12 lg:px-16 flex flex-col justify-center items-start text-white max-w-4xl z-20">
+              <LocalizedClientLink href={slide.cta_link} aria-label={slide.title} tabIndex={isActive ? 0 : -1} className="absolute inset-0 z-10" />
+              <div className="pointer-events-none relative h-full content-container mx-auto px-6 sm:px-12 lg:px-16 flex flex-col justify-center items-start text-white max-w-4xl z-20">
                 {/* Floating Campaign Tag */}
                 {slide.tag && (
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-accent text-brand text-[10px] sm:text-xs font-bold uppercase tracking-[0.25em] mb-4 shadow-md backdrop-blur-xs">
@@ -224,8 +211,8 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
                   </span>
                 )}
 
-                <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal tracking-wide text-white leading-tight mb-4 drop-shadow-lg max-w-2xl">
-                  {slide.title}
+                <h1 key={isActive ? "active" : "idle"} aria-label={slide.title} className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal tracking-wide text-white leading-tight mb-4 drop-shadow-lg max-w-2xl">
+                  <span aria-hidden="true">{Array.from(slide.title).map((letter, index) => <span key={index} className={isActive ? "naqsh-banner-letter" : ""} style={{ animationDelay: index * Math.min(0.016, 0.4 / slide.title.length) + "s" }}>{letter === " " ? "\u00a0" : letter}</span>)}</span>
                 </h1>
 
                 <p className="text-xs sm:text-base text-stone-200 font-light leading-relaxed mb-8 max-w-xl drop-shadow-md">

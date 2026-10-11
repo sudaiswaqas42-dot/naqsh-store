@@ -5,7 +5,7 @@ import { HttpTypes } from "@medusajs/types"
 import { addToCart, deleteLineItem, updateLineItem } from "@lib/data/cart"
 
 type PendingItem = { id: string; title: string; thumbnail?: string | null; quantity: number; unit_price: number }
-type AddItem = { variantId: string; quantity: number; countryCode: string; preview: Omit<PendingItem, "id" | "quantity"> }
+type AddItem = { openDrawer?: boolean; variantId: string; quantity: number; countryCode: string; preview: Omit<PendingItem, "id" | "quantity"> }
 
 interface CartDrawerContextType {
   isOpen: boolean
@@ -125,10 +125,10 @@ export const CartDrawerProvider = ({ children }: { children: React.ReactNode }) 
     [removeItem]
   )
 
-  const addItem = useCallback(async ({ preview, ...input }: AddItem) => {
+  const addItem = useCallback(async ({ preview, openDrawer = true, ...input }: AddItem) => {
     const id = crypto.randomUUID()
     setPendingItems((items) => [...items, { ...preview, id, quantity: input.quantity }])
-    setIsOpen(true)
+    if (openDrawer) setIsOpen(true)
     try {
       const cart = await addToCart(input)
       if (cart) setLatestCart(cart)

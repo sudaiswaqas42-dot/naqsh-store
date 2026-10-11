@@ -8,7 +8,7 @@ export type CatalogQuery = Record<string, string | string[] | undefined>
 const fields =
   "id,title,handle,thumbnail,created_at,material,metadata,*collection,*categories,*images,*options,*options.values,*variants.options,*variants.calculated_price,+variants.inventory_quantity,variants.id,variants.title,variants.manage_inventory,variants.allow_backorder"
 
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
+const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://naqsh-backend-production.up.railway.app"
 
 // Fast in-memory cache for scanned catalogs (TTL: 60s) to make filter clicks instant
 interface CatalogCacheEntry {

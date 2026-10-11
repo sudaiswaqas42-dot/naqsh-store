@@ -43,7 +43,7 @@ const sendOrderEmailStep = createStep("send-order-email", async (input: Input, {
     resource_type: "order",
     idempotency_key: `order-${order.id}-${kind}-${Date.now()}`,
     data: {
-      display_id: order.custom_display_id || order.display_id,
+      display_id: Number(order.display_id) >= 1310 ? order.display_id : order.custom_display_id || order.display_id,
       total: order.total,
       currency_code: order.currency_code,
       name: order.shipping_address?.first_name,

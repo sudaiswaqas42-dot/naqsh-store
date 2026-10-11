@@ -39,21 +39,6 @@ export default function RecentlyViewedPopup() {
     window.addEventListener("naqsh_recently_viewed_updated", handleUpdate)
     window.addEventListener("storage", handleUpdate)
 
-    // On desktop, auto-open once if items exist
-    if (loaded && loaded.length > 0 && typeof window !== "undefined") {
-      const isMobile = window.innerWidth < 768
-      if (!isMobile) {
-        const timer = setTimeout(() => {
-          setIsOpen(true)
-        }, 1500)
-        return () => {
-          clearTimeout(timer)
-          window.removeEventListener("naqsh_recently_viewed_updated", handleUpdate)
-          window.removeEventListener("storage", handleUpdate)
-        }
-      }
-    }
-
     return () => {
       window.removeEventListener("naqsh_recently_viewed_updated", handleUpdate)
       window.removeEventListener("storage", handleUpdate)
@@ -78,26 +63,45 @@ export default function RecentlyViewedPopup() {
 
   return (
     <>
-      {/* 1. Minimized Floating Trigger Pill (Visible on both Mobile & Desktop when popup is closed) */}
+      {/* 1. Floating Trigger Button beside WhatsApp on the Right side */}
       {!isOpen && (
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 left-3 sm:bottom-6 sm:left-auto sm:right-24 z-40 bg-stone-900/95 hover:bg-black text-white px-3.5 py-2 rounded-full shadow-2xl border border-stone-700/60 flex items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-wider transition-all duration-300 hover:scale-105 active:scale-95 group font-sans backdrop-blur-md"
+          className="recently-viewed-trigger fixed bottom-20 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-900 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 focus:outline-none"
           aria-label="View recently viewed products"
+          title="Recently Viewed Products"
         >
-          <span className="w-2 h-2 rounded-full bg-[#B6975A] animate-pulse" />
-          <svg className="w-3.5 h-3.5 text-[#B6975A]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          {/* Exact blinking dot matching the drawer header indicator */}
+          <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+            <span className="w-full h-full rounded-full bg-[#B6975A] animate-ping absolute opacity-75" />
+            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-[#B6975A] border-2 border-white" />
+          </span>
+
+          <svg
+            className="h-5 w-5 text-stone-800"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            strokeWidth="1.75"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
           </svg>
-          <span className="whitespace-nowrap">Recently Viewed ({items.length})</span>
         </button>
       )}
 
       {/* 2. Compact Popup Card: On Mobile it sits neatly above the bottom dock without covering the screen; on Desktop it floats at bottom right */}
       {isOpen && (
-        <div className="fixed bottom-20 left-3 right-3 sm:left-auto sm:right-6 sm:bottom-24 z-50 sm:w-[380px] max-h-[360px] bg-white/98 backdrop-blur-lg border border-stone-300 shadow-2xl rounded-2xl overflow-hidden font-sans text-stone-900 flex flex-col transition-all duration-300 animate-in fade-in zoom-in-95">
+        <div className="fixed bottom-20 left-3 right-3 sm:left-auto sm:right-6 sm:bottom-24 z-50 sm:w-[380px] max-h-[360px] bg-white backdrop-blur-lg border border-stone-300 shadow-2xl rounded-2xl overflow-hidden font-sans text-stone-900 flex flex-col transition-all duration-300 animate-in fade-in zoom-in-95">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-2.5 bg-stone-900 text-white shrink-0">
             <div className="flex items-center gap-2">

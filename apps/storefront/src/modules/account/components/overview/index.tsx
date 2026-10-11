@@ -1,3 +1,4 @@
+import { orderReference } from "@lib/util/order-reference"
 import { Container } from "@modules/common/components/ui"
 
 import ChevronDown from "@modules/common/icons/chevron-down"
@@ -98,9 +99,9 @@ const Overview = ({ customer, orders }: OverviewProps) => {
                               </span>
                               <span
                                 data-testid="order-id"
-                                data-value={(order.custom_display_id || order.display_id)}
+                                data-value={orderReference(order)}
                               >
-                                #{(order.custom_display_id || order.display_id)}
+                                #{orderReference(order)}
                               </span>
                               <span data-testid="order-amount">
                                 {convertToLocale({
@@ -114,7 +115,7 @@ const Overview = ({ customer, orders }: OverviewProps) => {
                               data-testid="open-order-button"
                             >
                               <span className="sr-only">
-                                Go to order #{(order.custom_display_id || order.display_id)}
+                                Go to order #{orderReference(order)}
                               </span>
                               <ChevronDown className="-rotate-90" />
                             </button>
