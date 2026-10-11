@@ -169,7 +169,7 @@ export default function OrderTrackPage() {
                     Tracking ID: {orderData.tracking?.tracking_number || orderData.tracking_number}
                   </div>
                 </div>
-              ) : <p className="max-w-xs text-sm text-stone-500">Your courier and tracking ID will appear here once your order has been dispatched.</p>}
+              ) : <p className="max-w-xs text-sm font-medium text-red-600 sm:text-right">Your courier and tracking ID will appear here once your order has been dispatched.</p>}
             </div>
 
             {/* 6-Step Progression Bar */}
