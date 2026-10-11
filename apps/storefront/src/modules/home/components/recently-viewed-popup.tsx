@@ -63,23 +63,21 @@ export default function RecentlyViewedPopup() {
 
   return (
     <>
-      {/* 1. Floating Trigger Button beside WhatsApp on the Right side */}
+      {/* 1. Floating Trigger Button to the LEFT side of WhatsApp */}
       {!isOpen && (
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="recently-viewed-trigger fixed bottom-20 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-900 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 focus:outline-none"
+          className="recently-viewed-trigger fixed bottom-6 right-20 sm:right-[84px] z-40 flex h-11 w-11 items-center justify-center rounded-full border border-[#B6975A]/70 bg-white text-stone-900 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 focus:outline-none"
           aria-label="View recently viewed products"
           title="Recently Viewed Products"
         >
-          {/* Exact blinking dot matching the drawer header indicator */}
-          <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-            <span className="w-full h-full rounded-full bg-[#B6975A] animate-ping absolute opacity-75" />
-            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-[#B6975A] border-2 border-white" />
-          </span>
+          {/* Exact glowing pulse rings matching Image 2 dot animation */}
+          <span className="absolute inset-0 rounded-full bg-[#B6975A] opacity-30 animate-ping pointer-events-none" />
+          <span className="absolute -inset-1 rounded-full border-2 border-[#B6975A]/60 animate-pulse pointer-events-none" />
 
           <svg
-            className="h-5 w-5 text-stone-800"
+            className="relative z-10 h-5 w-5 text-stone-800"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

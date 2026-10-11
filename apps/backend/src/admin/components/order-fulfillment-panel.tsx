@@ -486,101 +486,166 @@ export default function OrderFulfillmentPanel({
           </div>
 
           {/* Form Grid (Order Status Step, Courier Partner, Tracking ID) */}
-          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {/* 1. Order Status Step */}
-            <div>
-              <Label className="text-xs font-semibold text-ui-fg-subtle">
-                Order Status Step
-              </Label>
-              <select
-                value={statusStep}
-                onChange={(e) => setStatusStep(e.target.value)}
-                className="mt-1.5 w-full rounded-md border border-ui-border-base bg-ui-bg-field px-3 py-2 text-xs text-ui-fg-base focus:border-ui-border-interactive focus:outline-none"
-              >
-                {ALL_STATUS_STEPS.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {(() => {
+            const STATUS_HIERARCHY: Record<string, number> = {
+              Pending: 0,
+              Confirmed: 1,
+              Processing: 2,
+              Packed: 3,
+              Shipped: 4,
+              "Out for Delivery": 5,
+              Delivered: 6,
+              Returned: 7,
+              Cancelled: 8,
+            }
+            const currentSavedStatus =
+              (order.metadata?.custom_status as string) ||
+              (isDelivered
+                ? "Delivered"
+                : isShipped
+                ? "Shipped"
+                : fulfillment
+                ? "Confirmed"
+                : "Pending")
+            const currentSavedRank = STATUS_HIERARCHY[currentSavedStatus] ?? 0
+            const isShippedSelected = statusStep === "Shipped"
 
-            {/* 2. Courier Partner */}
-            <div>
-              <Label className="text-xs font-semibold text-ui-fg-subtle">
-                Courier Partner
-              </Label>
-              <select
-                value={carrier}
-                onChange={(e) => setCarrier(e.target.value)}
-                className="mt-1.5 w-full rounded-md border border-ui-border-base bg-ui-bg-field px-3 py-2 text-xs text-ui-fg-base focus:border-ui-border-interactive focus:outline-none"
-              >
-                <option value="">Select courier at dispatch</option>
-                {CARRIERS.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
+            return (
+              <>
+                <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  {/* 1. Order Status Step */}
+                  <div>
+                    <Label className="text-xs font-semibold text-ui-fg-subtle">
+                      Order Status Step
+                    </Label>
+                    <select
+                      value={statusStep}
+                      onChange={(e) => setStatusStep(e.target.value)}
+                      className="mt-1.5 w-full rounded-md border border-ui-border-base bg-[#faf8f5] dark:bg-[#14251e] px-3 py-2 text-xs text-[#122f24] dark:text-[#f5f3e9] focus:border-ui-border-interactive focus:outline-none"
+                    >
+                      {ALL_STATUS_STEPS.map((s) => {
+                        const rank = STATUS_HIERARCHY[s] ?? 0
+                        let isDisabled = false
+                        if (currentSavedRank >= 1 && rank < currentSavedRank) {
+                          // Allow 1-step back only if current status is Shipped returning to Packed
+                          const isOneStepReturn =
+                            currentSavedStatus === "Shipped" && s === "Packed"
+                          if (!isOneStepReturn) {
+                            isDisabled = true
+                          }
+                        }
+                        return (
+                          <option
+                            key={s}
+                            value={s}
+                            disabled={isDisabled}
+                            className="bg-white dark:bg-[#14251e] text-[#122f24] dark:text-[#f5f3e9]"
+                          >
+                            {s} {isDisabled ? "— (Locked)" : ""}
+                          </option>
+                        )
+                      })}
+                    </select>
+                  </div>
 
-            {/* 3. Tracking ID */}
-            <div>
-              <Label htmlFor="tracking-id-input" className="text-xs font-semibold text-ui-fg-subtle">
-                Tracking ID
-              </Label>
-              <Input
-                id="tracking-id-input"
-                value={trackingNumber}
-                onChange={(e) => setTrackingNumber(e.target.value)}
-                placeholder="e.g. 774910281"
-                className="mt-1.5 text-xs"
-              />
-            </div>
-          </div>
+                  {/* 2. Courier Partner (Only enabled when status is Shipped) */}
+                  <div>
+                    <Label className="text-xs font-semibold text-ui-fg-subtle">
+                      Courier Partner {!isShippedSelected && <span className="font-normal text-ui-fg-muted">(Shipped only)</span>}
+                    </Label>
+                    <select
+                      value={carrier}
+                      disabled={!isShippedSelected || busy}
+                      onChange={(e) => setCarrier(e.target.value)}
+                      className={`mt-1.5 w-full rounded-md border border-ui-border-base bg-[#faf8f5] dark:bg-[#14251e] px-3 py-2 text-xs text-[#122f24] dark:text-[#f5f3e9] focus:border-ui-border-interactive focus:outline-none ${
+                        !isShippedSelected
+                          ? "opacity-50 cursor-not-allowed bg-ui-bg-subtle"
+                          : ""
+                      }`}
+                    >
+                      <option value="" className="bg-white dark:bg-[#14251e] text-[#122f24] dark:text-[#f5f3e9]">
+                        Select courier at dispatch
+                      </option>
+                      {CARRIERS.map((c) => (
+                        <option
+                          key={c}
+                          value={c}
+                          className="bg-white dark:bg-[#14251e] text-[#122f24] dark:text-[#f5f3e9]"
+                        >
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-          {/* Internal Fulfillment Notes */}
-          <div className="mt-4">
-            <Label htmlFor="internal-notes-input" className="text-xs font-semibold text-ui-fg-subtle">
-              Internal Fulfillment Notes
-            </Label>
-            <Input
-              id="internal-notes-input"
-              value={internalNotes}
-              onChange={(e) => setInternalNotes(e.target.value)}
-              placeholder="Add internal notes about special stitching, customer calls, or delivery instructions..."
-              className="mt-1.5 text-xs"
-            />
-          </div>
+                  {/* 3. Tracking ID (Only enabled when status is Shipped) */}
+                  <div>
+                    <Label htmlFor="tracking-id-input" className="text-xs font-semibold text-ui-fg-subtle">
+                      Tracking ID {!isShippedSelected && <span className="font-normal text-ui-fg-muted">(Shipped only)</span>}
+                    </Label>
+                    <Input
+                      id="tracking-id-input"
+                      value={trackingNumber}
+                      disabled={!isShippedSelected || busy}
+                      onChange={(e) => setTrackingNumber(e.target.value)}
+                      placeholder={isShippedSelected ? "e.g. 774910281" : "Only required for Shipped status"}
+                      className={`mt-1.5 text-xs ${
+                        !isShippedSelected
+                          ? "opacity-50 cursor-not-allowed bg-ui-bg-subtle"
+                          : ""
+                      }`}
+                    />
+                  </div>
+                </div>
 
-          {/* Action Buttons: Cancel and Update Order */}
-          <div className="mt-6 flex items-center justify-end gap-2.5 border-t border-ui-border-base pt-4">
-            <Button
-              variant="secondary"
-              size="small"
-              disabled={busy}
-              onClick={() => setView("status")}
-            >
-              Cancel
-            </Button>
-            <Button
-              size="small"
-              isLoading={busy}
-              disabled={busy || !carrier || !trackingNumber.trim()}
-              onClick={() =>
-                applyAction("ship", {
-                  carrier,
-                  tracking_number: trackingNumber,
-                  note: internalNotes,
-                  custom_status: statusStep,
-                })
-              }
-              className="flex items-center gap-1.5"
-            >
-              <Check className="h-4 w-4" />
-              <span>Update Order</span>
-            </Button>
-          </div>
+                {/* Internal Fulfillment Notes */}
+                <div className="mt-4">
+                  <Label htmlFor="internal-notes-input" className="text-xs font-semibold text-ui-fg-subtle">
+                    Internal Fulfillment Notes
+                  </Label>
+                  <Input
+                    id="internal-notes-input"
+                    value={internalNotes}
+                    onChange={(e) => setInternalNotes(e.target.value)}
+                    placeholder="Add internal notes about special stitching, customer calls, or delivery instructions..."
+                    className="mt-1.5 text-xs"
+                  />
+                </div>
+
+                {/* Action Buttons: Cancel and Update Order */}
+                <div className="mt-6 flex items-center justify-end gap-2.5 border-t border-ui-border-base pt-4">
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    disabled={busy}
+                    onClick={() => setView("status")}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="small"
+                    isLoading={busy}
+                    disabled={
+                      busy ||
+                      (isShippedSelected && (!carrier || !trackingNumber.trim()))
+                    }
+                    onClick={() =>
+                      applyAction(isShippedSelected ? "ship" : "fulfill", {
+                        carrier: isShippedSelected ? carrier : undefined,
+                        tracking_number: isShippedSelected ? trackingNumber : undefined,
+                        note: internalNotes,
+                        custom_status: statusStep,
+                      })
+                    }
+                    className="flex items-center gap-1.5"
+                  >
+                    <Check className="h-4 w-4" />
+                    <span>Update Order</span>
+                  </Button>
+                </div>
+              </>
+            )
+          })()}
         </div>
 
         {/* PANEL 3: IN-PLACE FULFILLMENT CREATION FLOW */}

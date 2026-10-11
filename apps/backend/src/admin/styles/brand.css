@@ -1,11 +1,19 @@
 :root {
+  --bg-base: #faf8f5;
+  --bg-subtle: #f4efe6;
+  --bg-component: #ffffff;
+  --bg-field: #ffffff;
+  --bg-field-hover: #f7f4ee;
+  --bg-base-hover: #f4efe6;
   --fg-base: #122f24;
-  --fg-subtle: #4b6357;
-  --fg-muted: #6f857a;
-  --fg-interactive: #205b43;
-  --fg-interactive-hover: #123b2b;
-  --button-inverted: #14382a;
-  --button-inverted-hover: #0d291e;
+  --fg-subtle: #314a3e;
+  --fg-muted: #536c61;
+  --fg-interactive: #122f24;
+  --fg-interactive-hover: #205b43;
+  --button-inverted: #122f24;
+  --button-inverted-hover: #1c4737;
+  --border-base: #e6dfd5;
+  --border-strong: #c1a16a;
 }
 .dark {
   --bg-base: #14251e;
@@ -24,6 +32,24 @@
   --border-strong: #637569;
   --button-inverted: #ddbe80;
   --button-inverted-hover: #f2dba4;
+}
+
+/* Ensure select and dropdown options are strictly visible in dark and light modes */
+select {
+  background-color: #ffffff !important;
+  color: #122f24 !important;
+}
+select option {
+  background-color: #ffffff !important;
+  color: #122f24 !important;
+}
+.dark select {
+  background-color: #14251e !important;
+  color: #f5f3e9 !important;
+}
+.dark select option {
+  background-color: #14251e !important;
+  color: #f5f3e9 !important;
 }
 
 /* Hide duplicate native fulfillment section when NAQSH interactive fulfillment panel is active */
