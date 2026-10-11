@@ -21,13 +21,15 @@ for (const p of searchPaths) {
   }
 }
 
-// Destinations where Medusa runtime or Railway might look for admin build
-const destinations = [
+// Unique destinations where Medusa runtime or Railway might look for admin build
+const rawDestinations = [
   path.resolve(__dirname, '../public/admin'),
   path.resolve(process.cwd(), 'public/admin'),
   path.resolve(__dirname, '../.medusa/server/public/admin'),
   path.resolve(process.cwd(), '.medusa/server/public/admin')
 ];
+
+const destinations = Array.from(new Set(rawDestinations.map(d => path.resolve(d))));
 
 if (sourceDir) {
   console.log(`Found admin build at: ${sourceDir}`);
@@ -35,7 +37,7 @@ if (sourceDir) {
     try {
       if (path.resolve(sourceDir) !== path.resolve(dest)) {
         fs.mkdirSync(dest, { recursive: true });
-        fs.cpSync(sourceDir, dest, { recursive: true });
+        fs.cpSync(sourceDir, dest, { recursive: true, force: true });
         console.log(`Copied admin build to: ${dest}`);
       }
     } catch (err) {
