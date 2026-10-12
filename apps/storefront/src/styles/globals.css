@@ -321,7 +321,7 @@ nextjs-portal {
   10%, 88% { opacity: 1; transform: translateY(0) scale(1); filter: drop-shadow(0 0 10px rgba(193, 161, 106, 0.35)); }
   100% { opacity: 0; transform: translateY(-10px) scale(0.97); filter: drop-shadow(0 0 0 transparent); }
 }
-.naqsh-toast { animation: naqsh-toast 3.1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.naqsh-toast { opacity: 1; animation: naqsh-toast 3.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .naqsh-reveal-pending { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
 .naqsh-reveal-pending.naqsh-reveal-visible { opacity: 1; transform: translateY(0); }
 @keyframes naqsh-letter { from { opacity: 0; transform: translateX(-8px); filter: blur(1.5px); } to { opacity: 1; transform: translateX(0); filter: blur(0); } }

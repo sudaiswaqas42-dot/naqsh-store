@@ -18,7 +18,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       if (sequence.current === id) {
         setToast(null)
       }
-    }, 3200)
+    }, 3500)
   }, [])
 
   useEffect(() => {
@@ -44,7 +44,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       <div
         aria-live="polite"
         aria-atomic="true"
-        className="pointer-events-none fixed top-20 sm:top-8 left-1/2 z-[2147483647] flex w-full max-w-[92vw] -translate-x-1/2 justify-center sm:max-w-md"
+        className="pointer-events-none fixed top-20 sm:top-8 left-1/2 flex w-full max-w-[92vw] -translate-x-1/2 justify-center sm:max-w-md"
+        style={{ zIndex: 2147483647 }}
       >
         {toast && (
           <div
@@ -53,7 +54,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             className="naqsh-toast pointer-events-auto flex items-center gap-3 rounded-full border-2 border-[#c1a16a] bg-[#122f24] px-5 py-3 text-sm font-medium tracking-wide text-white shadow-2xl backdrop-blur-md"
             style={{
               boxShadow:
-                "0 14px 40px -4px rgba(0, 0, 0, 0.65), 0 0 25px rgba(193, 161, 106, 0.45)",
+                "0 14px 40px -4px rgba(0, 0, 0, 0.75), 0 0 25px rgba(193, 161, 106, 0.5)",
             }}
           >
             <span
