@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import ProductPrice from "../product-price"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { useToast } from "@lib/context/toast-context"
+import { useWishlist } from "@lib/context/wishlist-context"
 import ProductAttributes from "../product-attributes"
 import { publicValue, formatSizeName } from "@lib/util/product-details"
 
@@ -36,6 +37,7 @@ export default function ProductActions({
 
   const { addItem, closeCart } = useCartDrawer()
   const { showToast } = useToast()
+  const { isInWishlist, toggleWishlist } = useWishlist()
 
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
@@ -108,6 +110,21 @@ export default function ProductActions({
     return effectiveOptions.filter((opt) => !options[opt.id])
   }, [effectiveOptions, options])
   const allOptionsSelected = effectiveOptions.length === 0 || missingOptions.length === 0
+  const isFavorited = isInWishlist(product.id)
+
+  const handleWishlistToggle = () => {
+    toggleWishlist({
+      id: product.id,
+      title: product.title,
+      handle: product.handle || "",
+      thumbnail: product.thumbnail || product.images?.[0]?.url || "",
+      price:
+        selectedVariant?.calculated_price?.calculated_amount ??
+        product.variants?.[0]?.calculated_price?.calculated_amount ??
+        0,
+      currency_code: "pkr",
+    })
+  }
 
   // Update URL search params safely without triggering Next.js RSC re-fetch
   useEffect(() => {
@@ -294,7 +311,7 @@ export default function ProductActions({
 
         <div className="hidden lg:block"><ProductAttributes product={product} /></div>
 
-        <div className={`product-buy-actions grid grid-cols-2 gap-3 pt-2 ${validationShake ? "animate-shake" : ""}`}>
+        <div className={`product-buy-actions grid grid-cols-[1fr_1fr_auto] gap-2.5 sm:gap-3 pt-2 ${validationShake ? "animate-shake" : ""}`}>
           {/* 1. ADD TO CART BUTTON */}
           <button
             type="button"
@@ -353,10 +370,35 @@ export default function ProductActions({
             </span>
           </button>
 
+          {/* 3. WISHLIST / FAVORITE BUTTON */}
+          <button
+            type="button"
+            onClick={handleWishlistToggle}
+            aria-label={isFavorited ? "Remove from wishlist" : "Save to wishlist"}
+            aria-pressed={isFavorited}
+            title={isFavorited ? "Remove from wishlist" : "Save to wishlist"}
+            className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border-2 transition-all duration-200 active:scale-95 ${
+              isFavorited
+                ? "border-rose-400 bg-rose-50 text-rose-600 shadow-sm"
+                : "border-stone-300 bg-white text-stone-700 hover:border-stone-800 hover:text-stone-900 shadow-xs"
+            }`}
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill={isFavorited ? "currentColor" : "none"}
+              stroke="currentColor"
+              strokeWidth="1.75"
+            >
+              <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
+            </svg>
+          </button>
+
           {/* Validation Notice & Helper */}
           {!allOptionsSelected ? (
             <div
-              className={`col-span-2 flex items-center gap-2 pt-1 transition-all duration-300 ${
+              className={`col-span-3 flex items-center gap-2 pt-1 transition-all duration-300 ${
                 validationShake
                   ? "animate-shake text-amber-700 font-semibold"
                   : "text-stone-600"
@@ -376,7 +418,7 @@ export default function ProductActions({
               </span>
             </div>
           ) : inStock ? (
-            <div className="col-span-2 flex items-center gap-1.5 pt-0.5 text-xs text-emerald-700 animate-fadeIn font-medium">
+            <div className="col-span-3 flex items-center gap-1.5 pt-0.5 text-xs text-emerald-700 animate-fadeIn font-medium">
               <svg
                 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"
                 fill="none"
