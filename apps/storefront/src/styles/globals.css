@@ -352,3 +352,11 @@ nextjs-portal {
 .naqsh-eye-breathe {
   animation: naqsh-eye-breathe 2s ease-in-out infinite;
 }
+@keyframes naqsh-eye-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.naqsh-eye-pulse { animation: naqsh-eye-pulse 2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .naqsh-eye-pulse { animation: none; }
+}

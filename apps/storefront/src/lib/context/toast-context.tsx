@@ -1,61 +1,42 @@
 "use client"
 
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from "react"
+import { createPortal } from "react-dom"
 
 type Toast = { id: number; message: string; type: "success" | "info" | "error" }
 const ToastContext = createContext<{ showToast: (message: string, type?: Toast["type"]) => void } | null>(null)
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toast, setToast] = useState<Toast | null>(null)
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [fading, setFading] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([])
   const sequence = useRef(0)
-
   const showToast = useCallback((message: string, type: Toast["type"] = "success") => {
-    if (timer.current) clearTimeout(timer.current)
-    setToast({ id: ++sequence.current, message, type })
-    timer.current = setTimeout(() => setToast(null), 1400)
+    timers.current.forEach(clearTimeout)
+    const id = ++sequence.current
+    setFading(false)
+    setToast({ id, message, type })
+    timers.current = [
+      setTimeout(() => { if (sequence.current === id) setFading(true) }, 800),
+      setTimeout(() => { if (sequence.current === id) setToast(null) }, 1000),
+    ]
   }, [])
-
-  useEffect(() => () => { if (timer.current) clearTimeout(timer.current) }, [])
-
-  return (
-    <ToastContext.Provider value={{ showToast }}>
-      {children}
-      <div
-        aria-live="polite"
-        aria-atomic="true"
-        className="pointer-events-none fixed bottom-24 sm:bottom-12 left-1/2 z-[99999] flex w-full max-w-[90vw] -translate-x-1/2 justify-center sm:max-w-md"
-      >
-        {toast && (
-          <div
-            key={toast.id}
-            className="naqsh-toast pointer-events-auto flex items-center gap-2.5 rounded-full border border-[#c1a16a]/50 bg-[#122f24]/95 px-5 py-2.5 text-xs sm:text-sm font-medium tracking-wide text-white shadow-2xl backdrop-blur-md"
-            style={{
-              animation: "naqsh-toast 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards",
-              boxShadow:
-                "0 10px 30px -5px rgba(18, 47, 36, 0.5), 0 0 25px rgba(193, 161, 106, 0.45)",
-            }}
-          >
-            <span
-              aria-hidden="true"
-              className={`flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold ${
-                toast.type === "error"
-                  ? "bg-rose-500 text-white"
-                  : toast.type === "info"
-                  ? "bg-[#c1a16a]/30 text-[#e5caa0]"
-                  : "bg-[#c1a16a] text-[#122f24]"
-              }`}
-            >
-              {toast.type === "error" ? "!" : toast.type === "info" ? "♥" : "✓"}
-            </span>
-            <span>{toast.message}</span>
-          </div>
-        )}
-      </div>
-    </ToastContext.Provider>
-  )
+  useEffect(() => {
+    setMounted(true)
+    return () => timers.current.forEach(clearTimeout)
+  }, [])
+  return <ToastContext.Provider value={{ showToast }}>
+    {children}
+    {mounted && createPortal(
+      <div aria-live="polite" aria-atomic="true" className="pointer-events-none fixed bottom-24 left-1/2 flex w-[min(90vw,440px)] -translate-x-1/2 justify-center sm:bottom-8" style={{ zIndex: 2147483647 }}>
+        {toast && <div key={toast.id} role="status" className="flex items-center gap-3 rounded-2xl border border-[#c1a16a]/50 bg-[#122f24] px-5 py-3 text-sm font-medium text-white shadow-xl" style={{ opacity: fading ? 0 : 1, transition: fading ? "opacity 200ms ease-out" : "none" }}>
+          <span aria-hidden="true" className="text-[#dfbf7f]">{toast.type === "error" ? "!" : "✓"}</span>
+          <span>{toast.message}</span>
+        </div>}
+      </div>, document.body)}
+  </ToastContext.Provider>
 }
-
 export function useToast() {
   const context = useContext(ToastContext)
   if (!context) throw new Error("ToastProvider is missing")

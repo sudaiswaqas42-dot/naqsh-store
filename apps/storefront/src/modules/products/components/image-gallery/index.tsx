@@ -14,6 +14,8 @@ export default function ImageGallery({ images, isSoldOut }: ImageGalleryProps) {
   const [isHovering, setIsHovering] = useState(false)
   const [mouseCoord, setMouseCoord] = useState({ x: 0, y: 0, percentX: 50, percentY: 50 })
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+  const touchStart = useRef<{ x: number; y: number } | null>(null)
+  const suppressClick = useRef(false)
   const stageRef = useRef<HTMLDivElement>(null)
 
   const currentImage = images?.[selectedIndex] || images?.[0]
@@ -82,10 +84,29 @@ export default function ImageGallery({ images, isSoldOut }: ImageGalleryProps) {
         <div
           ref={stageRef}
           className="relative w-full h-full cursor-crosshair overflow-hidden"
+          style={{ touchAction: "pan-y pinch-zoom" }}
+          onTouchStart={event => {
+            if (event.touches.length !== 1) { touchStart.current = null; return }
+            const touch = event.touches[0]
+            touchStart.current = { x: touch.clientX, y: touch.clientY }
+            suppressClick.current = false
+          }}
+          onTouchCancel={() => { touchStart.current = null }}
+          onTouchEnd={event => {
+            if (!touchStart.current) return
+            const touch = event.changedTouches[0]
+            const dx = touch.clientX - touchStart.current.x
+            const dy = touch.clientY - touchStart.current.y
+            touchStart.current = null
+            suppressClick.current = Math.abs(dx) > 10 || Math.abs(dy) > 10
+            if (images.length > 1 && Math.abs(dx) >= 35 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+              setSelectedIndex(index => (index + (dx < 0 ? 1 : -1) + images.length) % images.length)
+            }
+          }}
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
           onMouseMove={handleMouseMove}
-          onClick={() => setIsLightboxOpen(true)}
+          onClick={() => { if (suppressClick.current) { suppressClick.current = false; return }; setIsLightboxOpen(true) }}
         >
           <Image
             src={currentImage.url}

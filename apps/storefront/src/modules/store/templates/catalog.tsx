@@ -421,7 +421,7 @@ async function AsyncCatalogProducts({
     <CatalogGridView
       products={displayProducts}
       count={displayCount}
-      categories={categories.map((category) => ({ id: category.id, label: category.name }))}
+      categories={categories.map((category) => ({ id: category.id, label: category.name, handle: category.handle }))}
       collections={collections.collections.map((collection) => ({ id: collection.id, label: collection.title }))}
       facets={result.facets}
       page={result.page}

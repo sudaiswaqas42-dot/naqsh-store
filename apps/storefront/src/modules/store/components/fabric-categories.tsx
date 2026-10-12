@@ -153,22 +153,7 @@ export default function FabricCategories({
             </p>
           </div>
 
-          {active ? (
-            <LocalizedClientLink
-              href={href("")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-stone-300 bg-stone-50 px-4 py-1.5 text-xs font-medium text-stone-700 transition hover:bg-stone-100"
-            >
-              <span>Showing: <strong className="capitalize text-stone-900">{active.replace(/-/g, " ")}</strong></span>
-              <span className="text-stone-400">✕ Clear</span>
-            </LocalizedClientLink>
-          ) : (
-            <LocalizedClientLink
-              href={href("")}
-              className="text-xs font-medium text-stone-600 underline underline-offset-4 transition hover:text-stone-900"
-            >
-              View all {gender === "men" ? "gents" : "ladies"} cuts →
-            </LocalizedClientLink>
-          )}
+
         </div>
 
         {/* Categories Cards Carousel / Grid */}
@@ -230,17 +215,7 @@ export default function FabricCategories({
                   </div>
                 </div>
 
-                {/* Bottom Active Strip */}
-                <div
-                  className={`flex items-center justify-between border-t px-3 py-2 text-[10px] font-semibold uppercase tracking-wider transition-colors ${
-                    isSelected
-                      ? "border-[#B6975A]/30 bg-[#B6975A]/10 text-[#8C6D34]"
-                      : "border-stone-100 bg-white text-stone-500 group-hover:text-[#B6975A]"
-                  }`}
-                >
-                  <span>{isSelected ? "Selected" : "Browse"}</span>
-                  <span className="transition-transform group-hover:translate-x-0.5">→</span>
-                </div>
+
               </LocalizedClientLink>
             )
           })}

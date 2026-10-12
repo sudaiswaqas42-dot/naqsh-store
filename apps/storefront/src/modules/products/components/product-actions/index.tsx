@@ -8,7 +8,6 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import ProductPrice from "../product-price"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { useToast } from "@lib/context/toast-context"
-import { useWishlist } from "@lib/context/wishlist-context"
 import ProductAttributes from "../product-attributes"
 import { publicValue, formatSizeName } from "@lib/util/product-details"
 
@@ -37,7 +36,6 @@ export default function ProductActions({
 
   const { addItem, closeCart } = useCartDrawer()
   const { showToast } = useToast()
-  const { isInWishlist, toggleWishlist } = useWishlist()
 
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
@@ -259,26 +257,6 @@ export default function ProductActions({
     ["Dupatta", product.metadata?.dupatta],
     ["Trouser", product.metadata?.trouser],
   ].filter(([, value]) => publicValue(value))
-  const isFavorited = isInWishlist(product.id)
-
-  const handleWishlistToggle = () => {
-    const rawPrice =
-      selectedVariant?.calculated_price?.calculated_amount ?? 0
-
-    toggleWishlist({
-      id: product.id,
-      title: product.title,
-      handle: product.handle,
-      thumbnail: product.thumbnail || product.images?.[0]?.url,
-      price: rawPrice,
-      currency_code: "pkr",
-    })
-  }
-
-  const handleNotifyMe = () => {
-    showToast("We will notify you immediately once this item is restocked!", "success")
-  }
-
   return (
     <>
       <div className="product-detail-actions flex flex-col gap-y-4 font-sans text-stone-900" ref={actionsRef}>
@@ -315,140 +293,13 @@ export default function ProductActions({
 
         <div className="hidden lg:block"><ProductAttributes product={product} /></div>
 
-        {/* 5. Action Buttons with Dynamic Enabled/Disabled State & Validation Animation */}
-        <div className="product-buy-actions space-y-3 pt-1">
-          {/* If all options are chosen and that specific variant is out of stock */}
-          {allOptionsSelected && selectedVariant && !inStock ? (
-            <>
-              {/* Row: Gray OUT OF STOCK button + Heart circle */}
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  disabled
-                  className="flex-1 h-12 bg-[#78716c] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-xs cursor-not-allowed flex items-center justify-center"
-                >
-                  OUT OF STOCK
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleWishlistToggle}
-                  aria-label="Save to Wishlist"
-                  className="w-12 h-12 rounded-full border border-stone-400 hover:border-black flex items-center justify-center text-stone-700 hover:text-black transition-colors flex-shrink-0"
-                >
-                  <svg
-                    className={`w-5 h-5 ${isFavorited ? "fill-red-500 text-red-500" : "fill-none"}`}
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Full width black NOTIFY ME WHEN AVAILABLE button (from Image 1) */}
-              <button
-                type="button"
-                onClick={handleNotifyMe}
-                className="w-full h-12 bg-stone-950 hover:bg-black text-white text-xs font-bold uppercase tracking-widest rounded-full transition-all duration-200 shadow-xs flex items-center justify-center active:scale-[0.99]"
-              >
-                NOTIFY ME WHEN AVAILABLE
-              </button>
-            </>
-          ) : (
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-3">
-                {/* 
-                  When both/all options are NOT selected:
-                  - Background: White (bg-white)
-                  - Text: Dark Black (text-stone-950)
-                  - Border: 2px dark border (border-2 border-stone-800)
-                  - State: Disabled with cursor-not-allowed
-                  - Clicking triggers validation toast & shake animation
-
-                  When both/all options ARE selected:
-                  - Background: Dark (bg-stone-950 hover:bg-black)
-                  - Text: White (text-white)
-                  - Border: Dark (border-2 border-stone-950)
-                  - State: Enabled with active scale & shadow
-                */}
-                <button
-                  type="button"
-                  onClick={() => handleAddToCart()}
-                  disabled={isAdding || !!disabled}
-                  aria-disabled={!allOptionsSelected}
-                  className={`flex-1 h-12 rounded-full font-bold text-xs uppercase tracking-widest transition-all duration-300 ease-out flex items-center justify-center ${
-                    validationShake ? "animate-shake ring-2 ring-red-400" : ""
-                  } ${
-                    allOptionsSelected && isValidVariant && inStock
-                      ? "bg-stone-950 hover:bg-black text-white border-2 border-stone-950 shadow-md hover:shadow-lg cursor-pointer active:scale-[0.99]"
-                      : "bg-white text-stone-950 border-2 border-stone-800/80 shadow-xs cursor-not-allowed hover:bg-stone-50"
-                  }`}
-                >
-                  {isAdding ? (
-                    "ADDING TO CART..."
-                  ) : allOptionsSelected ? (
-                    "ADD TO CART"
-                  ) : (
-                    "ADD TO CART"
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleWishlistToggle}
-                  aria-label="Save to Wishlist"
-                  className="w-12 h-12 rounded-full border border-stone-400 hover:border-black flex items-center justify-center text-stone-700 hover:text-black transition-colors flex-shrink-0"
-                >
-                  <svg
-                    className={`w-5 h-5 ${isFavorited ? "fill-red-500 text-red-500" : "fill-none"}`}
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Buy Now button placed directly below Add to Cart */}
-              <button
-                type="button"
-                disabled={isAdding || !!disabled || (allOptionsSelected && !inStock)}
-                onClick={() => handleAddToCart(true)}
-                className={`product-buy-now h-12 w-full rounded-full font-bold text-xs uppercase tracking-widest transition-all duration-300 ease-out flex items-center justify-center ${
-                  allOptionsSelected && isValidVariant && inStock
-                    ? "bg-[#B6975A] hover:bg-[#a38448] text-white shadow-md hover:shadow-lg cursor-pointer active:scale-[0.99]"
-                    : "bg-stone-100 text-stone-500 border border-stone-200 cursor-not-allowed hover:bg-stone-100"
-                }`}
-              >
-                BUY NOW
-              </button>
-
-              {/* Validation helper badge when options are still pending */}
-              {!allOptionsSelected && (
-                <div className="flex items-center gap-1.5 text-[11px] text-stone-600 transition-all duration-300">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                  <span>
-                    Please select{" "}
-                    <strong className="text-stone-900 font-semibold">
-                      {missingOptions.map((o) => o.title).join(" & ")}
-                    </strong>{" "}
-                    to enable Add to Cart
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
+        <div className="product-buy-actions grid grid-cols-2 gap-3 pt-2">
+          <button type="button" onClick={() => handleAddToCart()} disabled={isAdding || !!disabled || (allOptionsSelected && !inStock)} className={"flex min-h-12 items-center justify-center gap-2 rounded-xl border border-stone-900 bg-stone-950 px-3 py-3 text-[11px] font-semibold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-stone-800 disabled:opacity-45 " + (validationShake ? "animate-shake" : "")}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M5 8h14l1 13H4L5 8ZM8 8V6a4 4 0 0 1 8 0v2" /></svg>
+            {isAdding ? "Adding..." : allOptionsSelected && !inStock ? "Out of stock" : "Add to Cart"}
+          </button>
+          <button type="button" onClick={() => handleAddToCart(true)} disabled={isAdding || !!disabled || (allOptionsSelected && !inStock)} className="flex min-h-12 items-center justify-center rounded-xl border border-[#B6975A] bg-[#B6975A] px-3 py-3 text-[11px] font-semibold uppercase tracking-wider text-[#10271e] shadow-sm transition-colors hover:bg-[#c7aa71] disabled:opacity-45">Buy Now</button>
+          {!allOptionsSelected && <p className="col-span-2 text-xs text-stone-500">Please select {missingOptions.map(option => option.title).join(" & ")}.</p>}
         </div>
 
         {/* 6. Advance Payment Notice (Matching Image 1: Note: A 50% advance payment is required...) */}

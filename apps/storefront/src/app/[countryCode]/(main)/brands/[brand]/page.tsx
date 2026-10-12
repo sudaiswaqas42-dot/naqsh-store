@@ -151,7 +151,7 @@ export default async function BrandPage({ params, searchParams }: Props) {
       <CatalogGridView
         products={displayProducts}
         count={displayCount}
-        categories={categories.map((c) => ({ id: c.id, label: c.name }))}
+        categories={categories.map((c) => ({ id: c.id, label: c.name, handle: c.handle }))}
         collections={collections.collections.map((c) => ({ id: c.id, label: c.title }))}
         facets={result.facets}
         page={result.page}

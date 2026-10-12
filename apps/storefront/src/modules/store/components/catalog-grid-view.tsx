@@ -1,5 +1,6 @@
 "use client"
 
+import { categoryDepartment, scopedCategories, menCategoryHandles, womenCategoryHandles } from "@lib/util/category-scope"
 import SortDropdown from "./sort-dropdown"
 
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react"
@@ -11,7 +12,7 @@ import Link from "next/link"
 
 import { computeDiscountForProduct, SalesConfig } from "@lib/data/sales"
 
-type Choice = { id: string; label: string }
+type Choice = { id: string; label: string; handle?: string }
 
 type Props = {
   products: any[]
@@ -137,7 +138,9 @@ export default function CatalogGridView({
     "boys-unstitched": "Boys Unstitched",
   }
 
-  const unstitchedCategories = categories
+  const routeHandle = pathname.split("/").filter(Boolean).at(-1) || ""
+  const department = categoryDepartment(String(query.gender || params.get("gender") || routeHandle))
+  const unstitchedCategories = scopedCategories(categories, department)
     .filter((c) => {
       const labelKey = c.label.toLowerCase().trim()
       const idKey = c.id.toLowerCase().trim()
@@ -150,10 +153,15 @@ export default function CatalogGridView({
         ([key]) => labelKey === key || idKey === key || labelKey.includes(key) || idKey.includes(key)
       )
       return {
+        handle: c.handle,
         id: c.id,
         label: matched ? matched[1] : c.label,
       }
     })
+
+  const selectedHandles = (params.get("category") || "").split(",").filter(Boolean)
+  const routeIsSubcategory = pathname.includes("/categories/") && [...menCategoryHandles, ...womenCategoryHandles].includes(routeHandle)
+  const selectedCategoryChoices = categories.filter(category => selectedHandles.includes(category.id) || selectedHandles.includes(category.handle || ""))
 
   const groups = [
     { key: "category", title: "Unstitched Category", choices: unstitchedCategories },
@@ -218,6 +226,8 @@ export default function CatalogGridView({
             <div className="space-y-2.5 max-h-56 overflow-auto pr-2">
               {group.choices.map((choice) => {
                 const selected = (params.get(group.key) || "").split(",").filter(Boolean)
+                const handle = group.key === "category" ? categories.find(category => category.id === choice.id)?.handle : undefined
+                const isSelected = selected.includes(choice.id) || (!!handle && selected.includes(handle))
                 return (
                   <label
                     key={choice.id}
@@ -226,12 +236,12 @@ export default function CatalogGridView({
                     <input
                       type="checkbox"
                       disabled={pending}
-                      checked={selected.includes(choice.id)}
+                      checked={isSelected}
                       onChange={() =>
                         update(
                           group.key,
-                          (selected.includes(choice.id)
-                            ? selected.filter((value) => value !== choice.id)
+                          (isSelected
+                            ? selected.filter((value) => value !== choice.id && value !== handle)
                             : [...selected, choice.id]
                           ).join(",")
                         )
@@ -469,6 +479,10 @@ export default function CatalogGridView({
         </div>
       </div>
 
+      {(selectedCategoryChoices.length > 0 || routeIsSubcategory) && <div className="mb-5 flex flex-wrap gap-2" aria-label="Selected categories">
+        {routeIsSubcategory && <button type="button" onClick={() => router.push("/" + pathname.split("/")[1] + "/categories/" + (categoryDepartment(routeHandle) || "women"))} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-xs text-stone-700">Showing: <strong>{categories.find(category => category.handle === routeHandle)?.label || routeHandle.replace(/-/g, " ")}</strong><span className="ml-2 text-stone-500">× Clear</span></button>}
+        {selectedCategoryChoices.filter(category => !routeIsSubcategory || category.handle !== routeHandle).map(category => <button key={category.id} type="button" onClick={() => update("category", selectedHandles.filter(value => value !== category.id && value !== category.handle).join(","))} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-xs text-stone-700">Showing: <strong>{category.label}</strong><span className="ml-2 text-stone-500">× Clear</span></button>)}
+      </div>}
       {/* Main Content Area: Optional Filter Sidebar + Grid */}
       <div
         className={`transition-all duration-300 ${
