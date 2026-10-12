@@ -13,6 +13,7 @@ type OptionSelectProps = {
   disabled: boolean
   isOptionValueInStock?: (optionId: string, value: string) => boolean
   "data-testid"?: string
+  validationShake?: boolean
 }
 
 const OptionSelect: React.FC<OptionSelectProps> = ({
@@ -23,18 +24,27 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
   disabled,
   isOptionValueInStock,
   "data-testid": dataTestId,
+  validationShake,
 }) => {
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false)
   const filteredOptions = Array.from(new Set((option.values ?? []).map((v) => v.value)))
   const isSize = /size/i.test(title)
   const currentDisplay = current ? (isSize ? formatSizeName(current) : current) : ""
+  const isPending = !current && validationShake
 
   return (
-    <div className="flex flex-col gap-y-3 font-sans">
+    <div className={`flex flex-col gap-y-3 font-sans transition-all duration-300 rounded-lg p-1.5 ${
+      isPending ? "bg-amber-50/70 ring-2 ring-amber-400 animate-shake" : ""
+    }`}>
       <div className="flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-stone-900">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <span className="text-stone-500 font-medium">Select:</span>
           <span className="text-stone-900">{title}{currentDisplay ? `: ${currentDisplay}` : ""}</span>
+          {!current && (
+            <span className="text-[10px] text-amber-700 font-medium lowercase tracking-normal bg-amber-100/70 px-2 py-0.5 rounded-full">
+              Required
+            </span>
+          )}
         </div>
         {isSize && (
           <>

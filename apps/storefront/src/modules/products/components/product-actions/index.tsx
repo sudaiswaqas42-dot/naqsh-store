@@ -207,10 +207,10 @@ export default function ProductActions({
   const handleAddToCart = async (buyNow = false) => {
     if (isAdding || disabled) return
     if (!allOptionsSelected) {
-      const missingTitles = missingOptions.map((o) => o.title || "Option").join(" and ")
-      showToast(`Please select ${missingTitles} before adding to cart.`, "info")
+      const missingTitles = missingOptions.map((o) => o.title || "Option").join(" & ")
+      showToast(`Please select ${missingTitles} first.`, "info")
       setValidationShake(true)
-      setTimeout(() => setValidationShake(false), 500)
+      setTimeout(() => setValidationShake(false), 600)
       return null
     }
 
@@ -286,6 +286,7 @@ export default function ProductActions({
                 data-testid="product-options"
                 disabled={!!disabled || isAdding}
                 isOptionValueInStock={isOptionValueInStock}
+                validationShake={validationShake}
               />
             </div>
           ))}
@@ -293,13 +294,101 @@ export default function ProductActions({
 
         <div className="hidden lg:block"><ProductAttributes product={product} /></div>
 
-        <div className="product-buy-actions grid grid-cols-2 gap-3 pt-2">
-          <button type="button" onClick={() => handleAddToCart()} disabled={isAdding || !!disabled || (allOptionsSelected && !inStock)} className={"flex min-h-12 items-center justify-center gap-2 rounded-xl border border-stone-900 bg-stone-950 px-3 py-3 text-[11px] font-semibold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-stone-800 disabled:opacity-45 " + (validationShake ? "animate-shake" : "")}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M5 8h14l1 13H4L5 8ZM8 8V6a4 4 0 0 1 8 0v2" /></svg>
-            {isAdding ? "Adding..." : allOptionsSelected && !inStock ? "Out of stock" : "Add to Cart"}
+        <div className={`product-buy-actions grid grid-cols-2 gap-3 pt-2 ${validationShake ? "animate-shake" : ""}`}>
+          {/* 1. ADD TO CART BUTTON */}
+          <button
+            type="button"
+            onClick={() => handleAddToCart(false)}
+            disabled={isAdding || !!disabled || (allOptionsSelected && !inStock)}
+            aria-disabled={!allOptionsSelected}
+            className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-3 py-3 text-xs font-bold uppercase tracking-wider transition-all duration-300 ease-out ${
+              !allOptionsSelected
+                ? "bg-white text-stone-950 border-2 border-stone-800 shadow-xs hover:bg-stone-50 cursor-pointer"
+                : inStock
+                ? "bg-stone-950 hover:bg-black text-white border-2 border-stone-950 shadow-md hover:shadow-lg active:scale-[0.98] cursor-pointer"
+                : "bg-stone-200 text-stone-500 border-2 border-stone-300 cursor-not-allowed"
+            } ${validationShake && !allOptionsSelected ? "ring-2 ring-red-400" : ""}`}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+              className="flex-shrink-0"
+            >
+              <path d="M5 8h14l1 13H4L5 8ZM8 8V6a4 4 0 0 1 8 0v2" />
+            </svg>
+            <span>
+              {isAdding
+                ? "Adding..."
+                : allOptionsSelected && !inStock
+                ? "Out of Stock"
+                : "Add to Cart"}
+            </span>
           </button>
-          <button type="button" onClick={() => handleAddToCart(true)} disabled={isAdding || !!disabled || (allOptionsSelected && !inStock)} className="flex min-h-12 items-center justify-center rounded-xl border border-[#B6975A] bg-[#B6975A] px-3 py-3 text-[11px] font-semibold uppercase tracking-wider text-[#10271e] shadow-sm transition-colors hover:bg-[#c7aa71] disabled:opacity-45">Buy Now</button>
-          {!allOptionsSelected && <p className="col-span-2 text-xs text-stone-500">Please select {missingOptions.map(option => option.title).join(" & ")}.</p>}
+
+          {/* 2. BUY NOW BUTTON */}
+          <button
+            type="button"
+            onClick={() => handleAddToCart(true)}
+            disabled={isAdding || !!disabled || (allOptionsSelected && !inStock)}
+            aria-disabled={!allOptionsSelected}
+            className={`flex min-h-12 items-center justify-center rounded-xl px-3 py-3 text-xs font-bold uppercase tracking-wider transition-all duration-300 ease-out ${
+              !allOptionsSelected
+                ? "bg-white text-stone-950 border-2 border-stone-800 shadow-xs hover:bg-stone-50 cursor-pointer"
+                : inStock
+                ? "bg-[#B6975A] hover:bg-[#a38448] text-white border-2 border-[#B6975A] shadow-md hover:shadow-lg active:scale-[0.98] cursor-pointer"
+                : "bg-stone-200 text-stone-500 border-2 border-stone-300 cursor-not-allowed"
+            } ${validationShake && !allOptionsSelected ? "ring-2 ring-red-400" : ""}`}
+          >
+            <span>
+              {isAdding
+                ? "Processing..."
+                : allOptionsSelected && !inStock
+                ? "Unavailable"
+                : "Buy Now"}
+            </span>
+          </button>
+
+          {/* Validation Notice & Helper */}
+          {!allOptionsSelected ? (
+            <div
+              className={`col-span-2 flex items-center gap-2 pt-1 transition-all duration-300 ${
+                validationShake
+                  ? "animate-shake text-amber-700 font-semibold"
+                  : "text-stone-600"
+              }`}
+            >
+              <span
+                className={`h-2 w-2 rounded-full flex-shrink-0 ${
+                  validationShake ? "bg-red-500 animate-ping" : "bg-amber-500 animate-pulse"
+                }`}
+              />
+              <span className="text-xs">
+                Please select{" "}
+                <strong className="font-semibold text-stone-900">
+                  {missingOptions.map((option) => option.title).join(" & ")}
+                </strong>{" "}
+                to enable Add to Cart and Buy Now.
+              </span>
+            </div>
+          ) : inStock ? (
+            <div className="col-span-2 flex items-center gap-1.5 pt-0.5 text-xs text-emerald-700 animate-fadeIn font-medium">
+              <svg
+                className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Option selected • In stock</span>
+            </div>
+          ) : null}
         </div>
 
         {/* 6. Advance Payment Notice (Matching Image 1: Note: A 50% advance payment is required...) */}
