@@ -18,7 +18,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       if (sequence.current === id) {
         setToast(null)
       }
-    }, 2800)
+    }, 3200)
   }, [])
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       <div
         aria-live="polite"
         aria-atomic="true"
-        className="pointer-events-none fixed bottom-24 sm:bottom-10 left-1/2 z-[2147483647] flex w-full max-w-[92vw] -translate-x-1/2 justify-center sm:max-w-md"
+        className="pointer-events-none fixed top-20 sm:top-8 left-1/2 z-[2147483647] flex w-full max-w-[92vw] -translate-x-1/2 justify-center sm:max-w-md"
       >
         {toast && (
           <div
