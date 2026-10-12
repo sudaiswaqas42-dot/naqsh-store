@@ -51,8 +51,22 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     if (exists) {
       showToast("Removed from wishlist", "info")
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("naqsh:toast", {
+            detail: { message: "Removed from wishlist", type: "info" },
+          })
+        )
+      }
     } else {
       showToast("Added to wishlist", "success")
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("naqsh:toast", {
+            detail: { message: "Added to wishlist", type: "success" },
+          })
+        )
+      }
     }
   }
 

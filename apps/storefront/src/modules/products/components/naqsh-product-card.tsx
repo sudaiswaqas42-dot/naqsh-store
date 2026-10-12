@@ -59,7 +59,16 @@ export default function NaqshProductCard({ product, priority = false }: ProductC
         })
       }}
     >
-      <svg width="17" height="17" viewBox="0 0 24 24" fill={isInWishlist(product.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" /></svg>
+      <svg
+        width="17"
+        height="17"
+        viewBox="0 0 24 24"
+        fill={isInWishlist(product.id) ? "#e11d48" : "none"}
+        stroke={isInWishlist(product.id) ? "#e11d48" : "currentColor"}
+        strokeWidth="1.5"
+      >
+        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
+      </svg>
     </button>
     </article>
   )
