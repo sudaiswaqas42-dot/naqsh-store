@@ -15,7 +15,7 @@ export default function WishlistButton() {
   return (
     <LocalizedClientLink
       href="/wishlist"
-      className="relative p-2 text-gray-700 hover:text-brand transition-colors inline-flex items-center justify-center"
+      className="relative p-2 text-[#FAF9F6] hover:text-[#FAF9F6] transition-colors inline-flex items-center justify-center"
       title="Wishlist"
     >
       <svg
@@ -32,7 +32,7 @@ export default function WishlistButton() {
         />
       </svg>
       {mounted && count > 0 && (
-        <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 bg-amber-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-white shadow-xs">
+        <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 bg-[#FAF9F6] text-[#0F2D22] text-[9px] font-bold rounded-full flex items-center justify-center border border-[#FAF9F6] shadow-xs">
           {count}
         </span>
       )}

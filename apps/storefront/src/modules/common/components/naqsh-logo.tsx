@@ -2,7 +2,7 @@ import React from "react"
 import Image from "next/image"
 
 interface NaqshLogoProps {
-  variant?: "dark" | "light"
+  variant?: "dark" | "light" | "cream"
   size?: "sm" | "md" | "lg" | "xl" | "2xl"
   className?: string
   priority?: boolean
@@ -12,7 +12,7 @@ export default function NaqshLogo({
   variant = "dark",
   size = "md",
   className = "",
-  priority = true,
+  priority = false,
 }: NaqshLogoProps) {
   const isLight = variant === "light"
 
@@ -23,6 +23,21 @@ export default function NaqshLogo({
     lg: "w-60 sm:w-68 md:w-76 lg:w-84 xl:w-92 h-auto",
     xl: "w-72 sm:w-80 md:w-92 lg:w-[420px] h-auto",
     "2xl": "w-84 sm:w-96 md:w-[420px] lg:w-[480px] h-auto",
+  }
+
+  if (variant === "cream") {
+    return (
+      <div className={`bg-transparent inline-flex items-center justify-center select-none ${className}`}>
+        <Image
+          src="/images/naqsh-logo-cream-reference.png"
+          alt="NAQSH"
+          width={1332}
+          height={478}
+          priority={priority}
+          className={`${sizeMap[size]} object-contain drop-shadow-2xs transition-transform duration-300 hover:scale-[1.02]`}
+        />
+      </div>
+    )
   }
 
   // Use the gold transparent logo for light variant (e.g. on dark green footer)

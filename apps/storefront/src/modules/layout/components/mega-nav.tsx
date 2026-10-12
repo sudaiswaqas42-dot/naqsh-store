@@ -193,7 +193,7 @@ export default function MegaNav({ categories, collections }: MegaNavProps) {
 
   return (
     <nav
-      className="relative hidden lg:flex items-center justify-center gap-9 py-3 border-t border-[#EBE1D6] bg-transparent text-[11px] font-medium uppercase tracking-[0.2em] text-[#1A1A1A]"
+      className="relative hidden lg:flex items-center justify-center gap-9 py-3 border-t border-[#EBE1D6] bg-transparent text-[11px] font-medium uppercase tracking-[0.2em] text-[#FAF9F6]"
       onMouseLeave={() => {
         setActiveMenu(null)
         setHoveredKey(null)

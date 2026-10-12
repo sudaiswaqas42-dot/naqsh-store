@@ -43,7 +43,7 @@ const menuSections = [
 export default function SideMenu() {
   const [open, setOpen] = useState(false)
   return <div className="lg:hidden">
-    <button aria-label="Open navigation menu" onClick={() => setOpen(true)} className="p-2 text-charcoal hover:text-brand" data-testid="nav-menu-button">
+    <button aria-label="Open navigation menu" onClick={() => setOpen(true)} className="p-2 text-[#FAF9F6] hover:text-[#FAF9F6]" data-testid="nav-menu-button">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" strokeLinecap="round" /></svg>
     </button>
     <Dialog open={open} onClose={setOpen} className="relative z-[100]">

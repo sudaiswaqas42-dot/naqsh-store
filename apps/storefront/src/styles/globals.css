@@ -316,12 +316,14 @@ nextjs-portal {
   .naqsh-home-hero .animate-marquee { font-size: 8px; padding-block: 5px; }
   .naqsh-home-hero button[aria-label="Previous slide"], .naqsh-home-hero button[aria-label="Next slide"] { display: none; }
 }
-@keyframes naqsh-toast {
-  0% { opacity: 0; transform: translateY(-16px) scale(0.96); filter: drop-shadow(0 0 12px rgba(193, 161, 106, 0.5)); }
-  10%, 88% { opacity: 1; transform: translateY(0) scale(1); filter: drop-shadow(0 0 10px rgba(193, 161, 106, 0.35)); }
-  100% { opacity: 0; transform: translateY(-10px) scale(0.97); filter: drop-shadow(0 0 0 transparent); }
-}
-.naqsh-toast { opacity: 1; animation: naqsh-toast 4.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+/* Each replacement mounts a fresh animation; React also removes it at two seconds. */
+.naqsh-notification-layer { position: fixed; inset: auto 16px calc(24px + env(safe-area-inset-bottom)); z-index: 2147483647; display: flex; justify-content: center; pointer-events: none; }
+.naqsh-notification { display: flex; align-items: center; gap: 8px; width: max-content; max-width: min(100%, 360px); padding: 8px 12px; border: 1px solid #c1a16a; border-radius: 10px; background: #122f24; color: #faf9f6; font-size: 12px; line-height: 1.4; box-shadow: 0 8px 24px #0003; pointer-events: auto; animation: naqsh-notification-lifetime 2s ease both; }
+.naqsh-notification > svg { width: 16px; height: 16px; }
+.naqsh-notification button { padding: 4px; }
+@keyframes naqsh-notification-lifetime { 0% { opacity: 0; transform: translateY(8px); } 12%, 78% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(4px); } }
+@media (max-width: 767px) { .naqsh-notification-layer { bottom: calc(104px + env(safe-area-inset-bottom)); } }
+@media (prefers-reduced-motion: reduce) { .naqsh-notification { animation: none; } }
 .naqsh-reveal-pending { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
 .naqsh-reveal-pending.naqsh-reveal-visible { opacity: 1; transform: translateY(0); }
 @keyframes naqsh-letter { from { opacity: 0; transform: translateX(-8px); filter: blur(1.5px); } to { opacity: 1; transform: translateX(0); filter: blur(0); } }
@@ -359,4 +361,34 @@ nextjs-portal {
 .naqsh-eye-pulse { animation: naqsh-eye-pulse 2s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) {
   .naqsh-eye-pulse { animation: none; }
+}
+
+.naqsh-site-header nav { color: #FAF9F6; border-color: rgba(250, 249, 246, 0.2); }
+.naqsh-site-header nav > a, .naqsh-site-header nav > div > a { color: #FAF9F6; }
+.naqsh-site-header nav > a:hover, .naqsh-site-header nav > div > a:hover { color: #FAF9F6; opacity: 0.85; }
+
+/* Continuous infinite reviews marquee */
+@keyframes naqshReviewsMarquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.naqsh-reviews-marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 1.5rem;
+  animation: naqshReviewsMarquee 42s linear infinite;
+  will-change: transform;
+}
+.naqsh-reviews-marquee-track:hover {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .naqsh-reviews-marquee-track {
+    animation: none;
+    overflow-x: auto;
+  }
 }

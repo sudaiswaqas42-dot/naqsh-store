@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useToast } from "@lib/context/toast-context"
 
 interface Review {
@@ -11,6 +12,7 @@ interface Review {
   initials: string
   rating: number
   category: "all" | "lawn" | "3pc" | "2pc" | "pret" | "boski" | "formals" | "khaddar" | "gents"
+  demo?: boolean
   verified: boolean
   date: string
 }
@@ -24,7 +26,8 @@ const DEFAULT_UNSTITCHED_REVIEWS: Review[] = [
     quote: "The 3-piece embroidered lawn suit exceeded my expectations. Pure breathable pima lawn fabric and the chiffon dupatta drape is so graceful!",
     rating: 5,
     category: "3pc",
-    verified: true,
+    verified: false,
+    demo: true,
     date: "2 days ago",
   },
   {
@@ -35,7 +38,8 @@ const DEFAULT_UNSTITCHED_REVIEWS: Review[] = [
     quote: "Purchased the 8-pound pure silk Boski cut for Eid. Exceptional heirloom sheen, original pure silk feel, and exact 4.5-meter length.",
     rating: 5,
     category: "boski",
-    verified: true,
+    verified: false,
+    demo: true,
     date: "1 week ago",
   },
   {
@@ -46,7 +50,8 @@ const DEFAULT_UNSTITCHED_REVIEWS: Review[] = [
     quote: "The 2-piece printed unstitched cut has vibrant colors that stayed sharp after multiple washes. Perfect summer fabric for daily luxury.",
     rating: 5,
     category: "2pc",
-    verified: true,
+    verified: false,
+    demo: true,
     date: "3 days ago",
   },
   {
@@ -57,7 +62,8 @@ const DEFAULT_UNSTITCHED_REVIEWS: Review[] = [
     quote: "Heavy embroidered organza cut with hand-embellished zari work. Tailored it for my sister's wedding and everyone asked where the fabric was from!",
     rating: 5,
     category: "formals",
-    verified: true,
+    verified: false,
+    demo: true,
     date: "2 weeks ago",
   },
   {
@@ -68,7 +74,8 @@ const DEFAULT_UNSTITCHED_REVIEWS: Review[] = [
     quote: "Traditional Kamalia Khaddar unstitched cut is so warm and soft. Genuine textured yarn weave that speaks timeless Pakistani heritage.",
     rating: 5,
     category: "khaddar",
-    verified: true,
+    verified: false,
+    demo: true,
     date: "5 days ago",
   },
   {
@@ -79,17 +86,17 @@ const DEFAULT_UNSTITCHED_REVIEWS: Review[] = [
     quote: "The Egyptian cotton wash & wear unstitched fabric is completely wrinkle-resistant. Tailored into a crisp shalwar kameez that stayed crease-free all day.",
     rating: 5,
     category: "gents",
-    verified: true,
+    verified: false,
+    demo: true,
     date: "4 days ago",
   },
 ]
 
-export default function CustomerReviews({ section }: { section?: any }) {
+export default function CustomerReviews({ section, fullPage = false }: { section?: any; fullPage?: boolean }) {
   const { showToast } = useToast()
-  const [selectedFilter, setSelectedFilter] = useState<"all" | "lawn" | "3pc" | "2pc" | "pret" | "boski" | "formals" | "khaddar" | "gents">("all")
   const [reviews, setReviews] = useState<Review[]>(DEFAULT_UNSTITCHED_REVIEWS)
   const [sectionTitle, setSectionTitle] = useState("Loved by Thousands")
-  const [sectionSubtitle, setSectionSubtitle] = useState("Real feedback from verified shoppers across Pakistan who trust NAQSH for unstitched fabric cuts.")
+  const [sectionSubtitle, setSectionSubtitle] = useState("Discover the NAQSH experience. Sample reviews are labelled as demos.")
   const [isActive, setIsActive] = useState(true)
 
   const [showModal, setShowModal] = useState(false)
@@ -103,7 +110,7 @@ export default function CustomerReviews({ section }: { section?: any }) {
       .then((res) => res.json())
       .then((data) => {
         if (data.reviews && Array.isArray(data.reviews) && data.reviews.length > 0) {
-          setReviews(data.reviews)
+          setReviews([...data.reviews, ...DEFAULT_UNSTITCHED_REVIEWS])
         }
         if (data.title) setSectionTitle(data.title)
         if (data.subtitle) setSectionSubtitle(data.subtitle)
@@ -112,21 +119,8 @@ export default function CustomerReviews({ section }: { section?: any }) {
       .catch((err) => console.error("Error loading reviews:", err))
   }, [])
 
-  if (!section && !isActive) {
-    return null
-  }
-
-  const filtered =
-    selectedFilter === "all"
-      ? reviews
-      : reviews.filter((r) => {
-          if (r.category === selectedFilter || r.category === "all") return true
-          if (selectedFilter === "3pc" && r.category === "lawn") return true
-          if (selectedFilter === "boski" && r.category === "pret") return true
-          return false
-        })
-
-  const displayReviews = filtered
+  if (!section && !isActive) return null
+  const displayReviews = fullPage ? reviews : reviews.slice(0, 9)
 
   const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -144,7 +138,7 @@ export default function CustomerReviews({ section }: { section?: any }) {
           city: newCity.trim() || "Pakistan",
           quote: newQuote.trim(),
           rating: newRating,
-          category: selectedFilter === "all" ? "3pc" : selectedFilter,
+          category: "all",
         }),
       })
       if (!response.ok) throw new Error("Review submission failed")
@@ -181,81 +175,114 @@ export default function CustomerReviews({ section }: { section?: any }) {
             {section?.subtitle ?? sectionSubtitle}
           </p>
 
-          {/* Interactive Category Filter Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
-            {[
-              { id: "all", label: `All Reviews (${reviews.length})` },
-              { id: "3pc", label: "3-Piece Festive Lawn" },
-              { id: "boski", label: "Pure Boski & Silk" },
-              { id: "2pc", label: "2-Piece Printed Cuts" },
-              { id: "formals", label: "Luxury Formals & Chiffon" },
-              { id: "khaddar", label: "Winter Khaddar & Karandi" },
-              { id: "gents", label: "Men's Wash & Wear" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setSelectedFilter(tab.id as any)}
-                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  selectedFilter === tab.id
-                    ? "bg-[#0F2D22] text-[#FAF9F6] font-semibold shadow-xs border border-[#0F2D22]"
-                    : "bg-white text-stone-700 hover:text-[#0F2D22] hover:bg-[#EBE1D6]/40 border border-[#EBE1D6]"
-                }`}
+        </div>
+
+        {/* Reviews Cards: Continuous marquee on homepage, static grid on fullPage */}
+        {fullPage ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {displayReviews.map((rev) => (
+              <div
+                key={rev.id}
+                className="bg-white border border-[#EBE1D6] rounded-sm p-7 sm:p-8 flex flex-col justify-between hover:border-[#B6975A] transition-colors duration-300 shadow-xs"
               >
-                {tab.label}
-              </button>
+                {/* Quote Mark Icon */}
+                <div>
+                  <span className="text-[#B6975A] font-serif text-4xl sm:text-5xl leading-none select-none block mb-4">
+                    “
+                  </span>
+                  <p className="text-xs sm:text-sm text-stone-700 font-light leading-relaxed italic">
+                    {rev.quote}
+                  </p>
+                </div>
+
+                {/* Author Footer */}
+                <div className="mt-8 pt-6 border-t border-[#EBE1D6] flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-full bg-[#0F2D22] text-[#FAF9F6] border border-[#B6975A]/50 font-bold text-xs flex items-center justify-center tracking-wider flex-shrink-0 shadow-2xs">
+                    {rev.initials}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-serif font-semibold text-xs sm:text-sm text-[#0F2D22] truncate">
+                        {rev.name}
+                      </h4>
+                      <span className="text-[#B6975A] text-xs" aria-label={`${rev.rating} out of 5`}>
+                        {"★".repeat(Math.min(5, Math.max(0, Math.round(rev.rating))))}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] text-stone-500 mt-0.5">
+                      <span>{rev.city}</span>
+                      <span>•</span>
+                      <span className="text-[#0F2D22] font-semibold flex items-center gap-1">
+                        {rev.demo ? "Demo review" : rev.verified ? "Verified Buyer" : "Customer review"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
-        </div>
+        ) : (
+          <div className="relative w-full overflow-hidden py-2 select-none">
+            {/* Subtle ambient edge fade for elegant continuous flow */}
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-20 bg-gradient-to-r from-[#FAF9F6] to-transparent z-10" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-20 bg-gradient-to-l from-[#FAF9F6] to-transparent z-10" />
 
-        {/* 3 Review Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-          {displayReviews.map((rev) => (
-            <div
-              key={rev.id}
-              className="bg-white border border-[#EBE1D6] rounded-sm p-7 sm:p-8 flex flex-col justify-between hover:border-[#B6975A] transition-all duration-300 shadow-xs hover:shadow-md group hover:-translate-y-1"
-            >
-              {/* Quote Mark Icon */}
-              <div>
-                <span className="text-[#B6975A] font-serif text-4xl sm:text-5xl leading-none select-none block mb-4">
-                  “
-                </span>
-
-                {/* Review Text */}
-                <p className="text-xs sm:text-sm text-stone-700 font-light leading-relaxed italic">
-                  {rev.quote}
-                </p>
-              </div>
-
-              {/* Author Footer */}
-              <div className="mt-8 pt-6 border-t border-[#EBE1D6] flex items-center gap-3.5">
-                {/* Circular Initials Avatar (SA, MR, NZ) */}
-                <div className="w-11 h-11 rounded-full bg-[#0F2D22] text-[#FAF9F6] border border-[#B6975A]/50 font-bold text-xs flex items-center justify-center tracking-wider flex-shrink-0 shadow-2xs">
-                  {rev.initials}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-serif font-semibold text-xs sm:text-sm text-[#0F2D22] truncate">
-                      {rev.name}
-                    </h4>
-                    <span className="text-[#B6975A] text-xs" aria-label={`${rev.rating} out of 5`}>{"★".repeat(Math.min(5, Math.max(0, Math.round(rev.rating))))}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-[10px] text-stone-500 mt-0.5">
-                    <span>{rev.city}</span>
-                    <span>•</span>
-                    <span className="text-[#0F2D22] font-semibold flex items-center gap-1">
-                      {rev.verified ? "Verified Buyer" : "Customer review"}
+            <div className="naqsh-reviews-marquee-track">
+              {/* Repeated reviews list ensures uninterrupted continuous infinite motion */}
+              {[...displayReviews, ...displayReviews, ...displayReviews, ...displayReviews].map((rev, idx) => (
+                <div
+                  key={`${rev.id}-${idx}`}
+                  className="bg-white border border-[#EBE1D6] rounded-sm p-7 sm:p-8 flex flex-col justify-between hover:border-[#B6975A] transition-colors duration-300 shadow-xs shrink-0 w-[300px] sm:w-[360px] lg:w-[400px]"
+                >
+                  {/* Quote Mark Icon */}
+                  <div>
+                    <span className="text-[#B6975A] font-serif text-4xl sm:text-5xl leading-none select-none block mb-4">
+                      “
                     </span>
+                    <p className="text-xs sm:text-sm text-stone-700 font-light leading-relaxed italic">
+                      {rev.quote}
+                    </p>
+                  </div>
+
+                  {/* Author Footer */}
+                  <div className="mt-8 pt-6 border-t border-[#EBE1D6] flex items-center gap-3.5">
+                    <div className="w-11 h-11 rounded-full bg-[#0F2D22] text-[#FAF9F6] border border-[#B6975A]/50 font-bold text-xs flex items-center justify-center tracking-wider flex-shrink-0 shadow-2xs">
+                      {rev.initials}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-serif font-semibold text-xs sm:text-sm text-[#0F2D22] truncate">
+                          {rev.name}
+                        </h4>
+                        <span className="text-[#B6975A] text-xs" aria-label={`${rev.rating} out of 5`}>
+                          {"★".repeat(Math.min(5, Math.max(0, Math.round(rev.rating))))}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[10px] text-stone-500 mt-0.5">
+                        <span>{rev.city}</span>
+                        <span>•</span>
+                        <span className="text-[#0F2D22] font-semibold flex items-center gap-1">
+                          {rev.demo ? "Demo review" : rev.verified ? "Verified Buyer" : "Customer review"}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
 
         {/* Action Button: Share Your Experience */}
-        <div className="text-center mt-12 pt-6">
+        <div className="text-center mt-8 pt-6">
+          {!fullPage && (
+            <LocalizedClientLink
+              href="/reviews"
+              className="block w-fit mx-auto mb-5 text-sm font-semibold text-[#FDD78E] underline underline-offset-4 hover:opacity-85 transition-opacity drop-shadow-[0_1px_1px_rgba(15,45,34,0.15)]"
+            >
+              See More
+            </LocalizedClientLink>
+          )}
           <button
             type="button"
             onClick={() => setShowModal(true)}
@@ -340,7 +367,7 @@ export default function CustomerReviews({ section }: { section?: any }) {
                 type="submit"
                 className="w-full py-3 bg-[#0F2D22] text-[#FAF9F6] hover:bg-[#B6975A] hover:text-[#0F2D22] text-xs font-bold uppercase tracking-widest transition-colors mt-2"
               >
-                Submit Verified Review
+                Submit Review
               </button>
             </form>
           </div>

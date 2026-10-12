@@ -56,9 +56,9 @@ export default function SearchAutocomplete() {
         if (!query.trim()) return
         setOpen(false)
         router.push("/" + (countryCode || "pk") + "/search?q=" + encodeURIComponent(query.trim()))
-      }} className="flex h-10 w-full overflow-hidden rounded-full border border-stone-300 bg-stone-50 focus-within:border-brand focus-within:ring-1 focus-within:ring-brand/20">
-        <input type="search" aria-label="Search products" aria-expanded={open && query.trim().length >= 2} aria-controls={resultsId} autoComplete="off" value={query} onFocus={() => setOpen(true)} onChange={event => { setQuery(event.target.value); setOpen(true) }} placeholder="Search products..." className="min-w-0 flex-1 bg-transparent pl-4 pr-2 text-base lg:text-sm text-stone-900 outline-none" />
-        <button aria-label="Submit search" className="flex w-12 shrink-0 items-center justify-center border-l border-stone-200 bg-stone-100 text-brand hover:bg-stone-200">
+      }} className="flex h-10 w-full overflow-hidden rounded-full border border-[#FAF9F6]/40 bg-transparent focus-within:border-[#FAF9F6] focus-within:ring-1 focus-within:ring-[#FAF9F6]/20">
+        <input type="search" aria-label="Search products" aria-expanded={open && query.trim().length >= 2} aria-controls={resultsId} autoComplete="off" value={query} onFocus={() => setOpen(true)} onChange={event => { setQuery(event.target.value); setOpen(true) }} placeholder="Search products..." className="min-w-0 flex-1 bg-transparent pl-4 pr-2 text-base lg:text-sm text-[#FAF9F6] placeholder:text-[#FAF9F6]/60 outline-none" />
+        <button aria-label="Submit search" className="flex w-12 shrink-0 items-center justify-center border-l border-[#FAF9F6]/30 bg-transparent text-[#FAF9F6] hover:bg-[#FAF9F6]/10">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path strokeLinecap="round" d="m16 16 5 5" /></svg>
         </button>
       </form>

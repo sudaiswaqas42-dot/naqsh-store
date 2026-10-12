@@ -90,7 +90,7 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
 
   useEffect(() => {
     if (isPaused || slides.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-    const timer = setInterval(() => { setCurrent(index => (index + 1) % slides.length); setProgress(0) }, 1000)
+    const timer = setInterval(() => { setCurrent(index => (index + 1) % slides.length); setProgress(0) }, 5000)
     return () => clearInterval(timer)
   }, [slides.length, isPaused])
 
@@ -136,6 +136,8 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
       {/* Main Hero Slider Container */}
       <section
         className="naqsh-home-hero-stage relative w-full h-[580px] sm:h-[660px] lg:h-[760px] overflow-hidden"
+        onFocusCapture={() => setIsPaused(true)}
+        onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setIsPaused(false) }}
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={handleTouchStart}
@@ -167,7 +169,7 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
           return (
             <div
               key={index}
-              aria-hidden={!isActive}
+              inert={!isActive}
               className={`absolute inset-0 transition-opacity duration-300 ease-in-out ${
                 isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
               }`}
