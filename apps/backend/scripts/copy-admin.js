@@ -189,9 +189,139 @@ function patchCustomStyles(dir) {
         } else {
           html = html + customStyle;
         }
-        fs.writeFileSync(indexPath, html, 'utf8');
         console.log(`[copy-admin] Injected custom layout styles into: ${indexPath}`);
       }
+
+      const customScript = `<script id="naqsh-admin-enhancements">
+(function() {
+  const UNSTITCHED_COLORS = [
+    "Black", "White", "Off White", "Cream", "Navy Blue", "Royal Blue", "Sky Blue",
+    "Emerald Green", "Bottle Green", "Olive Green", "Mint Green", "Sea Green",
+    "Maroon", "Burgundy", "Ruby Red", "Crimson", "Rust", "Mustard Yellow",
+    "Gold", "Beige", "Camel", "Fawn", "Khaki", "Charcoal Grey", "Silver Grey",
+    "Slate Grey", "Teal", "Plum", "Deep Purple", "Lilac", "Lavender", "Dusty Rose",
+    "Peach", "Salmon Pink", "Baby Pink", "Chocolate Brown", "Coffee", "Copper", "Magenta"
+  ];
+  let dropdownEl = null;
+  let activeInput = null;
+
+  function createDropdown() {
+    if (dropdownEl) return dropdownEl;
+    dropdownEl = document.createElement('div');
+    dropdownEl.id = 'naqsh-color-autocomplete';
+    dropdownEl.style.cssText = 'position:absolute;z-index:99999;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.1),0 8px 10px -6px rgba(0,0,0,0.1);max-height:220px;overflow-y:auto;width:220px;display:none;font-family:inherit;font-size:13px;padding:4px;';
+    document.body.appendChild(dropdownEl);
+    return dropdownEl;
+  }
+
+  function positionDropdown(input) {
+    const rect = input.getBoundingClientRect();
+    const dropdown = createDropdown();
+    dropdown.style.top = (window.scrollY + rect.bottom + 4) + 'px';
+    dropdown.style.left = (window.scrollX + rect.left) + 'px';
+    dropdown.style.width = Math.max(rect.width, 220) + 'px';
+  }
+
+  function renderOptions(query, input) {
+    const dropdown = createDropdown();
+    const filtered = UNSTITCHED_COLORS.filter(c => c.toLowerCase().includes((query || '').toLowerCase().trim()));
+    if (filtered.length === 0) { dropdown.style.display = 'none'; return; }
+    dropdown.innerHTML = '';
+    filtered.slice(0, 10).forEach(color => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:7px 12px;cursor:pointer;border-radius:5px;color:#1e293b;font-weight:500;display:flex;align-items:center;gap:8px;transition:background-color 0.15s ease;';
+      const swatchColor = color.toLowerCase().replace(/[^a-z]/g, '');
+      item.innerHTML = '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,0.15);background:' + swatchColor + ';"></span><span>' + color + '</span>';
+      item.addEventListener('mouseenter', () => item.style.backgroundColor = '#f1f5f9');
+      item.addEventListener('mouseleave', () => item.style.backgroundColor = 'transparent');
+      item.addEventListener('mousedown', (e) => { e.preventDefault(); selectColor(color, input); });
+      dropdown.appendChild(item);
+    });
+    positionDropdown(input);
+    dropdown.style.display = 'block';
+  }
+
+  function selectColor(color, input) {
+    const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+    if (nativeSetter) nativeSetter.call(input, color); else input.value = color;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true }));
+    if (dropdownEl) dropdownEl.style.display = 'none';
+    input.focus();
+  }
+
+  function isColorOrOptionInput(input) {
+    if (!input || input.type === 'hidden' || input.type === 'checkbox' || input.type === 'radio') return false;
+    const name = (input.name || '').toLowerCase();
+    const id = (input.id || '').toLowerCase();
+    const placeholder = (input.placeholder || '').toLowerCase();
+    const ariaLabel = (input.getAttribute('aria-label') || '').toLowerCase();
+    const formGroup = input.closest('div, label, [role="group"]');
+    const groupText = formGroup ? (formGroup.innerText || '').toLowerCase() : '';
+    return placeholder.includes('color') || placeholder.includes('value') || placeholder.includes('tag') ||
+           name.includes('color') || name.includes('value') || id.includes('color') || id.includes('value') ||
+           ariaLabel.includes('color') || groupText.includes('option value') || groupText.includes('variations') || groupText.includes('color');
+  }
+
+  document.addEventListener('input', function(e) {
+    if (e.target && e.target.tagName === 'INPUT' && isColorOrOptionInput(e.target)) {
+      activeInput = e.target;
+      renderOptions(e.target.value, e.target);
+    }
+  });
+
+  document.addEventListener('focusin', function(e) {
+    if (e.target && e.target.tagName === 'INPUT' && isColorOrOptionInput(e.target)) {
+      activeInput = e.target;
+      if (e.target.value) renderOptions(e.target.value, e.target);
+    }
+  });
+
+  document.addEventListener('click', function(e) {
+    if (dropdownEl && !dropdownEl.contains(e.target) && e.target !== activeInput) {
+      dropdownEl.style.display = 'none';
+    }
+  });
+
+  let lastCheckedUrl = '';
+  function checkInventoryState() {
+    const currentUrl = window.location.href;
+    if (currentUrl !== lastCheckedUrl) {
+      lastCheckedUrl = currentUrl;
+      if (currentUrl.includes('/variants/')) {
+        setTimeout(() => {
+          const bodyText = document.body.innerText || '';
+          if (bodyText.includes('Inventory items') && bodyText.includes('No records')) {
+            fetch('/admin/auto-link-inventory', { method: 'POST', credentials: 'include' })
+              .then(res => res.json())
+              .then(data => {
+                if (data && data.linked > 0) {
+                  console.log('[NAQSH Admin] Auto-linked variant to inventory item. Refreshing view...');
+                  window.location.reload();
+                }
+              })
+              .catch(() => {});
+          }
+        }, 800);
+      }
+    }
+  }
+  setInterval(checkInventoryState, 1500);
+})();
+</script>`;
+
+      if (!html.includes('id="naqsh-admin-enhancements"')) {
+        if (html.includes('</body>')) {
+          html = html.replace('</body>', `${customScript}\n</body>`);
+        } else {
+          html = html + customScript;
+        }
+        console.log(`[copy-admin] Injected custom scripts into: ${indexPath}`);
+      }
+
+      fs.writeFileSync(indexPath, html, 'utf8');
     } catch (err) {
       console.warn(`[copy-admin] Could not patch styles in ${indexPath}:`, err.message);
     }

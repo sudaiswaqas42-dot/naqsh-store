@@ -308,11 +308,10 @@ export default function CatalogGridView({
   const groups = [
     { key: "category", title: "Unstitched Category", choices: unstitchedCategories },
     { key: "fabric", title: "Fabric Type", choices: facets.fabrics.map((value) => ({ id: value, label: value })) },
-    { key: "color", title: "Colour", choices: facets.colors.map((value) => ({ id: value, label: value })) },
     { key: "collection", title: "Collection", choices: collections },
   ]
 
-  const filterKeys = ["category", "collection", "color", "fabric", "min", "max", "stock", "sale"]
+  const filterKeys = ["category", "collection", "fabric", "min", "max", "stock", "sale"]
   const active = filterKeys.filter((key) => params.has(key)).length
 
   const clear = () => {

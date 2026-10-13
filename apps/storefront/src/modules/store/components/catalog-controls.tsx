@@ -55,10 +55,9 @@ export default function CatalogControls({ count, categories, collections, facets
     { key: "category", title: "Unstitched Category", choices: unstitchedCategories },
     { key: "collection", title: "Collection", choices: collections },
     { key: "size", title: "Size", choices: facets.sizes.map(value => ({ id: value, label: value })) },
-    { key: "color", title: "Colour", choices: facets.colors.map(value => ({ id: value, label: value })) },
     { key: "fabric", title: "Fabric", choices: facets.fabrics.map(value => ({ id: value, label: value })) },
   ]
-  const filterKeys = ["category", "collection", "size", "color", "fabric", "min", "max", "stock", "sale"]
+  const filterKeys = ["category", "collection", "size", "fabric", "min", "max", "stock", "sale"]
   const active = filterKeys.filter(key => params.has(key)).length
   const clear = () => {
     const next = new URLSearchParams(params.toString())

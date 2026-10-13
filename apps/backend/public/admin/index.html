@@ -12,77 +12,196 @@
         <link rel="icon" href="data:," data-placeholder-favicon />
       <script type="module" crossorigin src="/app/assets/index-DhDCcMMw.js"></script>
       <link rel="stylesheet" crossorigin href="/app/assets/index-BI2hXwyu.css">
-      <style id="naqsh-admin-styles">
-        /* Fix Inventory Availability and Edit Drawer Layout */
-        [role="dialog"] table,
-        dialog table,
-        table[data-table],
-        .ui-drawer table {
-          width: 100% !important;
-          min-width: 560px !important;
-          border-collapse: separate !important;
-          border-spacing: 0 !important;
-          margin-top: 16px !important;
-          background: #ffffff !important;
-          border-radius: 8px !important;
-          border: 1px solid #e5e7eb !important;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
-          overflow: hidden !important;
-        }
+    <style id="naqsh-admin-styles">
+  /* Fix Inventory Availability and Edit Drawer Layout */
+  [role="dialog"] table,
+  dialog table,
+  table[data-table],
+  .ui-drawer table {
+    width: 100% !important;
+    min-width: 560px !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    margin-top: 16px !important;
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    overflow: hidden !important;
+  }
 
-        [role="dialog"] th,
-        dialog th,
-        .ui-drawer th {
-          background-color: #f8fafc !important;
-          color: #475569 !important;
-          font-weight: 600 !important;
-          font-size: 13px !important;
-          letter-spacing: 0.03em !important;
-          padding: 12px 18px !important;
-          border-bottom: 1px solid #e2e8f0 !important;
-          text-align: left !important;
-        }
+  [role="dialog"] th,
+  dialog th,
+  .ui-drawer th {
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    letter-spacing: 0.03em !important;
+    padding: 12px 18px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    text-align: left !important;
+  }
 
-        [role="dialog"] td,
-        dialog td,
-        .ui-drawer td {
-          padding: 14px 18px !important;
-          border-bottom: 1px solid #f1f5f9 !important;
-          color: #0f172a !important;
-          font-size: 14px !important;
-          vertical-align: middle !important;
-        }
+  [role="dialog"] td,
+  dialog td,
+  .ui-drawer td {
+    padding: 14px 18px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    color: #0f172a !important;
+    font-size: 14px !important;
+    vertical-align: middle !important;
+  }
 
-        [role="dialog"] td input,
-        dialog td input,
-        .ui-drawer td input {
-          min-width: 120px !important;
-          width: 100% !important;
-          max-width: 200px !important;
-          padding: 8px 12px !important;
-          border: 1.5px solid #cbd5e1 !important;
-          border-radius: 6px !important;
-          font-size: 14px !important;
-          background-color: #ffffff !important;
-          transition: all 0.2s ease !important;
-        }
+  [role="dialog"] td input,
+  dialog td input,
+  .ui-drawer td input {
+    min-width: 120px !important;
+    width: 100% !important;
+    max-width: 200px !important;
+    padding: 8px 12px !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    background-color: #ffffff !important;
+    transition: all 0.2s ease !important;
+  }
 
-        [role="dialog"] td input:focus,
-        dialog td input:focus,
-        .ui-drawer td input:focus {
-          border-color: #047857 !important;
-          outline: none !important;
-          box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.15) !important;
-        }
+  [role="dialog"] td input:focus,
+  dialog td input:focus,
+  .ui-drawer td input:focus {
+    border-color: #047857 !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.15) !important;
+  }
 
-        /* Make inventory drawer / modal container look spacious and clean */
-        [role="dialog"] > div:last-child {
-          padding: 24px !important;
-        }
-      </style>
-    </head>
+  /* Make inventory drawer / modal container look spacious and clean */
+  [role="dialog"] > div:last-child {
+    padding: 24px !important;
+  }
+</style>
+</head>
 
     <body>
         <div id="medusa"></div>
-    </body>
+    <script id="naqsh-admin-enhancements">
+(function() {
+  const UNSTITCHED_COLORS = [
+    "Black", "White", "Off White", "Cream", "Navy Blue", "Royal Blue", "Sky Blue",
+    "Emerald Green", "Bottle Green", "Olive Green", "Mint Green", "Sea Green",
+    "Maroon", "Burgundy", "Ruby Red", "Crimson", "Rust", "Mustard Yellow",
+    "Gold", "Beige", "Camel", "Fawn", "Khaki", "Charcoal Grey", "Silver Grey",
+    "Slate Grey", "Teal", "Plum", "Deep Purple", "Lilac", "Lavender", "Dusty Rose",
+    "Peach", "Salmon Pink", "Baby Pink", "Chocolate Brown", "Coffee", "Copper", "Magenta"
+  ];
+  let dropdownEl = null;
+  let activeInput = null;
+
+  function createDropdown() {
+    if (dropdownEl) return dropdownEl;
+    dropdownEl = document.createElement('div');
+    dropdownEl.id = 'naqsh-color-autocomplete';
+    dropdownEl.style.cssText = 'position:absolute;z-index:99999;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.1),0 8px 10px -6px rgba(0,0,0,0.1);max-height:220px;overflow-y:auto;width:220px;display:none;font-family:inherit;font-size:13px;padding:4px;';
+    document.body.appendChild(dropdownEl);
+    return dropdownEl;
+  }
+
+  function positionDropdown(input) {
+    const rect = input.getBoundingClientRect();
+    const dropdown = createDropdown();
+    dropdown.style.top = (window.scrollY + rect.bottom + 4) + 'px';
+    dropdown.style.left = (window.scrollX + rect.left) + 'px';
+    dropdown.style.width = Math.max(rect.width, 220) + 'px';
+  }
+
+  function renderOptions(query, input) {
+    const dropdown = createDropdown();
+    const filtered = UNSTITCHED_COLORS.filter(c => c.toLowerCase().includes((query || '').toLowerCase().trim()));
+    if (filtered.length === 0) { dropdown.style.display = 'none'; return; }
+    dropdown.innerHTML = '';
+    filtered.slice(0, 10).forEach(color => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:7px 12px;cursor:pointer;border-radius:5px;color:#1e293b;font-weight:500;display:flex;align-items:center;gap:8px;transition:background-color 0.15s ease;';
+      const swatchColor = color.toLowerCase().replace(/[^a-z]/g, '');
+      item.innerHTML = '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,0.15);background:' + swatchColor + ';"></span><span>' + color + '</span>';
+      item.addEventListener('mouseenter', () => item.style.backgroundColor = '#f1f5f9');
+      item.addEventListener('mouseleave', () => item.style.backgroundColor = 'transparent');
+      item.addEventListener('mousedown', (e) => { e.preventDefault(); selectColor(color, input); });
+      dropdown.appendChild(item);
+    });
+    positionDropdown(input);
+    dropdown.style.display = 'block';
+  }
+
+  function selectColor(color, input) {
+    const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+    if (nativeSetter) nativeSetter.call(input, color); else input.value = color;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true }));
+    if (dropdownEl) dropdownEl.style.display = 'none';
+    input.focus();
+  }
+
+  function isColorOrOptionInput(input) {
+    if (!input || input.type === 'hidden' || input.type === 'checkbox' || input.type === 'radio') return false;
+    const name = (input.name || '').toLowerCase();
+    const id = (input.id || '').toLowerCase();
+    const placeholder = (input.placeholder || '').toLowerCase();
+    const ariaLabel = (input.getAttribute('aria-label') || '').toLowerCase();
+    const formGroup = input.closest('div, label, [role="group"]');
+    const groupText = formGroup ? (formGroup.innerText || '').toLowerCase() : '';
+    return placeholder.includes('color') || placeholder.includes('value') || placeholder.includes('tag') ||
+           name.includes('color') || name.includes('value') || id.includes('color') || id.includes('value') ||
+           ariaLabel.includes('color') || groupText.includes('option value') || groupText.includes('variations') || groupText.includes('color');
+  }
+
+  document.addEventListener('input', function(e) {
+    if (e.target && e.target.tagName === 'INPUT' && isColorOrOptionInput(e.target)) {
+      activeInput = e.target;
+      renderOptions(e.target.value, e.target);
+    }
+  });
+
+  document.addEventListener('focusin', function(e) {
+    if (e.target && e.target.tagName === 'INPUT' && isColorOrOptionInput(e.target)) {
+      activeInput = e.target;
+      if (e.target.value) renderOptions(e.target.value, e.target);
+    }
+  });
+
+  document.addEventListener('click', function(e) {
+    if (dropdownEl && !dropdownEl.contains(e.target) && e.target !== activeInput) {
+      dropdownEl.style.display = 'none';
+    }
+  });
+
+  let lastCheckedUrl = '';
+  function checkInventoryState() {
+    const currentUrl = window.location.href;
+    if (currentUrl !== lastCheckedUrl) {
+      lastCheckedUrl = currentUrl;
+      if (currentUrl.includes('/variants/')) {
+        setTimeout(() => {
+          const bodyText = document.body.innerText || '';
+          if (bodyText.includes('Inventory items') && bodyText.includes('No records')) {
+            fetch('/admin/auto-link-inventory', { method: 'POST', credentials: 'include' })
+              .then(res => res.json())
+              .then(data => {
+                if (data && data.linked > 0) {
+                  console.log('[NAQSH Admin] Auto-linked variant to inventory item. Refreshing view...');
+                  window.location.reload();
+                }
+              })
+              .catch(() => {});
+          }
+        }, 800);
+      }
+    }
+  }
+  setInterval(checkInventoryState, 1500);
+})();
+</script>
+</body>
 </html>
