@@ -87,6 +87,11 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
               data-testid="option-button"
             >
               <span>{displayValue}</span>
+              {!inStock && (
+                <span className="ml-1 text-[10px] text-red-600 font-semibold no-underline">
+                  (Out of Stock)
+                </span>
+              )}
             </button>
           )
         })}

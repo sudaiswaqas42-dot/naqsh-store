@@ -20,24 +20,81 @@ export function formatPrice(amount?: number | null, currency = "pkr") {
   return new Intl.NumberFormat("en-PK", { style: "currency", currency, maximumFractionDigits: 0 }).format(amount)
 }
 
-export default function NaqshProductCard({ product, priority = false }: ProductCardProps) {
+export default function NaqshProductCard({
+  product,
+  priority = false,
+  showSale = false,
+  discountPercent,
+  customSalePrice,
+  customOriginalPrice,
+}: ProductCardProps) {
   const { isInWishlist, toggleWishlist } = useWishlist()
   const [hovered, setHovered] = useState(false)
   const images = product.images || []
   const primaryImage = product.thumbnail || images[0]?.url || ""
-  const price = productPrice(product)
-  const original = productOriginalPrice(product)
+  const price = customSalePrice != null ? customSalePrice : productPrice(product)
+  const original = customOriginalPrice != null ? customOriginalPrice : productOriginalPrice(product)
+
+  // Determine if product is out of stock across all variants
+  const isOutOfStock =
+    Array.isArray(product.variants) &&
+    product.variants.length > 0 &&
+    !product.variants.some(
+      (v: any) => !v.manage_inventory || v.allow_backorder || (v.inventory_quantity || 0) > 0
+    )
+
   return (
     <article className="naqsh-product-card relative h-full">
-    <LocalizedClientLink href={"/products/" + product.handle} className="group flex h-full flex-col" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-      <div className="naqsh-product-media aspect-[3/4] overflow-hidden bg-stone-100">
-        {primaryImage ? <SvgProductImage src={hovered ? images[1]?.url || primaryImage : primaryImage} alt={product.title} priority={priority} className="h-full w-full transition-transform duration-500 motion-safe:group-hover:scale-105" /> : <div className="flex h-full items-center justify-center font-serif text-xl text-stone-400">NAQSH</div>}
+    <LocalizedClientLink
+      href={"/products/" + product.handle}
+      className="group flex h-full flex-col"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div className="naqsh-product-media relative aspect-[3/4] overflow-hidden bg-stone-100">
+        {isOutOfStock ? (
+          <span className="absolute top-2.5 left-2.5 z-10 rounded-xs bg-stone-900/90 backdrop-blur-xs px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white shadow-xs">
+            Out of Stock
+          </span>
+        ) : showSale && discountPercent ? (
+          <span className="absolute top-2.5 left-2.5 z-10 rounded-xs bg-red-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-xs">
+            {discountPercent}% OFF
+          </span>
+        ) : null}
+
+        {primaryImage ? (
+          <SvgProductImage
+            src={hovered ? images[1]?.url || primaryImage : primaryImage}
+            alt={product.title}
+            priority={priority}
+            className={`h-full w-full transition-transform duration-500 motion-safe:group-hover:scale-105 ${
+              isOutOfStock ? "opacity-75 grayscale-[25%]" : ""
+            }`}
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center font-serif text-xl text-stone-400">
+            NAQSH
+          </div>
+        )}
       </div>
+
       <div className="naqsh-product-details flex flex-1 flex-col gap-2 py-3">
-        <h3 className="line-clamp-2 text-sm font-medium leading-relaxed text-brand">{product.title}</h3>
+        <h3 className="line-clamp-2 text-sm font-medium leading-relaxed text-brand">
+          {product.title}
+        </h3>
         <div className="mt-auto flex flex-wrap items-baseline gap-2 text-sm font-semibold text-stone-900">
-          <span>{formatPrice(price)}</span>
-          {original != null && price != null && original > price && <span className="text-xs font-normal text-stone-500 line-through">{formatPrice(original)}</span>}
+          {isOutOfStock ? (
+            <span className="text-xs font-bold uppercase tracking-wider text-red-700">
+              Out of Stock
+            </span>
+          ) : (
+            <span>{formatPrice(price)}</span>
+          )}
+          {original != null && price != null && original > price && (
+            <span className="text-xs font-normal text-stone-500 line-through">
+              {formatPrice(original)}
+            </span>
+          )}
         </div>
       </div>
     </LocalizedClientLink>

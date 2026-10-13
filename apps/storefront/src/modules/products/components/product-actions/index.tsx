@@ -348,7 +348,7 @@ export default function ProductActions({
               {isAdding
                 ? "Processing..."
                 : allOptionsSelected && !inStock
-                ? "Unavailable"
+                ? "Out of Stock"
                 : "Buy Now"}
             </span>
           </button>
