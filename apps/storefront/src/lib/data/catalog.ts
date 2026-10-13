@@ -266,7 +266,8 @@ export async function getCatalog(
           currency_code: variant.calculated_price.currency_code,
         },
       })),
-    }))
+    }
+  })
 
     const facets = {
       sizes: Array.from(new Set(products.flatMap((product) => optionValues(product, "size")))).sort(),

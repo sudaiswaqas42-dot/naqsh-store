@@ -179,6 +179,8 @@ export default function CatalogTemplate({
       {(() => {
         const GENTS_SUB_HANDLES = ["italian", "boski", "wash-wear", "wool", "kamalia-khaddar"]
         const LADIES_SUB_HANDLES = ["dhanak", "khaddar", "linen", "karandi", "silk", "printed", "embroidery-waly", "2pc", "3pc"]
+        const GIRLS_SUB_HANDLES = ["girls-3pc", "girls-2pc", "girls-silk", "girls-embroidery", "girls-printed", "girls-linen"]
+        const BOYS_SUB_HANDLES = ["boys-boski", "boys-wash-wear", "boys-kurta", "boys-khaddar", "boys-wool"]
 
         const isSale = isSalePage || categoryHandle === "sale" || lowerTitle.includes("sale")
         if (isSale) {
@@ -186,8 +188,8 @@ export default function CatalogTemplate({
         }
 
         const isChildren = categoryHandle === "children" || categoryHandle === "kids" || (lowerTitle.includes("children") && !lowerTitle.includes("girl") && !lowerTitle.includes("boy"))
-        const isGirls = categoryHandle === "girls" || categoryHandle === "girls-eastern" || categoryHandle === "girls-unstitched" || categoryHandle === "girls-stitched" || lowerTitle.includes("girl")
-        const isBoys = categoryHandle === "boys" || categoryHandle === "boys-eastern" || categoryHandle === "boys-unstitched" || categoryHandle === "boys-stitched" || lowerTitle.includes("boy")
+        const isGirls = categoryHandle === "girls" || categoryHandle === "girls-eastern" || categoryHandle === "girls-unstitched" || categoryHandle === "girls-stitched" || GIRLS_SUB_HANDLES.includes(categoryHandle || "") || lowerTitle.includes("girl")
+        const isBoys = categoryHandle === "boys" || categoryHandle === "boys-eastern" || categoryHandle === "boys-unstitched" || categoryHandle === "boys-stitched" || BOYS_SUB_HANDLES.includes(categoryHandle || "") || lowerTitle.includes("boy")
         const isMen = categoryHandle === "men-unstitched" || bannerKey === "men" || GENTS_SUB_HANDLES.includes(categoryHandle || "")
         const isWomen = categoryHandle === "women-unstitched" || bannerKey === "women" || LADIES_SUB_HANDLES.includes(categoryHandle || "")
         const isUnstitched = categoryHandle === "unstitched" || lowerTitle.includes("unstitched")
@@ -240,46 +242,14 @@ export default function CatalogTemplate({
           )
         }
 
-        if (isMen && !isGirls && !isBoys) return <FabricCategories gender="men" active={categoryHandle} />
-        if (isWomen && !isGirls && !isBoys) return <FabricCategories gender="women" active={categoryHandle} />
+        if (isGirls) return <FabricCategories gender="girls" active={categoryHandle} />
+        if (isBoys) return <FabricCategories gender="boys" active={categoryHandle} />
+        if (isMen) return <FabricCategories gender="men" active={categoryHandle} />
+        if (isWomen) return <FabricCategories gender="women" active={categoryHandle} />
 
         let pills: { label: string; href: string }[] = []
 
-        if (isGirls) {
-          pills = [
-            { label: "All Girls Unstitched", href: "/categories/girls" },
-            { label: "Girls Fabrics", href: "/categories/girls-unstitched" },
-          ]
-        } else if (isBoys) {
-          pills = [
-            { label: "All Boys Unstitched", href: "/categories/boys" },
-            { label: "Boys Fabrics", href: "/categories/boys-unstitched" },
-          ]
-        } else if (isMen) {
-          // Gents Unstitched Categories - Direct category links
-          pills = [
-            { label: "All Gents", href: "/categories/men" },
-            { label: "Italian", href: "/categories/italian" },
-            { label: "Boski", href: "/categories/boski" },
-            { label: "Wash & Wear", href: "/categories/wash-wear" },
-            { label: "Wool", href: "/categories/wool" },
-            { label: "Kamalia Khaddar", href: "/categories/kamalia-khaddar" },
-          ]
-        } else if (isWomen) {
-          // Ladies Unstitched Categories - Direct category links
-          pills = [
-            { label: "All Ladies", href: "/categories/women" },
-            { label: "3pc", href: "/categories/3pc" },
-            { label: "2pc", href: "/categories/2pc" },
-            { label: "Embroidery Waly", href: "/categories/embroidery-waly" },
-            { label: "Printed", href: "/categories/printed" },
-            { label: "Dhanak", href: "/categories/dhanak" },
-            { label: "Khaddar", href: "/categories/khaddar" },
-            { label: "Karandi", href: "/categories/karandi" },
-            { label: "Linen", href: "/categories/linen" },
-            { label: "Silk", href: "/categories/silk" },
-          ]
-        } else if (isUnstitched) {
+        if (isUnstitched) {
           // All Unstitched Page: Full selection of Ladies and Gents - Direct category links
           pills = [
             { label: "All Unstitched Cuts", href: "/categories/women" },

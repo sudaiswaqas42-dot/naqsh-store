@@ -112,20 +112,131 @@ export const ladiesFabricCards: FabricCardData[] = [
   },
 ]
 
+export const girlsFabricCards: FabricCardData[] = [
+  {
+    handle: "girls-3pc",
+    label: "Girls 3-Piece",
+    subtitle: "Complete Festive Unstitched Cut",
+    badge: "3-PIECE",
+    image: "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    handle: "girls-2pc",
+    label: "Girls 2-Piece",
+    subtitle: "Coordinated Shirt & Trouser Cut",
+    badge: "2-PIECE",
+    image: "https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    handle: "girls-silk",
+    label: "Girls Silk & Chiffon",
+    subtitle: "Festive Flowy Silk Ensembles",
+    badge: "FESTIVE",
+    image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    handle: "girls-embroidery",
+    label: "Girls Embroidery",
+    subtitle: "Zari & Resham Festive Suits",
+    badge: "EMBROIDERED",
+    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    handle: "girls-printed",
+    label: "Girls Printed Lawn",
+    subtitle: "Soft Summer Digital Lawn Cuts",
+    badge: "PRINTED",
+    image: "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    handle: "girls-linen",
+    label: "Girls Linen & Dhanak",
+    subtitle: "Warm Gentle Winter Cuts",
+    badge: "WARM WEAVE",
+    image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=85",
+  },
+]
+
+export const boysFabricCards: FabricCardData[] = [
+  {
+    handle: "boys-boski",
+    label: "Boys Pure Boski",
+    subtitle: "Heirloom Silk Kurta Cut",
+    badge: "PURE SILK",
+    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    handle: "boys-wash-wear",
+    label: "Boys Wash & Wear",
+    subtitle: "Executive Wrinkle-Resistant",
+    badge: "POPULAR",
+    image: "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    handle: "boys-kurta",
+    label: "Boys Kurta Fabric",
+    subtitle: "Traditional Soft Cotton Kurta Cut",
+    badge: "TRADITIONAL",
+    image: "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    handle: "boys-khaddar",
+    label: "Boys Kamalia Khaddar",
+    subtitle: "Authentic Handspun Cotton Weave",
+    badge: "HERITAGE",
+    image: "https://images.unsplash.com/photo-1607345366928-199ea26cfe3e?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    handle: "boys-wool",
+    label: "Boys Wool Blend",
+    subtitle: "Warm Winter Kurta & Waistcoat Cut",
+    badge: "WARM WEAVE",
+    image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=600&q=85",
+  },
+]
+
 // Backwards compatibility mappings for any legacy imports
 export const gentsFabrics = gentsFabricCards.map((c) => [c.handle, c.label])
 export const ladiesFabrics = ladiesFabricCards.map((c) => [c.handle, c.label])
+export const girlsFabrics = girlsFabricCards.map((c) => [c.handle, c.label])
+export const boysFabrics = boysFabricCards.map((c) => [c.handle, c.label])
 
 export default function FabricCategories({
   gender,
   brand,
   active = "",
 }: {
-  gender: "men" | "women"
+  gender: "men" | "women" | "girls" | "boys"
   brand?: string
   active?: string
 }) {
-  const cards = gender === "men" ? gentsFabricCards : ladiesFabricCards
+  const cards =
+    gender === "men"
+      ? gentsFabricCards
+      : gender === "women"
+      ? ladiesFabricCards
+      : gender === "girls"
+      ? girlsFabricCards
+      : boysFabricCards
+
+  const titlePrefix =
+    gender === "men"
+      ? "Gents"
+      : gender === "women"
+      ? "Ladies"
+      : gender === "girls"
+      ? "Girls"
+      : "Boys"
+
+  const tagLabel =
+    gender === "men"
+      ? "Gents Unstitched"
+      : gender === "women"
+      ? "Ladies Unstitched"
+      : gender === "girls"
+      ? "Girls Unstitched"
+      : "Boys Unstitched"
+
   const href = (handle: string) =>
     brand
       ? `/brands/${brand}?gender=${gender}${handle ? "&category=" + handle : ""}`
@@ -134,7 +245,7 @@ export default function FabricCategories({
   return (
     <section
       className="border-b border-stone-200 bg-white py-8 sm:py-12"
-      aria-label={gender === "men" ? "Gents fabric categories" : "Ladies fabric categories"}
+      aria-label={`${titlePrefix} fabric categories`}
     >
       <div className="content-container">
         {/* Header */}
@@ -143,17 +254,15 @@ export default function FabricCategories({
             <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-[#B6975A]">
               <span>Featured Fabrics</span>
               <span>•</span>
-              <span>{gender === "men" ? "Gents Unstitched" : "Ladies Unstitched"}</span>
+              <span>{tagLabel}</span>
             </div>
             <h2 className="mt-1 font-serif text-2xl text-stone-900 sm:text-3xl">
-              {gender === "men" ? "Gents" : "Ladies"} Categories
+              {titlePrefix} Categories
             </h2>
             <p className="mt-1 text-xs text-stone-500 sm:text-sm">
               Explore authentic unstitched cuts tailored for every seasonal occasion
             </p>
           </div>
-
-
         </div>
 
         {/* Categories Cards Carousel / Grid */}

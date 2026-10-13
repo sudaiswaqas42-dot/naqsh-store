@@ -56,7 +56,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       women: { id: "pcat_01M3EW9AGX87DJN0W7RP7Z6041", name: "Women", handle: "women", description: "Explore our latest Women's luxury unstitched lawn, pure silks, and festive fabrics." },
       men: { id: "pcat_01M3EW9AGYE2YT2P17ZSGFVTB9", name: "Men", handle: "men", description: "Discover handcrafted men's pure boski, Egyptian cotton, and premium unstitched fabrics." },
       unstitched: { id: "pcat_01M3EW9AK9WFT37D60F729CTDM", name: "Unstitched Fabric", handle: "unstitched", description: "Fine lawn, pure silk dupattas & embroidered unstitched fabrics." },
-      children: { id: "pcat_01M3mukykbr2612d80c6d0983", name: "Children", handle: "children", description: "Handcrafted festive unstitched fabrics for girls and boys." },
+      children: { id: "pcat_01M3EW9AH0GANVEYN4WGW0SM50", name: "Children", handle: "children", description: "Handcrafted festive unstitched fabrics for girls and boys." },
+      kids: { id: "pcat_01M3EW9AH0GANVEYN4WGW0SM50", name: "Children", handle: "kids", description: "Handcrafted festive unstitched fabrics for girls and boys." },
       "women-unstitched": { id: "pcat_01M3mukykbqv18abc7547c99d", name: "Women's Unstitched Lawn & Silks", handle: "women-unstitched", description: "Fine lawn, pure silk dupattas & embroidered 3-piece unstitched fabrics." },
       "men-unstitched": { id: "pcat_01M3mukykbr04bb73bd499a58", name: "Men's Unstitched Fabric", handle: "men-unstitched", description: "Premium Egyptian cotton & wash and wear fabrics." },
       // Gents Unstitched Subcategories (Image 1)

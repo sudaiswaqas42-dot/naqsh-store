@@ -1,6 +1,13 @@
 "use client"
 
-import { categoryDepartment, scopedCategories, menCategoryHandles, womenCategoryHandles } from "@lib/util/category-scope"
+import {
+  categoryDepartment,
+  scopedCategories,
+  menCategoryHandles,
+  womenCategoryHandles,
+  girlsCategoryHandles,
+  boysCategoryHandles,
+} from "@lib/util/category-scope"
 import SortDropdown from "./sort-dropdown"
 
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react"
@@ -173,8 +180,130 @@ export default function CatalogGridView({
     })
 
   const selectedHandles = (params.get("category") || "").split(",").filter(Boolean)
-  const routeIsSubcategory = pathname.includes("/categories/") && [...menCategoryHandles, ...womenCategoryHandles].includes(routeHandle)
-  const selectedCategoryChoices = categories.filter(category => selectedHandles.includes(category.id) || selectedHandles.includes(category.handle || ""))
+  const countryCode = pathname.split("/").filter(Boolean)[0] || "pk"
+  const isBrandPage = pathname.includes("/brands/")
+  const isCategoriesRoute = pathname.includes("/categories/")
+
+  const isSubcategory =
+    isCategoriesRoute &&
+    [
+      ...menCategoryHandles,
+      ...womenCategoryHandles,
+      ...girlsCategoryHandles,
+      ...boysCategoryHandles,
+    ].includes(routeHandle)
+
+  const isGenderCategory =
+    isCategoriesRoute && ["men", "women", "girls", "boys"].includes(routeHandle)
+
+  const brandGender = isBrandPage ? params.get("gender") : null
+  const brandCategory = isBrandPage ? params.get("category") : null
+
+  const selectedCategoryChoices = categories.filter(
+    (category) =>
+      selectedHandles.includes(category.id) ||
+      selectedHandles.includes(category.handle || "")
+  )
+
+  interface ActivePill {
+    id: string
+    label: string
+    onClear: () => void
+  }
+
+  const activePills: ActivePill[] = []
+
+  // 1. Subcategory route pill (e.g. /categories/italian, /categories/3pc, /categories/girls-3pc, /categories/boys-boski)
+  if (isSubcategory) {
+    const parent = menCategoryHandles.includes(routeHandle)
+      ? "men"
+      : womenCategoryHandles.includes(routeHandle)
+      ? "women"
+      : girlsCategoryHandles.includes(routeHandle)
+      ? "girls"
+      : "boys"
+    const label =
+      FRIENDLY_UNSTITCHED_LABELS[routeHandle] || routeHandle.replace(/-/g, " ")
+    activePills.push({
+      id: `route-sub-${routeHandle}`,
+      label,
+      onClear: () => router.push(`/${countryCode}/categories/${parent}`),
+    })
+  }
+
+  // 2. Gender category route pill (e.g. /categories/men, /categories/women, /categories/girls, /categories/boys)
+  if (isGenderCategory) {
+    const label =
+      routeHandle === "men"
+        ? "Men"
+        : routeHandle === "women"
+        ? "Women"
+        : routeHandle === "girls"
+        ? "Girls"
+        : "Boys"
+    const clearTarget =
+      routeHandle === "girls" || routeHandle === "boys"
+        ? `/${countryCode}/categories/children`
+        : `/${countryCode}/store`
+    activePills.push({
+      id: `route-gender-${routeHandle}`,
+      label,
+      onClear: () => router.push(clearTarget),
+    })
+  }
+
+  // 3. Brand page active filters (e.g. /brands/khaadi?gender=men or ?category=boski)
+  if (isBrandPage) {
+    if (brandCategory) {
+      const label =
+        FRIENDLY_UNSTITCHED_LABELS[brandCategory] ||
+        brandCategory.replace(/-/g, " ")
+      activePills.push({
+        id: `brand-cat-${brandCategory}`,
+        label,
+        onClear: () => update("category", ""),
+      })
+    }
+    if (brandGender) {
+      const label =
+        brandGender === "men"
+          ? "Men"
+          : brandGender === "women"
+          ? "Women"
+          : brandGender
+      activePills.push({
+        id: `brand-gender-${brandGender}`,
+        label,
+        onClear: () => {
+          const next = new URLSearchParams(params.toString())
+          next.delete("gender")
+          next.delete("category")
+          next.delete("page")
+          startTransition(() =>
+            router.replace(pathname + "?" + next, { scroll: false })
+          )
+        },
+      })
+    }
+  }
+
+  // 4. Query param category choices (checkboxes selected in filter sidebar)
+  selectedCategoryChoices
+    .filter((cat) => !isSubcategory || cat.handle !== routeHandle)
+    .filter((cat) => !isBrandPage || (cat.handle !== brandCategory && cat.id !== brandCategory))
+    .forEach((cat) => {
+      activePills.push({
+        id: `choice-${cat.id}`,
+        label: cat.label,
+        onClear: () =>
+          update(
+            "category",
+            selectedHandles
+              .filter((v) => v !== cat.id && v !== cat.handle)
+              .join(",")
+          ),
+      })
+    })
 
   const groups = [
     { key: "category", title: "Unstitched Category", choices: unstitchedCategories },
@@ -492,10 +621,27 @@ export default function CatalogGridView({
         </div>
       </div>
 
-      {(selectedCategoryChoices.length > 0 || routeIsSubcategory) && <div className="mb-5 flex flex-wrap gap-2" aria-label="Selected categories">
-        {routeIsSubcategory && <button type="button" onClick={() => router.push("/" + pathname.split("/")[1] + "/categories/" + (categoryDepartment(routeHandle) || "women"))} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-xs text-stone-700">Showing: <strong>{categories.find(category => category.handle === routeHandle)?.label || routeHandle.replace(/-/g, " ")}</strong><span className="ml-2 text-stone-500">× Clear</span></button>}
-        {selectedCategoryChoices.filter(category => !routeIsSubcategory || category.handle !== routeHandle).map(category => <button key={category.id} type="button" onClick={() => update("category", selectedHandles.filter(value => value !== category.id && value !== category.handle).join(","))} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-xs text-stone-700">Showing: <strong>{category.label}</strong><span className="ml-2 text-stone-500">× Clear</span></button>)}
-      </div>}
+      {activePills.length > 0 && (
+        <div
+          className="mb-5 flex flex-wrap items-center gap-2"
+          aria-label="Active category filters"
+        >
+          {activePills.map((pill) => (
+            <button
+              key={pill.id}
+              type="button"
+              onClick={pill.onClear}
+              className="inline-flex items-center gap-1.5 rounded-full border border-stone-300 bg-white px-4 py-1.5 text-xs text-stone-700 shadow-2xs hover:border-stone-400 hover:bg-stone-50 transition-all cursor-pointer"
+            >
+              <span>Showing:</span>
+              <strong className="font-semibold text-stone-900">{pill.label}</strong>
+              <span className="ml-1 text-stone-400 hover:text-stone-700 font-normal">
+                ✕ Clear
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
       {/* Main Content Area: Optional Filter Sidebar + Grid */}
       <div
         className={`transition-all duration-300 ${
