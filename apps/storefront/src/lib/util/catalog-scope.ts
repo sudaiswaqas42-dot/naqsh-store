@@ -8,7 +8,15 @@ const aliases: Record<string, string[]> = {
 export function matchesCatalogScope(product: any, brand: string, gender: string) {
   if (brand) {
     const accepted = aliases[brand] || [normalize(brand)]
-    const declared = [product.metadata?.brand, product.metadata?.brand_name, product.metadata?.designer, product.collection?.title, ...(product.categories || []).flatMap((category: any) => [category.name, category.handle])].map(normalize)
+    const declared = [
+      product.metadata?.brand,
+      product.metadata?.brand_name,
+      product.metadata?.designer,
+      product.collection?.title,
+      product.type?.value,
+      ...(product.tags || []).map((t: any) => typeof t === "string" ? t : t?.value),
+      ...(product.categories || []).flatMap((category: any) => [category.name, category.handle])
+    ].map(normalize)
     if (!accepted.some(alias => declared.includes(alias))) return false
   }
   if (gender) {

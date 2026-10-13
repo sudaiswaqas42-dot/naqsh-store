@@ -47,7 +47,7 @@ export async function getCatalog(
     region = regions?.[0] || null
   }
   if (!region || !region.id) {
-    region = { id: "reg_01M3EW98QY2SGP87H13WFBDRM5", currency_code: "pkr" } as any
+    region = { id: "reg_01M3EW9A9FG35T1RVVX18VFGMF", currency_code: "pkr" } as any
   }
 
   const value = (key: string) => {
@@ -216,19 +216,30 @@ export async function getCatalog(
       totalCount = typeof data.count === "number" ? data.count : rawProducts.length
     }
 
-    let products: CatalogProduct[] = rawProducts.map((product: any) => ({
-      id: product.id,
-      title: product.title,
-      handle: product.handle,
-      thumbnail: product.thumbnail,
-      images: product.images,
-      created_at: product.created_at,
-      material: product.material,
-      metadata: product.metadata,
-      collection: product.collection && {
-        id: product.collection.id,
-        title: product.collection.title,
-      },
+    let products: CatalogProduct[] = rawProducts.map((product: any) => {
+      const fixUrl = (url?: string | null) => {
+        if (!url) return url
+        if (url.includes("localhost:9000")) {
+          return url.replace("http://localhost:9000", process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://naqsh-backend-production.up.railway.app")
+        }
+        return url
+      }
+
+      return {
+        id: product.id,
+        title: product.title,
+        handle: product.handle,
+        thumbnail: fixUrl(product.thumbnail),
+        images: product.images?.map((img: any) => ({ ...img, url: fixUrl(img.url) })),
+        created_at: product.created_at,
+        material: product.material,
+        metadata: product.metadata,
+        tags: product.tags,
+        type: product.type,
+        collection: product.collection && {
+          id: product.collection.id,
+          title: product.collection.title,
+        },
       categories: product.categories?.map((category: any) => ({
         id: category.id,
         name: category.name,

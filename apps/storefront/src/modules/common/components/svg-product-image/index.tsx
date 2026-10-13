@@ -29,7 +29,15 @@ export default function SvgProductImage({
   const [loaded, setLoaded] = useState(false)
 
   const fallbackPhoto = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=85"
-  const imageSrc = hasError || !src ? fallbackPhoto : src
+  const normalizedSrc = React.useMemo(() => {
+    if (!src) return src
+    if (src.includes("localhost:9000")) {
+      return src.replace("http://localhost:9000", process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://naqsh-backend-production.up.railway.app")
+    }
+    return src
+  }, [src])
+
+  const imageSrc = hasError || !normalizedSrc ? fallbackPhoto : normalizedSrc
   const isDirectSvg = imageSrc.toLowerCase().split("?")[0].endsWith(".svg")
 
   const handleLoaded = () => {

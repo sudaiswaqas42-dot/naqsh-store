@@ -18,7 +18,16 @@ export default function ImageGallery({ images, isSoldOut }: ImageGalleryProps) {
   const suppressClick = useRef(false)
   const stageRef = useRef<HTMLDivElement>(null)
 
-  const currentImage = images?.[selectedIndex] || images?.[0]
+  const fixUrl = (u?: string | null) => {
+    if (!u) return ""
+    if (u.includes("localhost:9000")) {
+      return u.replace("http://localhost:9000", process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://naqsh-backend-production.up.railway.app")
+    }
+    return u
+  }
+
+  const rawCurrentImage = images?.[selectedIndex] || images?.[0]
+  const currentImageUrl = fixUrl(rawCurrentImage?.url)
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!stageRef.current) return
@@ -68,7 +77,7 @@ export default function ImageGallery({ images, isSoldOut }: ImageGalleryProps) {
               }`}
             >
               <Image
-                src={img.url}
+                src={fixUrl(img.url)}
                 alt={`Thumbnail ${idx + 1}`}
                 fill
                 className="object-cover object-top"
@@ -109,7 +118,7 @@ export default function ImageGallery({ images, isSoldOut }: ImageGalleryProps) {
           onClick={() => { if (suppressClick.current) { suppressClick.current = false; return }; setIsLightboxOpen(true) }}
         >
           <Image
-            src={currentImage.url}
+            src={currentImageUrl}
             alt="Product view"
             fill
             priority
@@ -189,7 +198,7 @@ export default function ImageGallery({ images, isSoldOut }: ImageGalleryProps) {
           <div
             className="w-full h-full"
             style={{
-              backgroundImage: `url(${currentImage.url})`,
+              backgroundImage: `url(${currentImageUrl})`,
               backgroundPosition: `${mouseCoord.percentX}% ${mouseCoord.percentY}%`,
               backgroundSize: "260%",
               backgroundRepeat: "no-repeat",
@@ -221,7 +230,7 @@ export default function ImageGallery({ images, isSoldOut }: ImageGalleryProps) {
           <div className="relative flex-1 w-full my-4 flex items-center justify-center">
             <div className="relative w-full max-w-4xl h-full max-h-[82vh]">
               <Image
-                src={currentImage.url}
+                src={currentImageUrl}
                 alt="Product Fullscreen"
                 fill
                 className="object-contain"

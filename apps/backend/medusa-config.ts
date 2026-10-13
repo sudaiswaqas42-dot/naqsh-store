@@ -9,6 +9,9 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 module.exports = defineConfig({
   admin: {
     vite: () => ({
+      define: {
+        __MAX_UPLOAD_FILE_SIZE__: JSON.stringify(50 * 1024 * 1024),
+      },
       plugins: [{
         name: "naqsh-order-edit-policy",
         enforce: "pre" as const,
@@ -44,6 +47,20 @@ module.exports = defineConfig({
     }
   },
   modules: [
+    {
+      resolve: "@medusajs/medusa/file",
+      options: {
+        providers: [
+          {
+            resolve: "@medusajs/medusa/file-local",
+            id: "local",
+            options: {
+              backend_url: process.env.BACKEND_URL || "https://naqsh-backend-production.up.railway.app/static",
+            },
+          },
+        ],
+      },
+    },
     { resolve: path.resolve(__dirname, "src/modules/order-number") },
     {
       resolve: "@medusajs/medusa/order",

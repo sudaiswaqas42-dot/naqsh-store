@@ -46,6 +46,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "*.s3.amazonaws.com",
       },
+      {
+        protocol: "https",
+        hostname: "naqsh-backend-production.up.railway.app",
+      },
+      {
+        protocol: "https",
+        hostname: "*.up.railway.app",
+      },
       ...(S3_HOSTNAME && S3_PATHNAME
         ? [
             {

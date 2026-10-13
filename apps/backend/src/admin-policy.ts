@@ -7,6 +7,19 @@ export function customizeDashboard(source: string, id: string): { code: string; 
   if (!file.includes("@medusajs/dashboard/")) return undefined
   let code = source
   code = code.replace(/(\w+\.accessor)\("display_id",\s*\{/g, '$1((order) => order.custom_display_id || order.display_id, { id: "display_id",')
+  
+  // Increase file upload limit from 1MB to 50MB
+  code = code.replace(/1048576/g, "52428800")
+  code = code.replace(/1024\s*\*\s*1024/g, "52428800")
+
+  // Enable dynamic option values creation (allow typing any custom color/option)
+  if (file.includes("product-create-details-variant-section") || file.includes("product-options-manage")) {
+    code = code.replace(
+      /\/\/\s*onCreateOption=\{async\s*\(values\)\s*=>\s*\{[\s\S]*?\/\/\s*\}\}/g,
+      `onCreateOption={async (values) => { const newValueName = values[values.length - 1]?.trim(); if (newValueName && opt.id) { const currentValueIds = opt.value_ids || []; handleValueChange(opt.id, [...currentValueIds, newValueName]); } }}`
+    )
+  }
+
   if (/order-create-edit-[^/]+\.mjs$/.test(file)) {
     const tree = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
     const edits: { start: number; end: number }[] = []
