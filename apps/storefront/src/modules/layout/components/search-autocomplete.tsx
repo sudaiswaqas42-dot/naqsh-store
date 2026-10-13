@@ -56,9 +56,9 @@ export default function SearchAutocomplete() {
         if (!query.trim()) return
         setOpen(false)
         router.push("/" + (countryCode || "pk") + "/search?q=" + encodeURIComponent(query.trim()))
-      }} className="flex h-10 w-full overflow-hidden rounded-full border border-[#FAF9F6]/40 bg-transparent focus-within:border-[#FAF9F6] focus-within:ring-1 focus-within:ring-[#FAF9F6]/20">
-        <input type="search" aria-label="Search products" aria-expanded={open && query.trim().length >= 2} aria-controls={resultsId} autoComplete="off" value={query} onFocus={() => setOpen(true)} onChange={event => { setQuery(event.target.value); setOpen(true) }} placeholder="Search products..." className="min-w-0 flex-1 bg-transparent pl-4 pr-2 text-base lg:text-sm text-[#FAF9F6] placeholder:text-[#FAF9F6]/60 outline-none" />
-        <button aria-label="Submit search" className="flex w-12 shrink-0 items-center justify-center border-l border-[#FAF9F6]/30 bg-transparent text-[#FAF9F6] hover:bg-[#FAF9F6]/10">
+      }} className="flex h-10 w-full overflow-hidden rounded-full border border-[#E5E0D8] bg-[#FAF9F6] focus-within:border-[#0F2D22] focus-within:bg-white focus-within:ring-1 focus-within:ring-[#0F2D22]/20 transition-all">
+        <input type="search" aria-label="Search products" aria-expanded={open && query.trim().length >= 2} aria-controls={resultsId} autoComplete="off" value={query} onFocus={() => setOpen(true)} onChange={event => { setQuery(event.target.value); setOpen(true) }} placeholder="Search products..." className="min-w-0 flex-1 bg-transparent pl-4 pr-2 text-base lg:text-sm text-[#1A1A1A] placeholder:text-stone-400 outline-none" />
+        <button aria-label="Submit search" className="flex w-12 shrink-0 items-center justify-center border-l border-[#E5E0D8] bg-transparent text-stone-600 hover:text-[#0F2D22] hover:bg-stone-100 transition-colors">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path strokeLinecap="round" d="m16 16 5 5" /></svg>
         </button>
       </form>

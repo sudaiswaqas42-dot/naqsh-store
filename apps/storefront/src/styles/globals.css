@@ -363,9 +363,9 @@ nextjs-portal {
   .naqsh-eye-pulse { animation: none; }
 }
 
-.naqsh-site-header nav { color: #FAF9F6; border-color: rgba(250, 249, 246, 0.2); }
-.naqsh-site-header nav > a, .naqsh-site-header nav > div > a { color: #FAF9F6; }
-.naqsh-site-header nav > a:hover, .naqsh-site-header nav > div > a:hover { color: #FAF9F6; opacity: 0.85; }
+.naqsh-site-header nav { color: #1A1A1A; border-color: #EBE1D6; }
+.naqsh-site-header nav > a, .naqsh-site-header nav > div > a { color: #1A1A1A; }
+.naqsh-site-header nav > a:hover, .naqsh-site-header nav > div > a:hover { color: #B6975A; }
 
 /* Continuous infinite reviews marquee */
 @keyframes naqshReviewsMarquee {

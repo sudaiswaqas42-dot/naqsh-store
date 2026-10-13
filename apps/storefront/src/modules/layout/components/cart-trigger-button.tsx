@@ -25,7 +25,7 @@ export default function CartTriggerButton({
   return (
     <button
       onClick={openCart}
-      className="relative p-2 text-[#FAF9F6] hover:text-[#FAF9F6] transition-colors inline-flex items-center justify-center focus:outline-none"
+      className="relative p-2 text-[#1A1A1A] hover:text-[#0F2D22] transition-colors inline-flex items-center justify-center rounded-full hover:bg-stone-100 focus:outline-none"
       aria-label={`Open shopping cart with ${totalItems} items`}
     >
       <svg
@@ -42,7 +42,7 @@ export default function CartTriggerButton({
         />
       </svg>
       {totalItems > 0 && (
-        <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 bg-[#FAF9F6] text-[#0F2D22] text-[9px] font-bold rounded-full flex items-center justify-center border border-[#FAF9F6] shadow-xs animate-in fade-in zoom-in duration-150">
+        <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 bg-[#1A1A1A] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs animate-in fade-in zoom-in duration-150">
           {totalItems}
         </span>
       )}
