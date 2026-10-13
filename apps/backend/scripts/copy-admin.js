@@ -285,6 +285,53 @@ function patchCustomStyles(dir) {
     }
   });
 
+  // Helper to clear pre-populated tags if unwanted preset appears
+  function handleTagAutoClear() {
+    const colorLabels = document.querySelectorAll('label, div');
+    colorLabels.forEach(el => {
+      if (el.innerText && el.innerText.trim() === 'Color' && !el.dataset.hasClearBtn) {
+        const parent = el.closest('div[class*="flex"], div[class*="grid"], div') || el.parentElement;
+        if (parent) {
+          const clearBtn = document.createElement('button');
+          clearBtn.type = 'button';
+          clearBtn.innerText = 'Clear All ✕';
+          clearBtn.title = 'Remove all pre-filled colors';
+          clearBtn.style.cssText = 'margin-left:10px;font-size:11px;font-weight:600;color:#dc2626;background:#fef2f2;border:1px solid #fecaca;padding:2px 8px;border-radius:4px;cursor:pointer;';
+          clearBtn.onmousedown = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const removeBtns = parent.querySelectorAll('button');
+            removeBtns.forEach(btn => {
+              if (btn !== clearBtn && (btn.innerText.includes('×') || btn.innerText.includes('✕') || btn.querySelector('svg') || (btn.getAttribute('aria-label') || '').toLowerCase().includes('remove'))) {
+                btn.click();
+              }
+            });
+          };
+          el.style.display = 'inline-flex';
+          el.style.alignItems = 'center';
+          el.appendChild(clearBtn);
+          el.dataset.hasClearBtn = 'true';
+        }
+      }
+    });
+
+    const allContainers = document.querySelectorAll('div');
+    allContainers.forEach(container => {
+      const heading = (container.previousElementSibling?.innerText || container.parentElement?.innerText || '').toLowerCase();
+      if (heading.includes('color')) {
+        const removeBtns = Array.from(container.querySelectorAll('button')).filter(b => 
+          b.innerText.includes('×') || b.innerText.includes('✕') || b.querySelector('svg') || (b.getAttribute('aria-label') || '').toLowerCase().includes('remove')
+        );
+        if (removeBtns.length >= 6 && !container.dataset.autoWiped) {
+          container.dataset.autoWiped = 'true';
+          removeBtns.forEach(b => b.click());
+          console.log('[NAQSH Admin] Auto-cleared ' + removeBtns.length + ' unwanted preset colors.');
+        }
+      }
+    });
+  }
+  setInterval(handleTagAutoClear, 500);
+
   let lastCheckedUrl = '';
   function checkInventoryState() {
     const currentUrl = window.location.href;

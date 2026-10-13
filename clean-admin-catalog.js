@@ -245,37 +245,20 @@ async function updateDb(url, name) {
       `, [tagId, tag]);
     }
 
-    // 6. POPULAR COLORS FOR PRODUCT OPTIONS (Seed Color option values)
-    console.log('[6] Seeding color option values...');
-    const popularColors = [
-      'Black', 'White', 'Off-White', 'Navy Blue', 'Royal Blue', 'Midnight Blue', 
-      'Sky Blue', 'Emerald Green', 'Sage Green', 'Olive Green', 'Teal', 
-      'Maroon', 'Deep Maroon', 'Crimson Red', 'Rust', 'Mustard', 'Sun Mustard', 
-      'Sand Beige', 'Beige', 'Ivory', 'Gold', 'Champagne Gold', 'Charcoal Grey', 
-      'Silver', 'Blush Pink', 'Peach', 'Coral Peach', 'Plum Purple', 'Dusky Lilac', 
-      'Fuchsia', 'Turquoise', 'Brown'
-    ];
-
-    // Target the shared non-exclusive Color option loaded by Medusa Admin Combobox
-    const sharedOptions = await client.query(`
-      SELECT id FROM product_option WHERE is_exclusive = false AND LOWER(title) IN ('color', 'colour')
+    // 6. ENSURE NO DEFAULT PRESET COLORS (All options exclusive, no dummy presets)
+    console.log('[6] Enforcing exclusive options and removing dummy color presets...');
+    await client.query(`UPDATE product_option SET is_exclusive = true WHERE is_exclusive = false`);
+    await client.query(`
+      DELETE FROM product_option_value 
+      WHERE id IN (
+        SELECT pov.id
+        FROM product_option_value pov
+        LEFT JOIN product_variant_option pvo ON pvo.option_value_id = pov.id
+        LEFT JOIN product_product_option_value ppov ON ppov.product_option_value_id = pov.id
+        WHERE pvo.variant_id IS NULL AND ppov.id IS NULL
+      )
     `);
-
-    for (const optRow of sharedOptions.rows) {
-      const existingValRes = await client.query('SELECT LOWER(value) as val FROM product_option_value WHERE option_id = $1', [optRow.id]);
-      const existingValSet = new Set(existingValRes.rows.map(r => r.val));
-
-      let rank = 10;
-      for (const col of popularColors) {
-        if (existingValSet.has(col.toLowerCase())) continue;
-        const valId = `optval_${optRow.id.slice(-6)}_${col.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
-        await client.query(`
-          INSERT INTO product_option_value (id, option_id, value, rank, created_at, updated_at)
-          VALUES ($1, $2, $3, $4, NOW(), NOW())
-        `, [valId, optRow.id, col, rank++]);
-      }
-    }
-    console.log(`Seeded popular colors to shared Color options.`);
+    console.log(`Enforced exclusive options and cleaned dummy color presets.`);
 
     // 7. COLLECTIONS (Add Brand Collections & Clean unstitched edit)
     console.log('[7] Updating collections...');
