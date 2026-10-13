@@ -4,11 +4,12 @@ import ts from "typescript"
 // order-edit trigger, leaving returns/exchanges and product management intact.
 export function customizeDashboard(source: string, id: string): { code: string; map: null } | undefined {
   const file = id.replace(/\\/g, "/")
-  if (!file.includes("@medusajs/dashboard/")) return undefined
+  if (!file.includes("dashboard") && !file.includes("@medusajs")) return undefined
   let code = source
   code = code.replace(/(\w+\.accessor)\("display_id",\s*\{/g, '$1((order) => order.custom_display_id || order.display_id, { id: "display_id",')
   
   // Increase file upload limit from 1MB to 50MB
+  code = code.replace(/__MAX_UPLOAD_FILE_SIZE__/g, "52428800")
   code = code.replace(/1048576/g, "52428800")
   code = code.replace(/1024\s*\*\s*1024/g, "52428800")
 

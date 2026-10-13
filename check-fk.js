@@ -1,5 +1,5 @@
 const { Client } = require('pg');
-const client = new Client({ connectionString: 'postgres://postgres:1234@localhost/medusa-naqsh-store' });
+const client = new Client({ connectionString: process.env.DATABASE_URL || 'postgresql://postgres:UYdliHHIlLqHXqgptVsUSlXqKUdMeqxD@reseau.proxy.rlwy.net:41305/railway' });
 
 async function run() {
   await client.connect();
