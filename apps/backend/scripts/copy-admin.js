@@ -252,28 +252,46 @@ function patchCustomStyles(dir) {
     input.focus();
   }
 
-  function isColorOrOptionInput(input) {
-    if (!input || input.type === 'hidden' || input.type === 'checkbox' || input.type === 'radio') return false;
-    const name = (input.name || '').toLowerCase();
-    const id = (input.id || '').toLowerCase();
+  // STRICTLY target only the "Values" field (e.g. placeholder with "Red, Blue, Green")
+  // NEVER target the "Product options" combobox (where user chooses Color / Size property)
+  function isColorValueInput(input) {
+    if (!input || input.tagName !== 'INPUT' || input.type === 'hidden' || input.type === 'checkbox' || input.type === 'radio') return false;
+
+    // Never target the Option Type/Property combobox
+    const role = input.getAttribute('role') || '';
+    if (role === 'combobox') {
+      const ariaLabel = (input.getAttribute('aria-label') || '').toLowerCase();
+      const placeholder = (input.placeholder || '').toLowerCase();
+      if (!placeholder.includes('red, blue') && !placeholder.includes('values')) {
+        return false;
+      }
+    }
+
     const placeholder = (input.placeholder || '').toLowerCase();
-    const ariaLabel = (input.getAttribute('aria-label') || '').toLowerCase();
-    const formGroup = input.closest('div, label, [role="group"]');
-    const groupText = formGroup ? (formGroup.innerText || '').toLowerCase() : '';
-    return placeholder.includes('color') || placeholder.includes('value') || placeholder.includes('tag') ||
-           name.includes('color') || name.includes('value') || id.includes('color') || id.includes('value') ||
-           ariaLabel.includes('color') || groupText.includes('option value') || groupText.includes('variations') || groupText.includes('color');
+    // Medusa Admin "Values" field explicitly has placeholder "Red, Blue, Green"
+    if (placeholder.includes('red') || placeholder.includes('blue') || placeholder.includes('green')) {
+      return true;
+    }
+
+    // Check closest container text: Must be specifically under "Values", not "Product options"
+    const container = input.closest('div');
+    const containerText = (container?.parentElement?.innerText || container?.innerText || '').toLowerCase();
+    if (containerText.includes('select which values to use') || (containerText.includes('values') && !containerText.includes('define the options'))) {
+      return true;
+    }
+
+    return false;
   }
 
   document.addEventListener('input', function(e) {
-    if (e.target && e.target.tagName === 'INPUT' && isColorOrOptionInput(e.target)) {
+    if (e.target && isColorValueInput(e.target)) {
       activeInput = e.target;
       renderOptions(e.target.value, e.target);
     }
   });
 
   document.addEventListener('focusin', function(e) {
-    if (e.target && e.target.tagName === 'INPUT' && isColorOrOptionInput(e.target)) {
+    if (e.target && isColorValueInput(e.target)) {
       activeInput = e.target;
       if (e.target.value) renderOptions(e.target.value, e.target);
     }
@@ -284,53 +302,6 @@ function patchCustomStyles(dir) {
       dropdownEl.style.display = 'none';
     }
   });
-
-  // Helper to clear pre-populated tags if unwanted preset appears
-  function handleTagAutoClear() {
-    const colorLabels = document.querySelectorAll('label, div');
-    colorLabels.forEach(el => {
-      if (el.innerText && el.innerText.trim() === 'Color' && !el.dataset.hasClearBtn) {
-        const parent = el.closest('div[class*="flex"], div[class*="grid"], div') || el.parentElement;
-        if (parent) {
-          const clearBtn = document.createElement('button');
-          clearBtn.type = 'button';
-          clearBtn.innerText = 'Clear All ✕';
-          clearBtn.title = 'Remove all pre-filled colors';
-          clearBtn.style.cssText = 'margin-left:10px;font-size:11px;font-weight:600;color:#dc2626;background:#fef2f2;border:1px solid #fecaca;padding:2px 8px;border-radius:4px;cursor:pointer;';
-          clearBtn.onmousedown = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const removeBtns = parent.querySelectorAll('button');
-            removeBtns.forEach(btn => {
-              if (btn !== clearBtn && (btn.innerText.includes('×') || btn.innerText.includes('✕') || btn.querySelector('svg') || (btn.getAttribute('aria-label') || '').toLowerCase().includes('remove'))) {
-                btn.click();
-              }
-            });
-          };
-          el.style.display = 'inline-flex';
-          el.style.alignItems = 'center';
-          el.appendChild(clearBtn);
-          el.dataset.hasClearBtn = 'true';
-        }
-      }
-    });
-
-    const allContainers = document.querySelectorAll('div');
-    allContainers.forEach(container => {
-      const heading = (container.previousElementSibling?.innerText || container.parentElement?.innerText || '').toLowerCase();
-      if (heading.includes('color')) {
-        const removeBtns = Array.from(container.querySelectorAll('button')).filter(b => 
-          b.innerText.includes('×') || b.innerText.includes('✕') || b.querySelector('svg') || (b.getAttribute('aria-label') || '').toLowerCase().includes('remove')
-        );
-        if (removeBtns.length >= 6 && !container.dataset.autoWiped) {
-          container.dataset.autoWiped = 'true';
-          removeBtns.forEach(b => b.click());
-          console.log('[NAQSH Admin] Auto-cleared ' + removeBtns.length + ' unwanted preset colors.');
-        }
-      }
-    });
-  }
-  setInterval(handleTagAutoClear, 500);
 
   let lastCheckedUrl = '';
   function checkInventoryState() {
