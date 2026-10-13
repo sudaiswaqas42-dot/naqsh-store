@@ -210,14 +210,30 @@ export default function FabricCategories({
   brand?: string
   active?: string
 }) {
+  const girlsSubMap: Record<string, string> = {
+    "3pc": "girls-3pc",
+    "2pc": "girls-2pc",
+    silk: "girls-silk",
+    "embroidery-waly": "girls-embroidery",
+    printed: "girls-printed",
+    linen: "girls-linen",
+    dhanak: "girls-linen",
+    karandi: "girls-linen",
+    khaddar: "girls-linen",
+  }
+
+  const boysSubMap: Record<string, string> = {
+    boski: "boys-boski",
+    "wash-wear": "boys-wash-wear",
+    italian: "boys-wash-wear",
+    wool: "boys-wool",
+    "kamalia-khaddar": "boys-khaddar",
+  }
+
   const cards =
-    gender === "men"
+    gender === "men" || gender === "boys"
       ? gentsFabricCards
-      : gender === "women"
-      ? ladiesFabricCards
-      : gender === "girls"
-      ? girlsFabricCards
-      : boysFabricCards
+      : ladiesFabricCards
 
   const titlePrefix =
     gender === "men"
@@ -237,10 +253,20 @@ export default function FabricCategories({
       ? "Girls Unstitched"
       : "Boys Unstitched"
 
-  const href = (handle: string) =>
-    brand
-      ? `/brands/${brand}?gender=${gender}${handle ? "&category=" + handle : ""}`
-      : `/categories/${handle || gender}`
+  const href = (handle: string) => {
+    if (brand) {
+      return `/brands/${brand}?gender=${gender}${handle ? "&category=" + handle : ""}`
+    }
+    if (gender === "girls") {
+      const target = girlsSubMap[handle] || `girls-${handle}`
+      return `/categories/${target}`
+    }
+    if (gender === "boys") {
+      const target = boysSubMap[handle] || `boys-${handle}`
+      return `/categories/${target}`
+    }
+    return `/categories/${handle || gender}`
+  }
 
   return (
     <section
@@ -268,7 +294,10 @@ export default function FabricCategories({
         {/* Categories Cards Carousel / Grid */}
         <div className="relative flex gap-4 overflow-x-auto pb-4 pt-1 no-scrollbar sm:gap-6">
           {cards.map((item) => {
-            const isSelected = active.toLowerCase() === item.handle.toLowerCase()
+            const isSelected =
+              active.toLowerCase() === item.handle.toLowerCase() ||
+              (gender === "girls" && girlsSubMap[item.handle]?.toLowerCase() === active.toLowerCase()) ||
+              (gender === "boys" && boysSubMap[item.handle]?.toLowerCase() === active.toLowerCase())
 
             return (
               <LocalizedClientLink

@@ -108,10 +108,105 @@ if (sourceDir) {
   }
 }
 
-// Enforce 50MB limit in all destinations and sourceDir
-console.log('[copy-admin] Patching bundles for 50MB file upload limit...');
-if (sourceDir) patchUploadLimit(sourceDir);
+// Function to inject custom styles into index.html
+function patchCustomStyles(dir) {
+  const indexPath = path.join(dir, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    try {
+      let html = fs.readFileSync(indexPath, 'utf8');
+      const customStyle = `<style id="naqsh-admin-styles">
+  /* Fix Inventory Availability and Edit Drawer Layout */
+  [role="dialog"] table,
+  dialog table,
+  table[data-table],
+  .ui-drawer table {
+    width: 100% !important;
+    min-width: 560px !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    margin-top: 16px !important;
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    overflow: hidden !important;
+  }
+
+  [role="dialog"] th,
+  dialog th,
+  .ui-drawer th {
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    letter-spacing: 0.03em !important;
+    padding: 12px 18px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    text-align: left !important;
+  }
+
+  [role="dialog"] td,
+  dialog td,
+  .ui-drawer td {
+    padding: 14px 18px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    color: #0f172a !important;
+    font-size: 14px !important;
+    vertical-align: middle !important;
+  }
+
+  [role="dialog"] td input,
+  dialog td input,
+  .ui-drawer td input {
+    min-width: 120px !important;
+    width: 100% !important;
+    max-width: 200px !important;
+    padding: 8px 12px !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    background-color: #ffffff !important;
+    transition: all 0.2s ease !important;
+  }
+
+  [role="dialog"] td input:focus,
+  dialog td input:focus,
+  .ui-drawer td input:focus {
+    border-color: #047857 !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.15) !important;
+  }
+
+  /* Make inventory drawer / modal container look spacious and clean */
+  [role="dialog"] > div:last-child {
+    padding: 24px !important;
+  }
+</style>`;
+
+      if (!html.includes('id="naqsh-admin-styles"')) {
+        if (html.includes('</head>')) {
+          html = html.replace('</head>', `${customStyle}\n</head>`);
+        } else {
+          html = html + customStyle;
+        }
+        fs.writeFileSync(indexPath, html, 'utf8');
+        console.log(`[copy-admin] Injected custom layout styles into: ${indexPath}`);
+      }
+    } catch (err) {
+      console.warn(`[copy-admin] Could not patch styles in ${indexPath}:`, err.message);
+    }
+  }
+}
+
+// Enforce 50MB limit and custom styles in all destinations and sourceDir
+console.log('[copy-admin] Patching bundles for 50MB file upload limit and custom layout styles...');
+if (sourceDir) {
+  patchUploadLimit(sourceDir);
+  patchCustomStyles(sourceDir);
+}
 for (const dest of destinations) {
   patchUploadLimit(dest);
+  patchCustomStyles(dest);
 }
-console.log('[copy-admin] Admin bundles ready with 50MB file upload support.');
+console.log('[copy-admin] Admin bundles ready with 50MB file upload support & custom styles.');
+
