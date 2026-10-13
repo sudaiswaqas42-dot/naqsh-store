@@ -38,7 +38,8 @@ export default function CatalogControls({ count, categories, collections, facets
     khaddar: "Khaddar", linen: "Linen", karandi: "Karandi", silk: "Festive Silk",
     printed: "Printed Cuts", "embroidery-waly": "Embroidery Waly",
     "2pc": "2-Piece Unstitched", "3pc": "3-Piece Luxury Unstitched",
-    "girls-unstitched": "Girls Unstitched", "boys-unstitched": "Boys Unstitched",
+    "girls": "Girls Unstitched", "girls-unstitched": "Girls Unstitched", "girls-3pc": "Girls 3-Piece", "girls-2pc": "Girls 2-Piece", "girls-silk": "Girls Silk & Chiffon", "girls-embroidery": "Girls Embroidery", "girls-printed": "Girls Printed Cuts", "girls-linen": "Girls Linen & Dhanak",
+    "boys": "Boys Unstitched", "boys-unstitched": "Boys Unstitched", "boys-boski": "Boys Boski", "boys-wash-wear": "Boys Wash & Wear", "boys-kurta": "Boys Kurta Fabric", "boys-khaddar": "Boys Khaddar", "boys-wool": "Boys Wool Blend",
   }
 
   const unstitchedCategories = categories

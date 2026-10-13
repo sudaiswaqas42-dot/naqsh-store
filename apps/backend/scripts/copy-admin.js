@@ -60,6 +60,12 @@ function patchUploadLimit(dir) {
           content = content.replace(/DEFAULT_MAX_FILE_SIZE\s*=\s*[^;]+;/g, 'DEFAULT_MAX_FILE_SIZE = 52428800;');
           modified = true;
         }
+        if (content.includes('...regions?.map(') || content.includes('...regions.map(')) {
+          content = content.replace(/\.\.\.regions\?\.map\(/g, '...[]?.map(');
+          content = content.replace(/\.\.\.regions\.map\(/g, '...[]?.map(');
+          modified = true;
+          console.log(`[copy-admin] Removed duplicate Price Region column in: ${entry.name}`);
+        }
 
         if (modified) {
           fs.writeFileSync(fullPath, content, 'utf8');

@@ -65,7 +65,7 @@ export function productAttributes(product: ProductDetails) {
     ["Color", metadata.colors || metadata.colours || metadata.color || metadata.colour],
     ["Size", sizing ? metadata.sizes || metadata.size : null],
     ["Material", product.material || metadata.material || metadata.fabric],
-    ["Fabric type", metadata.fabric_type],
+    ["Fabric type", "100% Unstitched Fabric Cut"],
   ]) {
     let text = publicValue(value)
     if (label === "Size") {

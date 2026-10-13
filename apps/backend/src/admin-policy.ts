@@ -13,6 +13,10 @@ export function customizeDashboard(source: string, id: string): { code: string; 
   code = code.replace(/1048576/g, "52428800")
   code = code.replace(/1024\s*\*\s*1024/g, "52428800")
 
+  // Ensure SINGLE PKR pricing field (eliminate duplicate Price <Region> column)
+  code = code.replace(/\.\.\.regions\?\.map\(/g, "...[]?.map(")
+  code = code.replace(/\.\.\.regions\.map\(/g, "...[]?.map(")
+
   // Enable dynamic option values creation (allow typing any custom color/option)
   if (file.includes("product-create-details-variant-section") || file.includes("product-options-manage")) {
     code = code.replace(
