@@ -377,56 +377,89 @@ div.bg-ui-tag-blue-icon,
   background-color: #A3B8AC !important;
 }
 
-/* Universal Select, Option & Dropdown Menu Contrast Rules */
+/* Dropdown menus, Popovers & Radix Menus - Full contrast in NAQSH Admin */
 select,
 select option,
-select optgroup,
-[role="listbox"],
-[role="menu"],
-[data-radix-popper-content-wrapper] > div,
-[role="menuitem"],
-[role="option"] {
-  background-color: #FFFFFF !important;
-  border-color: #EBE1D6 !important;
-  color: #1A1A1A !important;
-}
-select *,
-[role="listbox"] *,
-[role="menu"] *,
-[data-radix-popper-content-wrapper] > div * {
-  color: #1A1A1A !important;
-}
-
-.dark select,
-.dark select option,
-.dark select optgroup,
-.dark [role="listbox"],
-.dark [role="menu"],
-.dark [data-radix-popper-content-wrapper] > div {
+select optgroup {
   background-color: #0F2D22 !important;
   border-color: #25493B !important;
   color: #FAF9F6 !important;
 }
-.dark select *,
-.dark select option,
-.dark select optgroup,
-.dark [role="listbox"] *,
-.dark [role="menu"] *,
-.dark [data-radix-popper-content-wrapper] > div *,
-.dark [role="menuitem"],
-.dark [role="menuitem"] *,
-.dark [role="option"],
-.dark [role="option"] * {
+
+[role="menu"],
+[role="listbox"],
+[data-radix-menu-content],
+[data-radix-select-content],
+[data-radix-dropdown-menu-content],
+[data-radix-popper-content-wrapper] > div {
+  background-color: #14382B !important;
+  border: 1px solid #25493B !important;
+  color: #FAF9F6 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
+  border-radius: 8px !important;
+}
+
+[role="menu"] *,
+[role="listbox"] *,
+[data-radix-menu-content] *,
+[data-radix-select-content] *,
+[data-radix-dropdown-menu-content] *,
+[data-radix-popper-content-wrapper] > div *,
+[role="menuitem"],
+[role="option"] {
   color: #FAF9F6 !important;
 }
 
-/* Inputs & Search fields in Dark Mode */
-.dark input, .dark textarea {
+/* Dropdown menu items & select items hover */
+[role="menuitem"]:hover,
+[role="menuitem"]:focus,
+[role="menuitem"][data-highlighted],
+[role="option"]:hover,
+[role="option"]:focus,
+[role="option"][data-highlighted],
+[data-radix-collection-item]:hover,
+[data-radix-collection-item]:focus,
+[data-radix-collection-item][data-highlighted] {
+  background-color: #1D4C3A !important;
+  color: #FAF9F6 !important;
+}
+[role="menuitem"]:hover *,
+[role="menuitem"]:focus *,
+[role="option"]:hover *,
+[role="option"]:focus * {
+  color: #FAF9F6 !important;
+}
+
+select option:hover,
+select option:focus,
+select option:checked {
+  background-color: #1D4C3A !important;
+  color: #FAF9F6 !important;
+}
+
+/* Light background elements must have dark text */
+.bg-white,
+[class*="bg-white"],
+[class*="bg-[#FAF9F6]"],
+[class*="bg-[#FFFFFF]"],
+[class*="bg-[#EBE1D6]"] {
+  color: #1A1A1A !important;
+}
+.bg-white *,
+[class*="bg-white"] *,
+[class*="bg-[#FAF9F6]"] *,
+[class*="bg-[#FFFFFF]"] *,
+[class*="bg-[#EBE1D6]"] * {
+  color: #1A1A1A !important;
+}
+
+/* Inputs & Search fields */
+input, textarea {
   background-color: #081B14 !important;
   color: #FAF9F6 !important;
   border-color: #25493B !important;
 }
-.dark input:focus, .dark textarea:focus {
+input:focus, textarea:focus {
   border-color: #B6975A !important;
 }
 
@@ -434,40 +467,7 @@ select *,
 tr:hover {
   background-color: var(--bg-base-hover) !important;
 }
-.dark tr:hover {
-  background-color: #14382B !important;
-}
-.dark tr:hover td {
-  color: #FAF9F6 !important;
-}
-
-/* Dropdown menu items & select items hover */
-[role="menuitem"]:hover,
-[role="menuitem"][data-highlighted],
-[role="option"]:hover,
-[role="option"][data-highlighted],
-[data-radix-collection-item]:hover {
-  background-color: #F5EFE9 !important;
-  color: #0F2D22 !important;
-}
-[role="menuitem"]:hover *,
-[role="option"]:hover * {
-  color: #0F2D22 !important;
-}
-
-.dark select option:hover,
-.dark select option:focus,
-.dark select option:checked,
-.dark [role="menuitem"]:hover,
-.dark [role="menuitem"][data-highlighted],
-.dark [role="option"]:hover,
-.dark [role="option"][data-highlighted],
-.dark [data-radix-collection-item]:hover {
-  background-color: #1D4C3A !important;
-  color: #FAF9F6 !important;
-}
-.dark [role="menuitem"]:hover *,
-.dark [role="option"]:hover * {
+tr:hover td {
   color: #FAF9F6 !important;
 }
 

@@ -427,22 +427,39 @@ export default function OrderFulfillmentPanel({
                   Mark as shipped
                 </Button>
               </>
+            ) : isReturned ? (
+              <div className="flex w-full flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2 text-amber-500">
+                  <span className="h-2 w-2 rounded-full bg-amber-500" />
+                  <span className="font-semibold">
+                    Parcel Returned from Courier
+                  </span>
+                  {order.metadata?.return_note && (
+                    <span className="text-ui-fg-muted italic">
+                      — Reason: &ldquo;{String(order.metadata.return_note)}&rdquo;
+                    </span>
+                  )}
+                </div>
+                <span className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-400">
+                  Items Safely Received Back Into Inventory
+                </span>
+              </div>
             ) : (
               <>
                 <Button
                   variant="secondary"
                   size="small"
-                  disabled={busy || isReturned || isDelivered}
+                  disabled={busy || isDelivered}
                   onClick={() => setReturnDrawerOpen(true)}
                   title={isDelivered ? "Courier return is disabled for delivered parcels" : undefined}
                 >
-                  {isReturned ? "Returned" : "Courier Return"}
+                  Courier Return
                 </Button>
                 {!isDelivered && (
                   <Button
                     size="small"
                     isLoading={busy}
-                    disabled={busy || isReturned}
+                    disabled={busy}
                     onClick={() => applyAction("deliver")}
                   >
                     Mark as delivered
@@ -553,20 +570,6 @@ export default function OrderFulfillmentPanel({
                   </div>
                 </div>
 
-                {/* Internal Fulfillment Notes */}
-                <div className="mt-4">
-                  <Label htmlFor="internal-notes-input" className="text-xs font-semibold text-ui-fg-subtle">
-                    Internal Fulfillment Notes
-                  </Label>
-                  <Input
-                    id="internal-notes-input"
-                    value={internalNotes}
-                    onChange={(e) => setInternalNotes(e.target.value)}
-                    placeholder="Add internal notes about special stitching, customer calls, or delivery instructions..."
-                    className="mt-1.5 text-xs"
-                  />
-                </div>
-
                 {/* Action Buttons: Cancel and Update Order */}
                 <div className="mt-6 flex items-center justify-end gap-2.5 border-t border-ui-border-base pt-4">
                   <Button
@@ -594,7 +597,6 @@ export default function OrderFulfillmentPanel({
                       applyAction(actionToUse, {
                         carrier: isShippedSelected ? carrier : undefined,
                         tracking_number: isShippedSelected ? trackingNumber : undefined,
-                        note: internalNotes,
                         custom_status: statusStep,
                       })
                     }}

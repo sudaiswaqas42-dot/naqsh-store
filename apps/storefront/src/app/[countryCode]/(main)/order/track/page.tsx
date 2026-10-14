@@ -172,6 +172,15 @@ export default function OrderTrackPage() {
               ) : <p className="max-w-xs text-sm font-medium text-red-600 sm:text-right">Your courier and tracking ID will appear here once your order has been dispatched.</p>}
             </div>
 
+            {orderData.custom_status_label === "Returned" && (
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-sm text-xs text-amber-900 flex items-center gap-2.5">
+                <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+                <span>
+                  <strong>Courier Return Processed:</strong> This parcel has been safely returned from the courier and received back into stock inventory.
+                </span>
+              </div>
+            )}
+
             {/* 3-Step Progression Bar (Processing -> Shipped -> Delivered) */}
             <div className="py-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-400 mb-6">

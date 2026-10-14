@@ -262,77 +262,80 @@ function patchCustomStyles(dir) {
     color: #1A1A1A !important;
   }
 
-  /* Universal Select, Option & Dropdown Menu Contrast Rules */
+  /* Dropdown menus, Popovers & Radix Menus - Full contrast in NAQSH Admin */
   select,
   select option,
-  select optgroup,
-  [role="listbox"],
-  [role="menu"],
-  [data-radix-popper-content-wrapper] > div,
-  [role="menuitem"],
-  [role="option"] {
-    background-color: #FFFFFF !important;
-    border-color: #EBE1D6 !important;
-    color: #1A1A1A !important;
-  }
-  select *,
-  [role="listbox"] *,
-  [role="menu"] *,
-  [data-radix-popper-content-wrapper] > div * {
-    color: #1A1A1A !important;
-  }
-
-  .dark select,
-  .dark select option,
-  .dark select optgroup,
-  .dark [role="listbox"],
-  .dark [role="menu"],
-  .dark [data-radix-popper-content-wrapper] > div {
+  select optgroup {
     background-color: #0F2D22 !important;
     border-color: #25493B !important;
     color: #FAF9F6 !important;
   }
-  .dark select *,
-  .dark select option,
-  .dark select optgroup,
-  .dark [role="listbox"] *,
-  .dark [role="menu"] *,
-  .dark [data-radix-popper-content-wrapper] > div *,
-  .dark [role="menuitem"],
-  .dark [role="menuitem"] *,
-  .dark [role="option"],
-  .dark [role="option"] * {
+
+  [role="menu"],
+  [role="listbox"],
+  [data-radix-menu-content],
+  [data-radix-select-content],
+  [data-radix-dropdown-menu-content],
+  [data-radix-popper-content-wrapper] > div {
+    background-color: #14382B !important;
+    border: 1px solid #25493B !important;
+    color: #FAF9F6 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
+    border-radius: 8px !important;
+  }
+
+  [role="menu"] *,
+  [role="listbox"] *,
+  [data-radix-menu-content] *,
+  [data-radix-select-content] *,
+  [data-radix-dropdown-menu-content] *,
+  [data-radix-popper-content-wrapper] > div *,
+  [role="menuitem"],
+  [role="option"] {
     color: #FAF9F6 !important;
   }
 
   /* Dropdown hover & highlighted states */
   [role="menuitem"]:hover,
+  [role="menuitem"]:focus,
   [role="menuitem"][data-highlighted],
   [role="option"]:hover,
+  [role="option"]:focus,
   [role="option"][data-highlighted],
-  [data-radix-collection-item]:hover {
-    background-color: #F5EFE9 !important;
-    color: #0F2D22 !important;
-  }
-  [role="menuitem"]:hover *,
-  [role="option"]:hover * {
-    color: #0F2D22 !important;
-  }
-
-  .dark select option:hover,
-  .dark select option:focus,
-  .dark select option:checked,
-  .dark [role="menuitem"]:hover,
-  .dark [role="menuitem"][data-highlighted],
-  .dark [role="option"]:hover,
-  .dark [role="option"][data-highlighted],
-  .dark [data-radix-collection-item]:hover {
+  [data-radix-collection-item]:hover,
+  [data-radix-collection-item]:focus,
+  [data-radix-collection-item][data-highlighted] {
     background-color: #1D4C3A !important;
     color: #FAF9F6 !important;
   }
-  .dark [role="menuitem"]:hover *,
-  .dark [role="option"]:hover * {
+  [role="menuitem"]:hover *,
+  [role="menuitem"]:focus *,
+  [role="option"]:hover *,
+  [role="option"]:focus * {
     color: #FAF9F6 !important;
+  }
+
+  select option:hover,
+  select option:focus,
+  select option:checked {
+    background-color: #1D4C3A !important;
+    color: #FAF9F6 !important;
+  }
+
+  /* Light background elements must have dark text */
+  .bg-white,
+  [class*="bg-white"],
+  [class*="bg-[#FAF9F6]"],
+  [class*="bg-[#FFFFFF]"],
+  [class*="bg-[#EBE1D6]"] {
+    color: #1A1A1A !important;
+  }
+  .bg-white *,
+  [class*="bg-white"] *,
+  [class*="bg-[#FAF9F6]"] *,
+  [class*="bg-[#FFFFFF]"] *,
+  [class*="bg-[#EBE1D6]"] * {
+    color: #1A1A1A !important;
   }
 
   /* Make inventory drawer / modal container look spacious and clean */
@@ -482,20 +485,40 @@ function patchCustomStyles(dir) {
           }
         }, 800);
       }
-    }
+  // Dynamic menu & popover high contrast visibility enforcement
+  function fixMenuVisibility() {
+    document.querySelectorAll('[data-radix-popper-content-wrapper] > div, [role="menu"], [data-radix-menu-content], [data-radix-dropdown-menu-content], [data-radix-select-content]').forEach(menu => {
+      menu.style.setProperty('background-color', '#14382B', 'important');
+      menu.style.setProperty('border', '1px solid #25493B', 'important');
+      menu.style.setProperty('box-shadow', '0 10px 30px rgba(0,0,0,0.45)', 'important');
+      menu.style.setProperty('color', '#FAF9F6', 'important');
+      menu.querySelectorAll('[role="menuitem"], [role="option"], button, span, a').forEach(item => {
+        item.style.setProperty('color', '#FAF9F6', 'important');
+      });
+    });
   }
-  setInterval(checkInventoryState, 1500);
+  document.addEventListener('pointerdown', () => setTimeout(fixMenuVisibility, 10));
+  document.addEventListener('click', () => setTimeout(fixMenuVisibility, 10));
+  setInterval(fixMenuVisibility, 300);
 })();
 </script>`;
 
-      if (!html.includes('id="naqsh-admin-enhancements"')) {
-        if (html.includes('</body>')) {
-          html = html.replace('</body>', `${customScript}\n</body>`);
-        } else {
-          html = html + customScript;
-        }
-        console.log(`[copy-admin] Injected custom scripts into: ${indexPath}`);
+      if (html.includes('id="naqsh-admin-styles"')) {
+        html = html.replace(/<style id="naqsh-admin-styles">[\s\S]*?<\/style>/, customStyle);
+      } else if (html.includes('</head>')) {
+        html = html.replace('</head>', `${customStyle}\n</head>`);
+      } else {
+        html = html + customStyle;
       }
+
+      if (html.includes('id="naqsh-admin-enhancements"')) {
+        html = html.replace(/<script id="naqsh-admin-enhancements">[\s\S]*?<\/script>/, customScript);
+      } else if (html.includes('</body>')) {
+        html = html.replace('</body>', `${customScript}\n</body>`);
+      } else {
+        html = html + customScript;
+      }
+      console.log(`[copy-admin] Injected/Updated custom layout styles & scripts into: ${indexPath}`);
 
       fs.writeFileSync(indexPath, html, 'utf8');
     } catch (err) {
