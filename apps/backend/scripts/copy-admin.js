@@ -262,6 +262,13 @@ function patchCustomStyles(dir) {
     color: #1A1A1A !important;
   }
 
+  /* Light background elements must have dark text, but NEVER inside dropdowns or menus */
+  body:not(.dark) .bg-white,
+  body:not(.dark) [class*="bg-white"],
+  body:not(.dark) [class*="bg-[#FAF9F6]"] {
+    color: #1A1A1A !important;
+  }
+
   /* Dropdown menus, Popovers & Radix Menus - Full contrast in NAQSH Admin */
   select,
   select option,
@@ -291,7 +298,9 @@ function patchCustomStyles(dir) {
   [data-radix-dropdown-menu-content] *,
   [data-radix-popper-content-wrapper] > div *,
   [role="menuitem"],
-  [role="option"] {
+  [role="menuitem"] *,
+  [role="option"],
+  [role="option"] * {
     color: #FAF9F6 !important;
   }
 
@@ -322,35 +331,16 @@ function patchCustomStyles(dir) {
     color: #FAF9F6 !important;
   }
 
-  /* Light background elements must have dark text */
-  .bg-white,
-  [class*="bg-white"],
-  [class*="bg-[#FAF9F6]"],
-  [class*="bg-[#FFFFFF]"],
-  [class*="bg-[#EBE1D6]"] {
-    color: #1A1A1A !important;
-  }
-  .bg-white *,
-  [class*="bg-white"] *,
-  [class*="bg-[#FAF9F6]"] *,
-  [class*="bg-[#FFFFFF]"] *,
-  [class*="bg-[#EBE1D6]"] * {
-    color: #1A1A1A !important;
-  }
-
   /* Make inventory drawer / modal container look spacious and clean */
   [role="dialog"] > div:last-child {
     padding: 24px !important;
   }
 </style>`;
 
-      if (!html.includes('id="naqsh-admin-styles"')) {
-        if (html.includes('</head>')) {
-          html = html.replace('</head>', `${customStyle}\n</head>`);
-        } else {
-          html = html + customStyle;
-        }
-        console.log(`[copy-admin] Injected custom layout styles into: ${indexPath}`);
+      // Ensure no-cache meta tags are present so browsers never serve stale HTML
+      const noCacheMeta = `<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />\n<meta http-equiv="Pragma" content="no-cache" />\n<meta http-equiv="Expires" content="0" />`;
+      if (!html.includes('http-equiv="Cache-Control"')) {
+        html = html.replace('<head>', `<head>\n${noCacheMeta}`);
       }
 
       const customScript = `<script id="naqsh-admin-enhancements">
@@ -413,12 +403,9 @@ function patchCustomStyles(dir) {
     input.focus();
   }
 
-  // STRICTLY target only the "Values" field (e.g. placeholder with "Red, Blue, Green")
-  // NEVER target the "Product options" combobox (where user chooses Color / Size property)
   function isColorValueInput(input) {
     if (!input || input.tagName !== 'INPUT' || input.type === 'hidden' || input.type === 'checkbox' || input.type === 'radio') return false;
 
-    // Never target the Option Type/Property combobox
     const role = input.getAttribute('role') || '';
     if (role === 'combobox') {
       const ariaLabel = (input.getAttribute('aria-label') || '').toLowerCase();
@@ -429,12 +416,10 @@ function patchCustomStyles(dir) {
     }
 
     const placeholder = (input.placeholder || '').toLowerCase();
-    // Medusa Admin "Values" field explicitly has placeholder "Red, Blue, Green"
     if (placeholder.includes('red') || placeholder.includes('blue') || placeholder.includes('green')) {
       return true;
     }
 
-    // Check closest container text: Must be specifically under "Values", not "Product options"
     const container = input.closest('div');
     const containerText = (container?.parentElement?.innerText || container?.innerText || '').toLowerCase();
     if (containerText.includes('select which values to use') || (containerText.includes('values') && !containerText.includes('define the options'))) {
@@ -485,6 +470,10 @@ function patchCustomStyles(dir) {
           }
         }, 800);
       }
+    }
+  }
+  setInterval(checkInventoryState, 1000);
+
   // Dynamic menu & popover high contrast visibility enforcement
   function fixMenuVisibility() {
     document.querySelectorAll('[data-radix-popper-content-wrapper] > div, [role="menu"], [data-radix-menu-content], [data-radix-dropdown-menu-content], [data-radix-select-content]').forEach(menu => {
@@ -492,14 +481,23 @@ function patchCustomStyles(dir) {
       menu.style.setProperty('border', '1px solid #25493B', 'important');
       menu.style.setProperty('box-shadow', '0 10px 30px rgba(0,0,0,0.45)', 'important');
       menu.style.setProperty('color', '#FAF9F6', 'important');
-      menu.querySelectorAll('[role="menuitem"], [role="option"], button, span, a').forEach(item => {
-        item.style.setProperty('color', '#FAF9F6', 'important');
+      menu.querySelectorAll('[role="menuitem"], [role="option"], button, span, a, p, div, svg').forEach(item => {
+        if (!item.closest('input')) {
+          item.style.setProperty('color', '#FAF9F6', 'important');
+        }
       });
     });
   }
   document.addEventListener('pointerdown', () => setTimeout(fixMenuVisibility, 10));
   document.addEventListener('click', () => setTimeout(fixMenuVisibility, 10));
   setInterval(fixMenuVisibility, 300);
+
+  // Unregister any stale ServiceWorker so changes are active immediately
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for (let r of registrations) { r.unregister(); }
+    });
+  }
 })();
 </script>`;
 
