@@ -14,12 +14,8 @@ const CARRIERS = [
 ]
 
 const ALL_STATUS_STEPS = [
-  "Pending",
-  "Confirmed",
   "Processing",
-  "Packed",
   "Shipped",
-  "Out for Delivery",
   "Delivered",
   "Cancelled",
 ]
@@ -63,9 +59,7 @@ export default function OrderFulfillmentPanel({
         ? "Delivered"
         : isShipped
         ? "Shipped"
-        : fulfillment
-        ? "Confirmed"
-        : "Pending")
+        : "Processing")
   )
   const [carrier, setCarrier] = useState<string>(
     (order.metadata?.carrier as string) || "TCS Express"
@@ -121,7 +115,7 @@ export default function OrderFulfillmentPanel({
   }, [order?.metadata])
 
   const applyAction = async (
-    action: "fulfill" | "ship" | "deliver" | "return",
+    action: "fulfill" | "ship" | "deliver" | "return" | "update",
     payload?: {
       fulfillment_id?: string
       carrier?: string
@@ -156,6 +150,8 @@ export default function OrderFulfillmentPanel({
           ? "Parcel dispatched & order updated"
           : action === "deliver"
           ? "Order marked as delivered"
+          : action === "update"
+          ? "Order status updated successfully"
           : "Courier return recorded"
       )
       setView("status")
@@ -436,8 +432,9 @@ export default function OrderFulfillmentPanel({
                 <Button
                   variant="secondary"
                   size="small"
-                  disabled={busy || isReturned}
+                  disabled={busy || isReturned || isDelivered}
                   onClick={() => setReturnDrawerOpen(true)}
+                  title={isDelivered ? "Courier return is disabled for delivered parcels" : undefined}
                 >
                   {isReturned ? "Returned" : "Courier Return"}
                 </Button>
@@ -487,27 +484,6 @@ export default function OrderFulfillmentPanel({
 
           {/* Form Grid (Order Status Step, Courier Partner, Tracking ID) */}
           {(() => {
-            const STATUS_HIERARCHY: Record<string, number> = {
-              Pending: 0,
-              Confirmed: 1,
-              Processing: 2,
-              Packed: 3,
-              Shipped: 4,
-              "Out for Delivery": 5,
-              Delivered: 6,
-              Returned: 7,
-              Cancelled: 8,
-            }
-            const currentSavedStatus =
-              (order.metadata?.custom_status as string) ||
-              (isDelivered
-                ? "Delivered"
-                : isShipped
-                ? "Shipped"
-                : fulfillment
-                ? "Confirmed"
-                : "Pending")
-            const currentSavedRank = STATUS_HIERARCHY[currentSavedStatus] ?? 0
             const isShippedSelected = statusStep === "Shipped"
 
             return (
@@ -521,30 +497,13 @@ export default function OrderFulfillmentPanel({
                     <select
                       value={statusStep}
                       onChange={(e) => setStatusStep(e.target.value)}
-                      className="mt-1.5 w-full rounded-md border border-ui-border-base bg-[#faf8f5] dark:bg-[#14251e] px-3 py-2 text-xs text-[#122f24] dark:text-[#f5f3e9] focus:border-ui-border-interactive focus:outline-none"
+                      className="mt-1.5 w-full rounded-md border border-ui-border-base bg-white dark:bg-[#0F2D22] px-3 py-2 text-xs text-[#1A1A1A] dark:text-[#FAF9F6] focus:border-ui-border-interactive focus:outline-none"
                     >
-                      {ALL_STATUS_STEPS.map((s) => {
-                        const rank = STATUS_HIERARCHY[s] ?? 0
-                        let isDisabled = false
-                        if (currentSavedRank >= 1 && rank < currentSavedRank) {
-                          // Allow 1-step back only if current status is Shipped returning to Packed
-                          const isOneStepReturn =
-                            currentSavedStatus === "Shipped" && s === "Packed"
-                          if (!isOneStepReturn) {
-                            isDisabled = true
-                          }
-                        }
-                        return (
-                          <option
-                            key={s}
-                            value={s}
-                            disabled={isDisabled}
-                            className="bg-white dark:bg-[#14251e] text-[#122f24] dark:text-[#f5f3e9]"
-                          >
-                            {s} {isDisabled ? "— (Locked)" : ""}
-                          </option>
-                        )
-                      })}
+                      {ALL_STATUS_STEPS.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
@@ -557,21 +516,17 @@ export default function OrderFulfillmentPanel({
                       value={carrier}
                       disabled={!isShippedSelected || busy}
                       onChange={(e) => setCarrier(e.target.value)}
-                      className={`mt-1.5 w-full rounded-md border border-ui-border-base bg-[#faf8f5] dark:bg-[#14251e] px-3 py-2 text-xs text-[#122f24] dark:text-[#f5f3e9] focus:border-ui-border-interactive focus:outline-none ${
+                      className={`mt-1.5 w-full rounded-md border border-ui-border-base bg-white dark:bg-[#0F2D22] px-3 py-2 text-xs text-[#1A1A1A] dark:text-[#FAF9F6] focus:border-ui-border-interactive focus:outline-none ${
                         !isShippedSelected
                           ? "opacity-50 cursor-not-allowed bg-ui-bg-subtle"
                           : ""
                       }`}
                     >
-                      <option value="" className="bg-white dark:bg-[#14251e] text-[#122f24] dark:text-[#f5f3e9]">
+                      <option value="">
                         Select courier at dispatch
                       </option>
                       {CARRIERS.map((c) => (
-                        <option
-                          key={c}
-                          value={c}
-                          className="bg-white dark:bg-[#14251e] text-[#122f24] dark:text-[#f5f3e9]"
-                        >
+                        <option key={c} value={c}>
                           {c}
                         </option>
                       ))}
@@ -629,14 +584,20 @@ export default function OrderFulfillmentPanel({
                       busy ||
                       (isShippedSelected && (!carrier || !trackingNumber.trim()))
                     }
-                    onClick={() =>
-                      applyAction(isShippedSelected ? "ship" : "fulfill", {
+                    onClick={() => {
+                      const actionToUse =
+                        statusStep === "Shipped"
+                          ? "ship"
+                          : statusStep === "Delivered"
+                          ? "deliver"
+                          : "update"
+                      applyAction(actionToUse, {
                         carrier: isShippedSelected ? carrier : undefined,
                         tracking_number: isShippedSelected ? trackingNumber : undefined,
                         note: internalNotes,
                         custom_status: statusStep,
                       })
-                    }
+                    }}
                     className="flex items-center gap-1.5"
                   >
                     <Check className="h-4 w-4" />

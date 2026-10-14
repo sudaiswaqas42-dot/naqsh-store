@@ -249,17 +249,90 @@ function patchCustomStyles(dir) {
     color: #FAF9F6 !important;
   }
 
-  .dark [class*="bg-white"],
-  .dark [class*="bg-[#FAF9F6]"],
-  .dark [class*="bg-[#EBE1D6]"],
-  .dark [class*="bg-[#E8E1D6]"] {
+  .dark [class*="bg-white"]:not(select):not(option):not(optgroup):not([role="menuitem"]):not([role="option"]):not([role="menu"]):not([role="listbox"]),
+  .dark [class*="bg-[#FAF9F6]"]:not(select):not(option):not(optgroup):not([role="menuitem"]):not([role="option"]):not([role="menu"]):not([role="listbox"]),
+  .dark [class*="bg-[#EBE1D6]"]:not(select):not(option):not(optgroup):not([role="menuitem"]):not([role="option"]):not([role="menu"]):not([role="listbox"]),
+  .dark [class*="bg-[#E8E1D6]"]:not(select):not(option):not(optgroup):not([role="menuitem"]):not([role="option"]):not([role="menu"]):not([role="listbox"]) {
     color: #1A1A1A !important;
   }
-  .dark [class*="bg-white"] *,
-  .dark [class*="bg-[#FAF9F6]"] *,
-  .dark [class*="bg-[#EBE1D6]"] *,
-  .dark [class*="bg-[#E8E1D6]"] * {
+  .dark [class*="bg-white"]:not(select):not(option):not(optgroup):not([role="menu"]):not([role="listbox"]) *:not(option):not(optgroup):not([role="menuitem"]):not([role="option"]),
+  .dark [class*="bg-[#FAF9F6]"]:not(select):not(option):not(optgroup):not([role="menu"]):not([role="listbox"]) *:not(option):not(optgroup):not([role="menuitem"]):not([role="option"]),
+  .dark [class*="bg-[#EBE1D6]"]:not(select):not(option):not(optgroup):not([role="menu"]):not([role="listbox"]) *:not(option):not(optgroup):not([role="menuitem"]):not([role="option"]),
+  .dark [class*="bg-[#E8E1D6]"]:not(select):not(option):not(optgroup):not([role="menu"]):not([role="listbox"]) *:not(option):not(optgroup):not([role="menuitem"]):not([role="option"]) {
     color: #1A1A1A !important;
+  }
+
+  /* Universal Select, Option & Dropdown Menu Contrast Rules */
+  select,
+  select option,
+  select optgroup,
+  [role="listbox"],
+  [role="menu"],
+  [data-radix-popper-content-wrapper] > div,
+  [role="menuitem"],
+  [role="option"] {
+    background-color: #FFFFFF !important;
+    border-color: #EBE1D6 !important;
+    color: #1A1A1A !important;
+  }
+  select *,
+  [role="listbox"] *,
+  [role="menu"] *,
+  [data-radix-popper-content-wrapper] > div * {
+    color: #1A1A1A !important;
+  }
+
+  .dark select,
+  .dark select option,
+  .dark select optgroup,
+  .dark [role="listbox"],
+  .dark [role="menu"],
+  .dark [data-radix-popper-content-wrapper] > div {
+    background-color: #0F2D22 !important;
+    border-color: #25493B !important;
+    color: #FAF9F6 !important;
+  }
+  .dark select *,
+  .dark select option,
+  .dark select optgroup,
+  .dark [role="listbox"] *,
+  .dark [role="menu"] *,
+  .dark [data-radix-popper-content-wrapper] > div *,
+  .dark [role="menuitem"],
+  .dark [role="menuitem"] *,
+  .dark [role="option"],
+  .dark [role="option"] * {
+    color: #FAF9F6 !important;
+  }
+
+  /* Dropdown hover & highlighted states */
+  [role="menuitem"]:hover,
+  [role="menuitem"][data-highlighted],
+  [role="option"]:hover,
+  [role="option"][data-highlighted],
+  [data-radix-collection-item]:hover {
+    background-color: #F5EFE9 !important;
+    color: #0F2D22 !important;
+  }
+  [role="menuitem"]:hover *,
+  [role="option"]:hover * {
+    color: #0F2D22 !important;
+  }
+
+  .dark select option:hover,
+  .dark select option:focus,
+  .dark select option:checked,
+  .dark [role="menuitem"]:hover,
+  .dark [role="menuitem"][data-highlighted],
+  .dark [role="option"]:hover,
+  .dark [role="option"][data-highlighted],
+  .dark [data-radix-collection-item]:hover {
+    background-color: #1D4C3A !important;
+    color: #FAF9F6 !important;
+  }
+  .dark [role="menuitem"]:hover *,
+  .dark [role="option"]:hover * {
+    color: #FAF9F6 !important;
   }
 
   /* Make inventory drawer / modal container look spacious and clean */

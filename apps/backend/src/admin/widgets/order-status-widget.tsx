@@ -7,12 +7,8 @@ import { useState } from "react"
 import naqshLogo from "../assets/naqsh-logo.png"
 
 const ALL_STATUSES = [
-  "Pending",
-  "Confirmed",
   "Processing",
-  "Packed",
   "Shipped",
-  "Out for Delivery",
   "Delivered",
   "Cancelled",
   "Returned",
@@ -43,15 +39,8 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
 
     if (isShipped) return "Shipped"
 
-    const isPacked =
-      fulfillments.some((f: any) => (f.packed_at || f.id) && !f.canceled_at) ||
-      items.some((it: any) => (it.detail?.fulfilled_quantity || 0) > 0) ||
-      order?.fulfillment_status === "fulfilled"
-
-    if (isPacked) return "Packed"
-
     if (order?.status === "canceled") return "Cancelled"
-    return "Confirmed"
+    return "Processing"
   }
 
   const [currentStatus, setCurrentStatus] = useState<string>(getInitialStatus())

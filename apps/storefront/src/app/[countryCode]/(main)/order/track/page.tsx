@@ -148,7 +148,7 @@ export default function OrderTrackPage() {
                   Order #{orderData.display_id}
                 </span>
                 <h2 className="font-serif text-2xl font-medium text-brand mt-0.5">
-                  Current Status: {orderData.custom_status_label || "In Processing"}
+                  Current Status: {orderData.custom_status_label === "Confirmed" ? "Processing" : (orderData.custom_status_label || "Processing")}
                 </h2>
                 <p className="text-xs text-stone-500 mt-1">
                   Placed on {new Date(orderData.created_at).toLocaleDateString("en-US", {
@@ -172,46 +172,56 @@ export default function OrderTrackPage() {
               ) : <p className="max-w-xs text-sm font-medium text-red-600 sm:text-right">Your courier and tracking ID will appear here once your order has been dispatched.</p>}
             </div>
 
-            {/* 6-Step Progression Bar */}
+            {/* 3-Step Progression Bar (Processing -> Shipped -> Delivered) */}
             <div className="py-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-400 mb-6">
-                Delivery Progression (6 Stages)
+                Delivery Progression (3 Stages)
               </h3>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                {orderData.tracking?.steps?.map((step: any, idx: number) => {
-                  const isDone = step.status === "completed"
-                  const isCurrent = step.status === "current"
-
-                  return (
-                    <div
-                      key={idx}
-                      className={`p-3 border text-center transition-all ${
-                        isDone
-                          ? "bg-emerald-50/60 border-emerald-300 text-emerald-900"
-                          : isCurrent
-                          ? "bg-amber-50 border-accent text-accent shadow-xs"
-                          : "bg-stone-50 border-stone-200 text-stone-400"
-                      }`}
-                    >
-                      <div className="w-6 h-6 mx-auto mb-1.5 rounded-full flex items-center justify-center text-xs font-bold">
-                        {isDone ? (
-                          <span className="text-emerald-600">✓</span>
-                        ) : isCurrent ? (
-                          <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
-                        ) : (
-                          <span>{idx + 1}</span>
-                        )}
-                      </div>
-                      <div className="text-[11px] font-medium leading-tight">
-                        {step.name}
-                      </div>
-                      <div className="text-[9px] mt-1 opacity-75 min-h-[14px]">
-                        {isDone ? "" : isCurrent ? "Processing" : "Pending"}
-                      </div>
-                    </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {(() => {
+                  const filtered = (orderData.tracking?.steps || []).filter((step: any) =>
+                    !/confirmed|packed|out of delivery/i.test(step.name)
                   )
-                })}
+                  const stepsToRender = filtered.length > 0 ? filtered : [
+                    { name: "Processing", status: /shipped|delivered/i.test(orderData.custom_status_label || "") ? "completed" : "current" },
+                    { name: "Shipped", status: /delivered/i.test(orderData.custom_status_label || "") ? "completed" : /shipped/i.test(orderData.custom_status_label || "") ? "current" : "pending" },
+                    { name: "Delivered", status: /delivered/i.test(orderData.custom_status_label || "") ? "completed" : "pending" },
+                  ]
+                  return stepsToRender.map((step: any, idx: number) => {
+                    const isDone = step.status === "completed"
+                    const isCurrent = step.status === "current"
+
+                    return (
+                      <div
+                        key={idx}
+                        className={`p-4 border text-center transition-all rounded-xs ${
+                          isDone
+                            ? "bg-emerald-50/60 border-emerald-300 text-emerald-900"
+                            : isCurrent
+                            ? "bg-amber-50 border-accent text-accent shadow-xs"
+                            : "bg-stone-50 border-stone-200 text-stone-400"
+                        }`}
+                      >
+                        <div className="w-7 h-7 mx-auto mb-2 rounded-full flex items-center justify-center text-xs font-bold">
+                          {isDone ? (
+                            <span className="text-emerald-600 text-sm">✓</span>
+                          ) : isCurrent ? (
+                            <span className="w-2.5 h-2.5 rounded-full bg-accent animate-ping" />
+                          ) : (
+                            <span>{idx + 1}</span>
+                          )}
+                        </div>
+                        <div className="text-xs font-semibold leading-tight">
+                          {step.name}
+                        </div>
+                        <div className="text-[10px] mt-1.5 opacity-75 min-h-[14px]">
+                          {isDone ? "Completed" : isCurrent ? "In Progress" : "Pending"}
+                        </div>
+                      </div>
+                    )
+                  })
+                })()}
               </div>
             </div>
 

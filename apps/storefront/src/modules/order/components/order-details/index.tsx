@@ -26,8 +26,8 @@ const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
             <span className="text-xl sm:text-2xl font-serif font-semibold text-brand tracking-wider">
               #{orderReference(order)}
             </span>
-            <span className="text-[11px] px-2 py-0.5 bg-emerald-100 text-emerald-800 font-medium">
-              Confirmed
+            <span className="text-[11px] px-2.5 py-0.5 bg-amber-100 text-amber-900 font-medium rounded-xs">
+              Processing
             </span>
           </div>
           <p className="text-xs text-stone-500 mt-1">
