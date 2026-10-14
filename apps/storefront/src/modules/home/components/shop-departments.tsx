@@ -31,7 +31,7 @@ export default function ShopDepartments({ section }: { section?: HomepageSection
           {section.subtitle && <p className="mt-1 text-xs text-stone-500">{section.subtitle}</p>}
         </div>
       )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 max-w-4xl mx-auto justify-center">
+      <div className="grid grid-cols-2 gap-4 sm:gap-8 max-w-4xl mx-auto justify-center">
         {cards.map((department: any, idx: number) => (
           <LocalizedClientLink key={department.link + idx} href={department.link} className="group relative overflow-hidden bg-stone-100 rounded-sm">
             <img

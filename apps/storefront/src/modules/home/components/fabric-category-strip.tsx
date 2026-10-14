@@ -187,7 +187,7 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
         </div>
 
         {/* Carousel Container */}
-        <div className="relative group/track">
+        <div className="relative group/track overflow-hidden">
           {/* Subtle edge fades for soft cut */}
           <div className="hidden md:block pointer-events-none absolute -top-4 -bottom-4 right-0 z-10 w-20 sm:w-36 bg-gradient-to-l from-stone-50 via-stone-50/80 to-transparent" />
           <div className="hidden md:block pointer-events-none absolute -top-4 -bottom-4 left-0 z-10 w-12 sm:w-20 bg-gradient-to-r from-stone-50 to-transparent" />

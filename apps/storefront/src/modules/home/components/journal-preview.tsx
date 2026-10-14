@@ -28,7 +28,7 @@ export default function JournalPreview({ section }: { section?: HomepageSection 
           Read the blog
         </LocalizedClientLink>
       </div>
-      <div className="grid gap-6 sm:grid-cols-3">
+      <div className="naqsh-journal-grid grid grid-cols-2 gap-4 sm:gap-6 sm:grid-cols-3">
         {articles.map((article: any, idx: number) => (
           <LocalizedClientLink key={article.link + idx} href={article.link} className="group">
             <img

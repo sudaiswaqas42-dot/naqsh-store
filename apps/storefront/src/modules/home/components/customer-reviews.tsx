@@ -278,7 +278,7 @@ export default function CustomerReviews({ section, fullPage = false }: { section
           {!fullPage && (
             <LocalizedClientLink
               href="/reviews"
-              className="block w-fit mx-auto mb-5 text-sm font-semibold text-[#FDD78E] underline underline-offset-4 hover:opacity-85 transition-opacity drop-shadow-[0_1px_1px_rgba(15,45,34,0.15)]"
+              className="block w-fit mx-auto mb-5 text-sm font-semibold text-[#B6975A] underline underline-offset-4 hover:opacity-85 transition-opacity drop-shadow-[0_1px_1px_rgba(15,45,34,0.15)]"
             >
               See More
             </LocalizedClientLink>

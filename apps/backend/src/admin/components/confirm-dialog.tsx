@@ -91,7 +91,7 @@ export function ConfirmDialog({
             <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 600, color: "var(--fg-base)", lineHeight: "1.3" }}>
               {title}
             </h3>
-            <p style={{ margin: "6px 0 0 0", fontSize: "13px", color: "#4b5563", lineHeight: "1.5" }}>
+            <p style={{ margin: "6px 0 0 0", fontSize: "13px", color: "var(--fg-subtle)", lineHeight: "1.5" }}>
               {description}
             </p>
           </div>

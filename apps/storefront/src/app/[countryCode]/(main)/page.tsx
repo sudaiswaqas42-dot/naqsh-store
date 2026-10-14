@@ -9,7 +9,6 @@ import FeaturedBrands from "@modules/home/components/featured-brands"
 import FabricCategoryStrip from "@modules/home/components/fabric-category-strip"
 import CustomerReviews from "@modules/home/components/customer-reviews"
 import JournalPreview from "@modules/home/components/journal-preview"
-import HomeArrival from "@modules/home/components/home-arrival"
 import NaqshProductCard from "@modules/products/components/naqsh-product-card"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
@@ -37,17 +36,16 @@ export default async function Home({ params }: { params: Promise<{ countryCode: 
     <nav aria-label="Shop departments" className="mobile-home-departments">
       <LocalizedClientLink href="/categories/women">Women</LocalizedClientLink>
       <LocalizedClientLink href="/categories/men">Men</LocalizedClientLink>
-      <LocalizedClientLink href="/categories/children">Kids</LocalizedClientLink>
       <LocalizedClientLink href="/categories/sale">Sale</LocalizedClientLink>
     </nav>
     {hero?.is_active !== false && <NaqshHeroSlider section={hero} />}
-    {departments?.is_active !== false && <div className="naqsh-scroll-section fade-up"><ShopDepartments section={departments} /></div>}
-    {brands?.is_active !== false && <div className="naqsh-scroll-section fade-up"><FeaturedBrands section={brands} /></div>}
-    {arrivals?.is_active !== false && <div className="naqsh-scroll-section fade-up"><Suspense fallback={<CollectionSkeleton />}><ProductSection countryCode={countryCode} sortBy="newest" title={arrivals?.title || "New Arrivals"} section={arrivals} /></Suspense></div>}
-    {bestSellers?.is_active !== false && <div className="naqsh-scroll-section fade-up"><Suspense fallback={<CollectionSkeleton />}><ProductSection countryCode={countryCode} sortBy="best-selling" title={bestSellers?.title || "Best Sellers"} section={bestSellers} /></Suspense></div>}
-    {categories?.is_active !== false && <div className="naqsh-scroll-section fade-up"><FabricCategoryStrip section={categories ? { ...categories, title: categories.title || "Shop By Category" } : undefined} /></div>}
-    {journal?.is_active !== false && <div className="naqsh-scroll-section fade-up"><JournalPreview section={journal} /></div>}
-    {reviews?.is_active !== false && <div className="naqsh-scroll-section fade-up"><CustomerReviews section={reviews} /></div>}
+    {departments?.is_active !== false && <div className="naqsh-scroll-section"><div className="naqsh-scroll-content"><ShopDepartments section={departments} /></div></div>}
+    {brands?.is_active !== false && <div className="naqsh-scroll-section"><div className="naqsh-scroll-content"><FeaturedBrands section={brands} /></div></div>}
+    {arrivals?.is_active !== false && <div className="naqsh-scroll-section"><div className="naqsh-scroll-content"><Suspense fallback={<CollectionSkeleton />}><ProductSection countryCode={countryCode} sortBy="newest" title={arrivals?.title || "New Arrivals"} section={arrivals} /></Suspense></div></div>}
+    {bestSellers?.is_active !== false && <div className="naqsh-scroll-section"><div className="naqsh-scroll-content"><Suspense fallback={<CollectionSkeleton />}><ProductSection countryCode={countryCode} sortBy="best-selling" title={bestSellers?.title || "Best Sellers"} section={bestSellers} /></Suspense></div></div>}
+    {categories?.is_active !== false && <div className="naqsh-scroll-section"><div className="naqsh-scroll-content"><FabricCategoryStrip section={categories ? { ...categories, title: categories.title || "Shop By Category" } : undefined} /></div></div>}
+    {journal?.is_active !== false && <div className="naqsh-scroll-section"><div className="naqsh-scroll-content"><JournalPreview section={journal} /></div></div>}
+    {reviews?.is_active !== false && <div className="naqsh-scroll-section"><div className="naqsh-scroll-content"><CustomerReviews section={reviews} /></div></div>}
   </div>
 }
 

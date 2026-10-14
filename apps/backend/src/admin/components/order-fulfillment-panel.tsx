@@ -514,7 +514,7 @@ export default function OrderFulfillmentPanel({
                     <select
                       value={statusStep}
                       onChange={(e) => setStatusStep(e.target.value)}
-                      className="mt-1.5 w-full rounded-md border border-ui-border-base bg-white dark:bg-[#0F2D22] px-3 py-2 text-xs text-[#1A1A1A] dark:text-[#FAF9F6] focus:border-ui-border-interactive focus:outline-none"
+                      className="mt-1.5 w-full rounded-md border border-ui-border-base bg-ui-bg-field px-3 py-2 text-xs text-ui-fg-base focus:border-ui-border-interactive focus:outline-none"
                     >
                       {ALL_STATUS_STEPS.map((s) => (
                         <option key={s} value={s}>
@@ -533,7 +533,7 @@ export default function OrderFulfillmentPanel({
                       value={carrier}
                       disabled={!isShippedSelected || busy}
                       onChange={(e) => setCarrier(e.target.value)}
-                      className={`mt-1.5 w-full rounded-md border border-ui-border-base bg-white dark:bg-[#0F2D22] px-3 py-2 text-xs text-[#1A1A1A] dark:text-[#FAF9F6] focus:border-ui-border-interactive focus:outline-none ${
+                      className={`mt-1.5 w-full rounded-md border border-ui-border-base bg-ui-bg-field px-3 py-2 text-xs text-ui-fg-base focus:border-ui-border-interactive focus:outline-none ${
                         !isShippedSelected
                           ? "opacity-50 cursor-not-allowed bg-ui-bg-subtle"
                           : ""

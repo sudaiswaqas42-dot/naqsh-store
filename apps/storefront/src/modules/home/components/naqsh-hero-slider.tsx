@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react"
 import { gsap } from "gsap"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
@@ -29,9 +29,9 @@ interface HeroSliderProps {
 // Curated high-res Pakistani fashion campaign photography (Khaadi / Sapphire / Nishat luxury standard)
 const pakistaniHeroSlides: Slide[] = [
   {
-    tag: "FESTIVE LUXURY LAWN '25",
+    tag: "LUXURY UNSTITCHED LAWN",
     eyebrow: "The Summer Signature Edit",
-    title: "Artisanal Handcrafted Lawn",
+    title: "Luxury Unstitched Lawn Suits",
     sub: "Exquisite chikan kari embroideries, pure silk pallu dupattas, and handcrafted Pakistani luxury unstitched fabrics for celebratory occasions.",
     cta_text: "Shop Festive Lawn",
     cta_link: "/categories/women",
@@ -40,7 +40,7 @@ const pakistaniHeroSlides: Slide[] = [
   {
     tag: "HEIRLOOM UNSTITCHED SILKS",
     eyebrow: "Heirloom Craftsmanship",
-    title: "Raw Silks & Delicate Zardozi",
+    title: "Embroidered Unstitched Suits",
     sub: "Masterfully hand-embellished resham threadwork, organza dupatta cuts, and timeless Pakistani unstitched festive fabrics.",
     cta_text: "Explore Festive Cuts",
     cta_link: "/categories/silk",
@@ -49,7 +49,7 @@ const pakistaniHeroSlides: Slide[] = [
   {
     tag: "UNSTITCHED 2-PIECE & 3-PIECE",
     eyebrow: "Artisanal Lawn Prints",
-    title: "Printed Silks & Premium Lawn",
+    title: "Everyday Unstitched Suits",
     sub: "Breathable unstitched matching sets, geometric digital prints, and effortless fabric cuts for custom tailoring.",
     cta_text: "Shop Unstitched Cuts",
     cta_link: "/categories/women",
@@ -66,6 +66,25 @@ const pakistaniHeroSlides: Slide[] = [
   },
 ]
 
+// Keep natural word wrapping while animating every individual character.
+function RevealLetters({ text }: { text: string }) {
+  return <>
+    <span className="sr-only">{text}</span>
+    <span aria-hidden="true">
+      {text.split(" ").map((word, index) => (
+        <React.Fragment key={index}>
+          {index > 0 && " "}
+          <span className="inline-block whitespace-nowrap">
+            {Array.from(word).map((letter, letterIndex) => (
+              <span key={letterIndex} className="naqsh-hero-letter inline-block">{letter}</span>
+            ))}
+          </span>
+        </React.Fragment>
+      ))}
+    </span>
+  </>
+}
+
 export default function NaqshHeroSlider({ section }: HeroSliderProps) {
   // Always guarantee high-res Pakistani fashion photography even if DB only had text/gradients
   const rawSlides = section?.settings?.slides ?? pakistaniHeroSlides.map((slide, index) => index ? slide : { ...slide, title: section?.title ?? slide.title, sub: section?.subtitle ?? slide.sub, cta_text: section?.cta_text ?? slide.cta_text, cta_link: section?.cta_link ?? slide.cta_link })
@@ -73,12 +92,12 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
     const fallback = pakistaniHeroSlides[idx % pakistaniHeroSlides.length]
     const validImage = typeof s.image === "string" && /^(https?:\/\/|\/(?!\/))/.test(s.image.trim()) ? s.image : fallback.image
     return {
-      tag: s.tag ?? fallback.tag,
-      eyebrow: s.eyebrow ?? fallback.eyebrow,
-      title: s.title ?? fallback.title,
-      sub: s.sub ?? fallback.sub,
-      cta_text: s.cta_text ?? fallback.cta_text,
-      cta_link: s.cta_link ?? fallback.cta_link,
+      tag: /unstitched/i.test(s.tag || "") ? s.tag : fallback.tag,
+      eyebrow: /unstitched/i.test(s.eyebrow || "") ? s.eyebrow : fallback.eyebrow,
+      title: /unstitched/i.test(s.title || "") ? s.title : fallback.title,
+      sub: /unstitched/i.test(s.sub || "") ? s.sub : fallback.sub,
+      cta_text: /unstitched/i.test(s.cta_text || "") ? s.cta_text : fallback.cta_text,
+      cta_link: "/store",
       image: validImage,
     }
   })
@@ -87,110 +106,102 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
   const [prevIndex, setPrevIndex] = useState(0)
   const [direction, setDirection] = useState<"next" | "prev">("next")
   const [isPaused, setIsPaused] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const [completedSlide, setCompletedSlide] = useState<number | null>(null)
+  const [isDocumentHidden, setIsDocumentHidden] = useState(false)
+  const transitioning = useRef(false)
   const touchStartX = useRef<number>(0)
   const touchEndX = useRef<number>(0)
+  const campaignRef = useRef<HTMLDivElement>(null)
   const activeSlideRef = useRef<HTMLDivElement>(null)
 
-  // GSAP Right to Left reveal animation on slide change
-  useEffect(() => {
-    if (!activeSlideRef.current) return
-    const container = activeSlideRef.current
-
+  // One timeline owns image, controls and text on every viewport.
+  useLayoutEffect(() => {
+    const content = activeSlideRef.current
+    const panel = content?.parentElement
+    if (!content || !panel) return
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    let cancelled = false
+    transitioning.current = true
+    setCompletedSlide(null)
     const ctx = gsap.context(() => {
-      // 1. Tag Pill
-      const tag = container.querySelector(".naqsh-hero-tag")
-      if (tag) {
-        gsap.fromTo(
-          tag,
-          { x: 45, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.6, ease: "power3.out" }
-        )
+      const boxes = [...content.querySelectorAll(".naqsh-hero-tag, .naqsh-hero-btn")]
+      if (campaignRef.current) boxes.unshift(campaignRef.current)
+      const letters = content.querySelectorAll(".naqsh-hero-letter")
+      const heading = content.querySelectorAll("h1 .naqsh-hero-letter")
+      const eyebrow = content.querySelectorAll(".naqsh-hero-eyebrow .naqsh-hero-letter")
+      const subtitle = content.querySelectorAll(".naqsh-hero-sub .naqsh-hero-letter")
+      const image = panel.querySelector("img")
+      if (reduced) {
+        transitioning.current = false
+        return
       }
-
-      // 2. Eyebrow
-      const eyebrow = container.querySelector(".naqsh-hero-eyebrow")
-      if (eyebrow) {
-        gsap.fromTo(
-          eyebrow,
-          { x: 45, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.65, delay: 0.06, ease: "power3.out" }
-        )
+      const timeline = gsap.timeline({ paused: true, onComplete: () => {
+        transitioning.current = false
+        if (!cancelled) setCompletedSlide(current)
+      } })
+      gsap.set([boxes, letters], { opacity: 0 })
+      // Reveal the photograph progressively through a moving mask, rather than
+      // translating a fully visible rectangular slide across the viewport.
+      gsap.set(panel, { clipPath: direction === "next" ? "inset(0 0 0 100%)" : "inset(0 100% 0 0)" })
+      timeline.to(panel, { clipPath: "inset(0 0 0 0%)", duration: 1.3, ease: "power2.inOut" }, 0)
+      if (image) {
+        timeline.fromTo(image, { xPercent: direction === "next" ? 8 : -8, scale: 1.08 },
+          { xPercent: 0, scale: 1, duration: 1.8, ease: "power2.out" }, 0)
       }
-
-      // 3. Word-by-Word Title Reveal from Right to Left
-      const words = container.querySelectorAll(".naqsh-hero-word")
-      if (words && words.length) {
-        gsap.fromTo(
-          words,
-          { x: 55, opacity: 0, filter: "blur(2px)" },
-          {
-            x: 0,
-            opacity: 1,
-            filter: "blur(0px)",
-            duration: 0.75,
-            stagger: 0.07,
-            delay: 0.12,
-            ease: "power3.out",
-          }
-        )
-      }
-
-      // 4. Subtitle
-      const sub = container.querySelector(".naqsh-hero-sub")
-      if (sub) {
-        gsap.fromTo(
-          sub,
-          { x: 40, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.75, delay: 0.32, ease: "power3.out" }
-        )
-      }
-
-      // 5. Buttons
-      const btns = container.querySelectorAll(".naqsh-hero-btn")
-      if (btns && btns.length) {
-        gsap.fromTo(
-          btns,
-          { x: 45, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.7, stagger: 0.1, delay: 0.42, ease: "power3.out" }
-        )
-      }
-    }, activeSlideRef)
-
-    return () => ctx.revert()
-  }, [current])
+      timeline.fromTo(boxes, { y: -22, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.75, stagger: 0.1, ease: "power2.out" }, 1.15)
+      timeline.addLabel("letters", 2)
+      timeline.fromTo(heading, { x: -8, y: 5, opacity: 0 },
+        { x: 0, y: 0, opacity: 1, duration: 0.55, stagger: 0.065, ease: "power2.out" }, "letters")
+      timeline.fromTo(eyebrow, { x: -5, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.45, stagger: { amount: 1.1 }, ease: "power2.out" }, "letters")
+      timeline.fromTo(subtitle, { x: -4, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.5, stagger: { amount: 1.8 }, ease: "power2.out" }, "letters+=0.35")
+      // Let the first photograph decode before starting its reveal.
+      const play = () => { if (!cancelled) timeline.play() }
+      if (image && !image.complete) image.decode().then(play, play)
+      else play()
+    }, panel.parentElement || panel)
+    return () => { cancelled = true; ctx.revert(); transitioning.current = false }
+  }, [current, direction, prevIndex])
 
   useEffect(() => {
-    if (isPaused || slides.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-    const timer = setInterval(() => {
-      setPrevIndex(current)
-      setDirection("next")
-      setCurrent(index => (index + 1) % slides.length)
-      setProgress(0)
-    }, 5000)
-    return () => clearInterval(timer)
-  }, [slides.length, isPaused, current])
+    const updateVisibility = () => setIsDocumentHidden(document.hidden)
+    updateVisibility()
+    document.addEventListener("visibilitychange", updateVisibility)
+    return () => document.removeEventListener("visibilitychange", updateVisibility)
+  }, [])
 
-  // Reset progress when slide changes manually
+  // Advance from the actual end of the reveal, with no separate dwell timer.
+  useEffect(() => {
+    if (completedSlide !== current || isPaused || isDocumentHidden || slides.length < 2) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    setCompletedSlide(null)
+    setPrevIndex(current)
+    setDirection("next")
+    setCurrent(index => (index + 1) % slides.length)
+  }, [completedSlide, current, isPaused, isDocumentHidden, slides.length])
+
+  // Keep manual navigation from interrupting a reveal.
   const goToSlide = (index: number) => {
+    if (transitioning.current || index === current) return
     setPrevIndex(current)
     setDirection(index >= current ? "next" : "prev")
     setCurrent(index)
-    setProgress(0)
   }
 
   const nextSlide = () => {
+    if (transitioning.current) return
     setPrevIndex(current)
     setDirection("next")
     setCurrent((prev) => (prev + 1) % slides.length)
-    setProgress(0)
   }
 
   const prevSlide = () => {
+    if (transitioning.current) return
     setPrevIndex(current)
     setDirection("prev")
     setCurrent((prev) => (prev - 1 + slides.length) % slides.length)
-    setProgress(0)
   }
 
   // Touch handlers for mobile swipe
@@ -212,19 +223,10 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
     }
   }
 
-  // Helper for mobile horizontal slide feel vs desktop luxury crossfade
-  const getMobileSlideClass = (index: number) => {
-    if (index === current) {
-      return "translate-x-0 opacity-100 z-10 md:translate-x-0"
-    }
-    if (index === prevIndex) {
-      return direction === "next"
-        ? "-translate-x-full opacity-0 z-0 pointer-events-none md:translate-x-0"
-        : "translate-x-full opacity-0 z-0 pointer-events-none md:translate-x-0"
-    }
-    return direction === "next"
-      ? "translate-x-full opacity-0 z-0 pointer-events-none md:translate-x-0"
-      : "-translate-x-full opacity-0 z-0 pointer-events-none md:translate-x-0"
+  const getSlideClass = (index: number) => {
+    if (index === current) return "z-10"
+    if (index === prevIndex) return "z-0 pointer-events-none"
+    return "invisible pointer-events-none"
   }
 
   if (!slides.length) return null
@@ -236,19 +238,17 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
         className="naqsh-home-hero-stage relative w-full h-[580px] sm:h-[660px] lg:h-[760px] overflow-hidden"
         onFocusCapture={() => setIsPaused(true)}
         onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setIsPaused(false) }}
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         {/* Quick Campaign Switcher Pills (Pakistani Top Brand style) */}
-        <div className="absolute top-6 left-6 sm:left-12 lg:left-16 z-30 hidden md:flex items-center gap-1.5 bg-black/50 backdrop-blur-md p-1 border border-white/20 shadow-lg">
+        <div ref={campaignRef} className="absolute top-6 left-6 sm:left-12 lg:left-16 z-30 hidden md:flex items-center gap-1.5 bg-black/50 backdrop-blur-md p-1 border border-white/20 shadow-lg">
           {slides.map((s, idx) => (
             <button
               key={idx}
               onClick={() => goToSlide(idx)}
-              className={`px-4 py-2 text-[10px] font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`px-4 py-2 text-[10px] font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
                 idx === current
                   ? "bg-accent text-brand shadow-sm font-bold scale-102"
                   : "text-stone-300 hover:text-white hover:bg-white/10"
@@ -265,18 +265,17 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
           return (
             <div
               key={index}
+              data-slide-index={index}
               inert={!isActive}
-              className={`absolute inset-0 transition-transform md:transition-opacity duration-600 ease-in-out ${getMobileSlideClass(index)}`}
+              className={`absolute inset-0 ${getSlideClass(index)}`}
             >
-              {/* Background Image with Ken-Burns scale effect on active slide */}
+              {/* The image settles gently behind the progressive reveal mask. */}
               <div className="absolute inset-0 overflow-hidden bg-stone-900">
                 <img
                   src={slide.image}
                   alt={slide.title}
                   loading={index === 0 ? "eager" : "lazy"}
-                  className={`w-full h-full object-cover object-top sm:object-center transform transition-transform duration-[7000ms] ease-out ${
-                    isActive ? "scale-105" : "scale-100"
-                  }`}
+                  className="w-full h-full object-cover object-top sm:object-center"
                   onError={(e) => {
                     const fallback = pakistaniHeroSlides[index % pakistaniHeroSlides.length]
                     if ((e.target as HTMLImageElement).src !== fallback.image) {
@@ -291,12 +290,12 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
 
               {/* Text & Content Container */}
-              <LocalizedClientLink href={slide.cta_link} aria-label={slide.title} tabIndex={isActive ? 0 : -1} className="absolute inset-0 z-10" />
+              <LocalizedClientLink href="/store" aria-label={slide.title} tabIndex={isActive ? 0 : -1} className="absolute inset-0 z-10" />
 
               {/* Responsive Slide Content: Top-left tag on mobile, bottom-aligned content */}
               <div
                 ref={isActive ? activeSlideRef : undefined}
-                className="pointer-events-none relative h-full content-container mx-auto px-5 sm:px-12 lg:px-16 flex flex-col justify-between sm:justify-center items-start text-white max-w-5xl z-20 pt-8 pb-18 sm:py-0"
+                className="pointer-events-none relative h-full content-container mx-auto px-5 sm:px-12 lg:px-16 flex flex-col justify-between sm:justify-center items-start text-white max-w-5xl z-20 pt-8 pb-20 sm:py-0"
               >
                 {/* Floating Campaign Tag (Left Corner) */}
                 <div className="self-start">
@@ -312,40 +311,27 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
                 <div className="w-full flex flex-col items-start justify-end mt-auto sm:mt-0">
                   {slide.eyebrow && (
                     <span className="naqsh-hero-eyebrow text-[11px] sm:text-xs uppercase tracking-[0.32em] text-accent font-semibold mb-2 drop-shadow-sm">
-                      {slide.eyebrow}
+                      <RevealLetters text={slide.eyebrow} />
                     </span>
                   )}
 
-                  {/* Title: Word-by-word reveal, stays in ONE single line on tablet & desktop */}
+                  {/* Accessible heading with left-to-right letter reveal. */}
                   <h1
                     aria-label={slide.title}
-                    className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-normal tracking-wide text-white leading-tight mb-3 sm:mb-4 drop-shadow-lg max-w-full lg:max-w-4xl break-normal hyphens-none whitespace-normal sm:whitespace-nowrap"
+                    className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-normal tracking-wide text-white leading-tight mb-3 sm:mb-4 drop-shadow-lg max-w-full lg:max-w-4xl break-normal hyphens-none whitespace-normal "
                   >
-                    <span className="inline-flex flex-wrap sm:flex-nowrap items-baseline">
-                      {slide.title.split(" ").map((word, wIdx) => (
-                        <span key={wIdx} className="inline-block overflow-hidden mr-[0.28em] last:mr-0 align-baseline">
-                          <span
-                            className={`naqsh-hero-word inline-block will-change-transform ${
-                              isActive ? "naqsh-banner-word" : "opacity-0"
-                            }`}
-                            style={{ animationDelay: `${0.1 + wIdx * 0.08}s` }}
-                          >
-                            {word}
-                          </span>
-                        </span>
-                      ))}
-                    </span>
+                    <RevealLetters text={slide.title} />
                   </h1>
 
                   <p className="naqsh-hero-sub text-xs sm:text-base text-stone-200 font-light leading-relaxed mb-6 sm:mb-8 max-w-xl drop-shadow-md">
-                    {slide.sub}
+                    <RevealLetters text={slide.sub} />
                   </p>
 
                   {/* Action Buttons: Clean side-by-side on mobile */}
                   <div className="flex flex-row items-center gap-2.5 sm:gap-4 w-full sm:w-auto">
                     <LocalizedClientLink
-                      href={slide.cta_link}
-                      className="naqsh-hero-btn flex-1 sm:flex-initial text-center justify-center px-4 py-3.5 sm:px-8 sm:py-4 bg-white hover:bg-accent text-brand hover:text-white text-[11px] sm:text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-xl hover:shadow-2xl rounded-none transform hover:-translate-y-0.5 flex items-center gap-2"
+                      href="/store"
+                      className="naqsh-hero-btn flex-1 sm:flex-initial text-center justify-center px-4 py-3.5 sm:px-8 sm:py-4 bg-white hover:bg-accent text-brand hover:text-white text-[11px] sm:text-xs font-bold uppercase tracking-widest transition-colors duration-300 shadow-xl hover:shadow-2xl rounded-none transform hover:-translate-y-0.5 flex items-center gap-2"
                     >
                       <span>{slide.cta_text}</span>
                       <span>&rarr;</span>
@@ -353,7 +339,7 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
 
                     <LocalizedClientLink
                       href="/store"
-                      className="naqsh-hero-btn flex-1 sm:flex-initial text-center justify-center px-4 py-3.5 sm:px-8 sm:py-4 bg-black/40 backdrop-blur-md border border-white/50 text-white hover:bg-white hover:text-brand hover:border-white text-[11px] sm:text-xs font-semibold uppercase tracking-widest transition-all rounded-none"
+                      className="naqsh-hero-btn flex-1 sm:flex-initial text-center justify-center px-4 py-3.5 sm:px-8 sm:py-4 bg-black/40 backdrop-blur-md border border-white/50 text-white hover:bg-white hover:text-brand hover:border-white text-[11px] sm:text-xs font-semibold uppercase tracking-widest transition-colors rounded-none"
                     >
                       Explore Catalog
                     </LocalizedClientLink>
@@ -363,28 +349,6 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
             </div>
           )
         })}
-
-        {/* Left Arrow (Hidden on mobile and mobile landscape) */}
-        <button
-          onClick={prevSlide}
-          className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/40 hover:bg-accent hover:text-brand border border-white/20 backdrop-blur-md text-white items-center justify-center transition-all duration-300 group shadow-lg"
-          aria-label="Previous slide"
-        >
-          <svg className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-
-        {/* Right Arrow (Hidden on mobile and mobile landscape) */}
-        <button
-          onClick={nextSlide}
-          className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/40 hover:bg-accent hover:text-brand border border-white/20 backdrop-blur-md text-white items-center justify-center transition-all duration-300 group shadow-lg"
-          aria-label="Next slide"
-        >
-          <svg className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
 
         {/* Slide Progress Indicator Circles with filling animation */}
         <div className="absolute bottom-5 sm:bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2.5 sm:gap-3">

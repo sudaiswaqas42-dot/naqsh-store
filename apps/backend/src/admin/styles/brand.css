@@ -79,7 +79,7 @@
   --fg-muted: #A3B8AC !important;          /* Muted Sage */
   --fg-interactive: #B6975A !important;    /* Muted Gold */
   --fg-interactive-hover: #D4BE8D !important;
-  --fg-on-color: #0F2D22 !important;
+  --fg-on-color: #FAF9F6 !important;
   --fg-on-inverted: #0F2D22 !important;
 
   --border-base: #1D4C3A !important;       /* Subtle Forest border */
@@ -114,365 +114,58 @@
   --tag-neutral-border: #2A5241 !important;
 }
 
-/* ============================================================
-   SIDEBAR NAVIGATION & HOVER STATES (FIX FOR GHOSTING ON HOVER)
-   ============================================================ */
-
-aside a,
-nav a,
-aside [role="menuitem"],
-[data-sidebar] a,
-[data-sidebar-item] {
-  transition: background-color 0.15s ease, color 0.15s ease !important;
+/* Theme tokens govern every surface, including portalled menus. */
+:root {
+  color-scheme: light;
+  --bg-inverted: #0F2D22 !important;
+  --fg-disabled: #68766F !important;
+  --button-neutral-pressed: #EBE1D6 !important;
 }
-
-/* Light mode sidebar */
-aside a:hover,
-nav a:hover,
-aside [role="menuitem"]:hover,
-[data-sidebar] a:hover,
-aside button:hover,
-nav button:hover {
-  background-color: #EBE1D6 !important;
-  color: #1A1A1A !important;
+.dark {
+  color-scheme: dark;
+  --bg-inverted: #FAF9F6 !important;
+  --fg-disabled: #A3B8AC !important;
+  --tag-blue-icon: #A7F3D0 !important;
+  --tag-blue-text: #D1FAE5 !important;
+  --tag-blue-bg: #14382B !important;
+  --tag-blue-border: #2A5241 !important;
 }
-
-aside a:hover *,
-nav a:hover *,
-[data-sidebar] a:hover * {
-  color: #1A1A1A !important;
+body { background: var(--bg-base); color: var(--fg-base); }
+input:not([type="checkbox"]):not([type="radio"]), textarea, select, option, optgroup {
+  background-color: var(--bg-field) !important;
+  color: var(--fg-base) !important;
+  border-color: var(--border-base) !important;
 }
-
-/* Dark mode sidebar - crystal clear visibility, rich forest hover */
-.dark aside a,
-.dark nav a,
-.dark [data-sidebar] a,
-.dark aside button,
-.dark nav button,
-.dark [data-sidebar-item] {
-  color: #FAF9F6 !important;
+input::placeholder, textarea::placeholder { color: var(--fg-muted) !important; }
+input:focus, textarea:focus, select:focus { border-color: var(--border-interactive) !important; }
+[role="menu"], [role="listbox"], [role="tooltip"] {
+  background-color: var(--bg-component) !important;
+  color: var(--fg-base) !important;
+  border-color: var(--border-base) !important;
 }
-
-.dark aside a:hover,
-.dark nav a:hover,
-.dark aside [role="menuitem"]:hover,
-.dark [data-sidebar] a:hover,
-.dark [data-sidebar-item]:hover,
-.dark aside button:hover,
-.dark nav button:hover,
-.dark a[class*="hover:bg-ui-bg-subtle"]:hover,
-.dark button[class*="hover:bg-ui-bg-subtle"]:hover {
-  background-color: #184233 !important;
-  color: #FAF9F6 !important;
+:is([role="menuitem"], [role="menuitemradio"], [role="menuitemcheckbox"], [role="option"]) {
+  background-color: transparent !important;
+  color: var(--fg-base) !important;
 }
-
-.dark aside a:hover *,
-.dark nav a:hover *,
-.dark [data-sidebar] a:hover *,
-.dark [data-sidebar-item]:hover *,
-.dark aside button:hover *,
-.dark nav button:hover * {
-  color: #FAF9F6 !important;
+:is([role="menuitem"], [role="menuitemradio"], [role="menuitemcheckbox"], [role="option"]) :is(span, svg, a, kbd) {
+  color: inherit !important;
 }
-
-.dark aside a:hover svg,
-.dark nav a:hover svg,
-.dark [data-sidebar] a:hover svg {
-  color: #B6975A !important;
-}
-
-/* Active sidebar item */
-aside a[aria-current="page"],
-nav a[aria-current="page"],
-aside a[data-state="active"],
-nav a[data-state="active"],
-[data-sidebar] a[aria-current="page"] {
-  background-color: #EBE1D6 !important;
-  color: #0F2D22 !important;
-  font-weight: 600 !important;
-}
-
-.dark aside a[aria-current="page"],
-.dark nav a[aria-current="page"],
-.dark aside a[data-state="active"],
-.dark nav a[data-state="active"],
-.dark [data-sidebar] a[aria-current="page"] {
-  background-color: #14382B !important;
-  color: #FAF9F6 !important;
-  font-weight: 600 !important;
-  border-left: 3px solid #B6975A !important;
-}
-
-/* Dark mode tooltips and shortcut indicators */
-.dark [role="tooltip"],
-.dark [data-radix-popper-content-wrapper] [role="tooltip"],
-.dark [data-radix-tooltip-content] {
-  background-color: #081B14 !important;
-  color: #FAF9F6 !important;
-  border: 1px solid #B6975A !important;
-}
-
-.dark [role="tooltip"] *,
-.dark [data-radix-tooltip-content] * {
-  color: #FAF9F6 !important;
-}
-
-/* Fallback protection: If ANY element in dark mode receives a light background, force dark text (excluding selects and dropdown menus) */
-.dark [class*="bg-white"]:not(select):not(option):not(optgroup):not([role="menuitem"]):not([role="option"]):not([role="menu"]):not([role="listbox"]),
-.dark [class*="bg-[#FAF9F6]"]:not(select):not(option):not(optgroup):not([role="menuitem"]):not([role="option"]):not([role="menu"]):not([role="listbox"]),
-.dark [class*="bg-[#EBE1D6]"]:not(select):not(option):not(optgroup):not([role="menuitem"]):not([role="option"]):not([role="menu"]):not([role="listbox"]),
-.dark [class*="bg-[#E8E1D6]"]:not(select):not(option):not(optgroup):not([role="menuitem"]):not([role="option"]):not([role="menu"]):not([role="listbox"]) {
-  color: #1A1A1A !important;
-}
-.dark [class*="bg-white"]:not(select):not(option):not(optgroup):not([role="menu"]):not([role="listbox"]) *:not(option):not(optgroup):not([role="menuitem"]):not([role="option"]),
-.dark [class*="bg-[#FAF9F6]"]:not(select):not(option):not(optgroup):not([role="menu"]):not([role="listbox"]) *:not(option):not(optgroup):not([role="menuitem"]):not([role="option"]),
-.dark [class*="bg-[#EBE1D6]"]:not(select):not(option):not(optgroup):not([role="menu"]):not([role="listbox"]) *:not(option):not(optgroup):not([role="menuitem"]):not([role="option"]),
-.dark [class*="bg-[#E8E1D6]"]:not(select):not(option):not(optgroup):not([role="menu"]):not([role="listbox"]) *:not(option):not(optgroup):not([role="menuitem"]):not([role="option"]) {
-  color: #1A1A1A !important;
-}
-
-/* ============================================================
-   BUTTONS: GUARANTEED VISIBILITY & HIGH CONTRAST IN ALL STATES
-   ============================================================ */
-
-/* Light Mode: Neutral / Secondary Buttons */
-button.bg-ui-button-neutral,
-.bg-ui-button-neutral,
-[class*="bg-ui-button-neutral"],
-a.bg-ui-button-neutral {
-  background-color: #FFFFFF !important;
-  color: #0F2D22 !important;
-  border: 1px solid #EBE1D6 !important;
-}
-button.bg-ui-button-neutral:hover,
-.bg-ui-button-neutral:hover,
-[class*="bg-ui-button-neutral"]:hover,
-a.bg-ui-button-neutral:hover {
-  background-color: #F5EFE9 !important;
-  color: #0F2D22 !important;
-}
-
-/* Dark Mode: Neutral / Secondary Buttons (Image 1, 2, 3 fix) */
-.dark button.bg-ui-button-neutral,
-.dark .bg-ui-button-neutral,
-.dark [class*="bg-ui-button-neutral"],
-.dark a.bg-ui-button-neutral {
-  background-color: #14382B !important;
-  color: #FAF9F6 !important;
-  border: 1px solid #25493B !important;
-}
-.dark button.bg-ui-button-neutral:hover,
-.dark .bg-ui-button-neutral:hover,
-.dark [class*="bg-ui-button-neutral"]:hover,
-.dark a.bg-ui-button-neutral:hover {
-  background-color: #1D4C3A !important;
-  color: #FFFFFF !important;
-  border-color: #B6975A !important;
-}
-
-/* Inverted / Primary Buttons */
-button.bg-ui-button-inverted,
-.bg-ui-button-inverted,
-[class*="bg-ui-button-inverted"] {
-  background-color: #0F2D22 !important;
-  color: #FAF9F6 !important;
-}
-button.bg-ui-button-inverted:hover,
-.bg-ui-button-inverted:hover,
-[class*="bg-ui-button-inverted"]:hover {
-  background-color: #184233 !important;
-  color: #FFFFFF !important;
-}
-
-.dark button.bg-ui-button-inverted,
-.dark .bg-ui-button-inverted,
-.dark [class*="bg-ui-button-inverted"] {
-  background-color: #B6975A !important;
-  color: #081B14 !important;
-}
-.dark button.bg-ui-button-inverted:hover,
-.dark .bg-ui-button-inverted:hover,
-.dark [class*="bg-ui-button-inverted"]:hover {
-  background-color: #D4BE8D !important;
-  color: #081B14 !important;
-}
-
-/* CRITICAL CONTRAST SAFEGUARD: If any button or element has a white background, its text MUST be dark! */
-button.bg-white,
-button[class*="bg-white"],
-.dark button.bg-white,
-.dark button[class*="bg-white"] {
-  color: #0F2D22 !important;
-}
-button.bg-white:hover,
-button[class*="bg-white"]:hover,
-.dark button.bg-white:hover,
-.dark button[class*="bg-white"]:hover {
-  color: #0F2D22 !important;
-  background-color: #F5EFE9 !important;
-}
-
-/* Explicit table status dots & badge icon color overrides (Image 2) */
-.bg-ui-tag-green-icon,
-[class*="bg-ui-tag-green-icon"],
-div.bg-ui-tag-green-icon,
-[class*="[&_div]:bg-ui-tag-green-icon"] div {
-  background-color: #0F2D22 !important;
-}
-
-.bg-ui-tag-orange-icon,
-[class*="bg-ui-tag-orange-icon"],
-div.bg-ui-tag-orange-icon,
-[class*="[&_div]:bg-ui-tag-orange-icon"] div {
-  background-color: #B6975A !important;
-}
-
-.bg-ui-tag-red-icon,
-[class*="bg-ui-tag-red-icon"],
-div.bg-ui-tag-red-icon,
-[class*="[&_div]:bg-ui-tag-red-icon"] div {
-  background-color: #9E3B42 !important;
-}
-
-.bg-ui-tag-neutral-icon,
-[class*="bg-ui-tag-neutral-icon"],
-div.bg-ui-tag-neutral-icon,
-[class*="[&_div]:bg-ui-tag-neutral-icon"] div {
-  background-color: #758A80 !important;
-}
-
-.bg-ui-tag-blue-icon,
-[class*="bg-ui-tag-blue-icon"],
-div.bg-ui-tag-blue-icon,
-[class*="[&_div]:bg-ui-tag-blue-icon"] div {
-  background-color: #0F2D22 !important;
-}
-
-/* Dark mode status dots */
-.dark .bg-ui-tag-green-icon,
-.dark [class*="bg-ui-tag-green-icon"],
-.dark div.bg-ui-tag-green-icon,
-.dark [class*="[&_div]:bg-ui-tag-green-icon"] div {
-  background-color: #34D399 !important;
-}
-
-.dark .bg-ui-tag-orange-icon,
-.dark [class*="bg-ui-tag-orange-icon"],
-.dark div.bg-ui-tag-orange-icon,
-.dark [class*="[&_div]:bg-ui-tag-orange-icon"] div {
-  background-color: #D4BE8D !important;
-}
-
-.dark .bg-ui-tag-red-icon,
-.dark [class*="bg-ui-tag-red-icon"],
-.dark div.bg-ui-tag-red-icon,
-.dark [class*="[&_div]:bg-ui-tag-red-icon"] div {
-  background-color: #F87171 !important;
-}
-
-.dark .bg-ui-tag-neutral-icon,
-.dark [class*="bg-ui-tag-neutral-icon"],
-.dark div.bg-ui-tag-neutral-icon,
-.dark [class*="[&_div]:bg-ui-tag-neutral-icon"] div {
-  background-color: #A3B8AC !important;
-}
-
-/* Dropdown menus, Popovers & Radix Menus - Full contrast in NAQSH Admin */
-select,
-select option,
-select optgroup {
-  background-color: #0F2D22 !important;
-  border-color: #25493B !important;
-  color: #FAF9F6 !important;
-}
-
-[role="menu"],
-[role="listbox"],
-[data-radix-menu-content],
-[data-radix-select-content],
-[data-radix-dropdown-menu-content],
-[data-radix-popper-content-wrapper] > div {
-  background-color: #14382B !important;
-  border: 1px solid #25493B !important;
-  color: #FAF9F6 !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
-  border-radius: 8px !important;
-}
-
-[role="menu"] *,
-[role="listbox"] *,
-[data-radix-menu-content] *,
-[data-radix-select-content] *,
-[data-radix-dropdown-menu-content] *,
-[data-radix-popper-content-wrapper] > div *,
-[role="menuitem"],
-[role="option"] {
-  color: #FAF9F6 !important;
-}
-
-/* Dropdown menu items & select items hover */
-[role="menuitem"]:hover,
-[role="menuitem"]:focus,
-[role="menuitem"][data-highlighted],
-[role="option"]:hover,
-[role="option"]:focus,
-[role="option"][data-highlighted],
-[data-radix-collection-item]:hover,
-[data-radix-collection-item]:focus,
-[data-radix-collection-item][data-highlighted] {
-  background-color: #1D4C3A !important;
-  color: #FAF9F6 !important;
-}
-[role="menuitem"]:hover *,
-[role="menuitem"]:focus *,
-[role="option"]:hover *,
-[role="option"]:focus * {
-  color: #FAF9F6 !important;
-}
-
-select option:hover,
-select option:focus,
+:is([role="menuitem"], [role="menuitemradio"], [role="menuitemcheckbox"], [role="option"]):is(:hover, :focus, [data-highlighted]),
 select option:checked {
-  background-color: #1D4C3A !important;
-  color: #FAF9F6 !important;
+  background-color: var(--bg-component-hover) !important;
+  color: var(--fg-base) !important;
 }
-
-/* Light background elements must have dark text */
-.bg-white,
-[class*="bg-white"],
-[class*="bg-[#FAF9F6]"],
-[class*="bg-[#FFFFFF]"],
-[class*="bg-[#EBE1D6]"] {
-  color: #1A1A1A !important;
+:is(aside, nav) :is(a, button):hover {
+  background-color: var(--bg-subtle-hover);
+  color: var(--fg-base);
 }
-.bg-white *,
-[class*="bg-white"] *,
-[class*="bg-[#FAF9F6]"] *,
-[class*="bg-[#FFFFFF]"] *,
-[class*="bg-[#EBE1D6]"] * {
-  color: #1A1A1A !important;
-}
-
-/* Inputs & Search fields */
-input, textarea {
-  background-color: #081B14 !important;
-  color: #FAF9F6 !important;
-  border-color: #25493B !important;
-}
-input:focus, textarea:focus {
-  border-color: #B6975A !important;
-}
-
-/* Table rows and hover states */
-tr:hover {
-  background-color: var(--bg-base-hover) !important;
-}
-tr:hover td {
-  color: #FAF9F6 !important;
-}
-
-/* Hide duplicate native fulfillment section when NAQSH interactive fulfillment panel is active */
+tr:hover { background-color: var(--bg-base-hover); }
+/* Preserve the existing custom fulfillment section policy. */
 [data-section-id="OrderFulfillmentSection"]:not([data-naqsh-fulfillment="true"]),
-#OrderFulfillmentSection:not([data-naqsh-fulfillment="true"]) {
-  display: none !important;
-}
+#OrderFulfillmentSection:not([data-naqsh-fulfillment="true"]) { display: none !important; }
+
+/* Primary buttons use contrast text in Medusa; pair it with our gold surface. */
+.bg-ui-button-inverted:not(:disabled) { color: #FAF9F6 !important; }
+.dark .bg-ui-button-inverted:not(:disabled) { color: #081B14 !important; }
+:root { --button-inverted-pressed: #184233 !important; }
+.dark { --button-inverted-pressed: #D4BE8D !important; }
