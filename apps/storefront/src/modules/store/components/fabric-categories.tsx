@@ -91,7 +91,7 @@ export const ladiesFabricCards: FabricCardData[] = [
   },
   {
     handle: "embroidery-waly",
-    label: "Embroidery Waly",
+    label: "Embroidered",
     subtitle: "Intricate Tilla & Resham Work",
     badge: "LUXURY",
     image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=85",

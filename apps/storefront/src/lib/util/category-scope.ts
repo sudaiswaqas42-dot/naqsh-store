@@ -1,5 +1,5 @@
 export const menCategoryHandles = ["italian", "boski", "wash-wear", "wool", "kamalia-khaddar"]
-export const womenCategoryHandles = ["dhanak", "khaddar", "linen", "karandi", "silk", "printed", "embroidery-waly", "2pc", "3pc"]
+export const womenCategoryHandles = ["dhanak", "khaddar", "linen", "karandi", "silk", "printed", "embroidery-waly", "embroidered", "2pc", "3pc"]
 export const girlsCategoryHandles = ["girls-3pc", "girls-2pc", "girls-silk", "girls-embroidery", "girls-printed", "girls-linen"]
 export const boysCategoryHandles = ["boys-boski", "boys-wash-wear", "boys-kurta", "boys-khaddar", "boys-wool"]
 

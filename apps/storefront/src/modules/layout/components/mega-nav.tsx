@@ -92,7 +92,7 @@ const fashionCatalog: Record<
     href: "/categories/linen",
   },
   "embroidery": {
-    name: "Embroidery Waly Suits",
+    name: "Embroidered Suits",
     img: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80",
     desc: "Intricate heavy tilla and resham threadwork on premium fabrics",
     price: "From Rs. 7,950",
@@ -245,17 +245,6 @@ export default function MegaNav({ categories, collections }: MegaNavProps) {
         </LocalizedClientLink>
       </div>
 
-      {/* 4. CHILDREN */}
-      <LocalizedClientLink
-        href="/categories/children"
-        onMouseEnter={() => {
-          setActiveMenu(null)
-          setHoveredKey(null)
-        }}
-        className="hover:text-[#B6975A] transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1.5px] after:bg-[#B6975A] hover:after:w-full after:transition-all"
-      >
-        Children
-      </LocalizedClientLink>
 
       {/* 5. SALE */}
       <LocalizedClientLink
@@ -356,7 +345,7 @@ export default function MegaNav({ categories, collections }: MegaNavProps) {
                 </h4>
                 <ul className="space-y-2.5 text-xs text-stone-600 font-normal">
                   {[
-                    { key: "embroidery", label: "Embroidery Waly", href: "/categories/embroidery-waly" },
+                    { key: "embroidery", label: "Embroidered", href: "/categories/embroidery-waly" },
                     { key: "printed", label: "Printed", href: "/categories/printed" },
                   ].map((item) => {
                     const isHovered = hoveredKey === item.key

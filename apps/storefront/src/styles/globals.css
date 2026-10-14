@@ -422,7 +422,7 @@ nextjs-portal {
   display: flex;
   width: max-content;
   gap: 1.5rem;
-  animation: naqshReviewsMarquee 42s linear infinite;
+  animation: naqshReviewsMarquee 56s linear infinite;
   will-change: transform;
 }
 .naqsh-reviews-marquee-track:hover {
@@ -434,3 +434,30 @@ nextjs-portal {
     overflow-x: auto;
   }
 }
+
+/* Continuous infinite seasonal categories marquee */
+@keyframes naqshCategoriesMarquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.naqsh-categories-marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 1.5rem;
+  animation: naqshCategoriesMarquee 48s linear infinite;
+  will-change: transform;
+}
+.naqsh-categories-marquee-track:hover {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .naqsh-categories-marquee-track {
+    animation: none;
+    overflow-x: auto;
+  }
+}
+

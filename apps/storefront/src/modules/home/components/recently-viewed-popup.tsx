@@ -63,22 +63,18 @@ export default function RecentlyViewedPopup() {
 
   return (
     <>
-      {/* 1. Floating Trigger Button to the LEFT side of WhatsApp */}
+      {/* 1. Floating Trigger Button to the LEFT side of WhatsApp - Single circle, glassy backdrop */}
       {!isOpen && (
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="recently-viewed-trigger fixed bottom-6 right-20 sm:right-[84px] z-40 flex h-11 w-11 items-center justify-center rounded-full bg-white text-stone-900 shadow-md hover:shadow-xl transition-transform duration-300 hover:scale-110 focus:outline-none"
+          className="recently-viewed-trigger fixed bottom-6 right-20 sm:right-[84px] z-40 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/50 text-[#0F2D22] shadow-lg hover:shadow-xl hover:bg-white/30 transition-all duration-300 hover:scale-105 focus:outline-none"
           aria-label="View recently viewed products"
           title="Recently Viewed Products"
         >
-          {/* Double gold circular ring from Image 3 breathing smoothly from light to dark */}
-          <span className="absolute -inset-[3px] rounded-full border border-[#B6975A] pointer-events-none" />
-          <span className="absolute inset-0 rounded-full border border-[#B6975A] pointer-events-none" />
-
-          {/* Eye Icon itself breathing smoothly from light to dark */}
+          {/* Eye Icon sized w-6 h-6 exactly matching WhatsApp floating button */}
           <svg
-            className="relative z-10 h-5 w-5 text-[#B6975A] naqsh-eye-pulse"
+            className="h-6 w-6 text-[#0F2D22]"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

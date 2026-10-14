@@ -4,11 +4,10 @@ import { HomepageSection } from "@lib/data/homepage"
 const defaultDepartments = [
   { name: "Women", slug: "women", image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80" },
   { name: "Men", slug: "men", image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80" },
-  { name: "Kids", slug: "children", image: "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=800&q=80" },
 ]
 
 export default function ShopDepartments({ section }: { section?: HomepageSection }) {
-  const cards = (section?.settings?.cards && section.settings.cards.length > 0)
+  const cards = ((section?.settings?.cards && section.settings.cards.length > 0)
     ? section.settings.cards.map((c: any) => ({
         name: c.title || "Collection",
         slug: c.link?.replace("/categories/", "") || "women",
@@ -21,6 +20,7 @@ export default function ShopDepartments({ section }: { section?: HomepageSection
         link: `/categories/${d.slug}`,
         image: d.image,
       }))
+  ).filter((card: any) => !/kids|children/i.test(card.name) && !/kids|children/i.test(card.slug))
 
   return (
     <section className="content-container py-10 sm:py-14" aria-label="Shop by department">
@@ -31,9 +31,9 @@ export default function ShopDepartments({ section }: { section?: HomepageSection
           {section.subtitle && <p className="mt-1 text-xs text-stone-500">{section.subtitle}</p>}
         </div>
       )}
-      <div className="grid grid-cols-3 gap-3 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 max-w-4xl mx-auto justify-center">
         {cards.map((department: any, idx: number) => (
-          <LocalizedClientLink key={department.link + idx} href={department.link} className="group relative overflow-hidden bg-stone-100">
+          <LocalizedClientLink key={department.link + idx} href={department.link} className="group relative overflow-hidden bg-stone-100 rounded-sm">
             <img
               src={department.image}
               alt={department.name + " collection"}

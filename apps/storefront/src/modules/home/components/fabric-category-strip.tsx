@@ -192,20 +192,11 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
           <div className="hidden md:block pointer-events-none absolute -top-4 -bottom-4 right-0 z-10 w-20 sm:w-36 bg-gradient-to-l from-stone-50 via-stone-50/80 to-transparent" />
           <div className="hidden md:block pointer-events-none absolute -top-4 -bottom-4 left-0 z-10 w-12 sm:w-20 bg-gradient-to-r from-stone-50 to-transparent" />
 
-          {/* Horizontal Sliding Track (Bigger Circles) */}
+          {/* Horizontal Sliding Track (Bigger Circles) - Continuous Infinite Motion */}
           <div
-            ref={scrollRef}
-            onTouchStart={() => setIsHovered(true)}
-            onTouchEnd={() => setIsHovered(false)}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={stopDragging}
-            className={`flex items-center gap-6 sm:gap-9 overflow-x-auto pb-6 pt-3 px-2 no-scrollbar cursor-grab ${
-              isDragging ? "cursor-grabbing" : ""
-            }`}
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            className="naqsh-categories-marquee-track pb-6 pt-3 px-2 select-none"
           >
-            {[...categories, ...categories, ...categories].map((cat, idx) => (
+            {[...categories, ...categories, ...categories, ...categories].map((cat, idx) => (
               <LocalizedClientLink
                 key={idx}
                 href={cat.href}

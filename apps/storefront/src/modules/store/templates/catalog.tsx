@@ -178,7 +178,7 @@ export default function CatalogTemplate({
       {/* 2. Instant Quick-Filter Strip (Dynamic Gents & Ladies Unstitched Categories matching Image 1) */}
       {(() => {
         const GENTS_SUB_HANDLES = ["italian", "boski", "wash-wear", "wool", "kamalia-khaddar"]
-        const LADIES_SUB_HANDLES = ["dhanak", "khaddar", "linen", "karandi", "silk", "printed", "embroidery-waly", "2pc", "3pc"]
+        const LADIES_SUB_HANDLES = ["dhanak", "khaddar", "linen", "karandi", "silk", "printed", "embroidery-waly", "embroidered", "2pc", "3pc"]
         const GIRLS_SUB_HANDLES = ["girls-3pc", "girls-2pc", "girls-silk", "girls-embroidery", "girls-printed", "girls-linen"]
         const BOYS_SUB_HANDLES = ["boys-boski", "boys-wash-wear", "boys-kurta", "boys-khaddar", "boys-wool"]
 
@@ -259,7 +259,7 @@ export default function CatalogTemplate({
             { label: "Ladies: Karandi", href: "/categories/karandi" },
             { label: "Ladies: Silk", href: "/categories/silk" },
             { label: "Ladies: Printed", href: "/categories/printed" },
-            { label: "Ladies: Embroidery", href: "/categories/embroidery-waly" },
+            { label: "Ladies: Embroidered", href: "/categories/embroidery-waly" },
             { label: "Ladies: 2pc", href: "/categories/2pc" },
             { label: "Ladies: 3pc", href: "/categories/3pc" },
             { label: "Gents: Italian", href: "/categories/italian" },

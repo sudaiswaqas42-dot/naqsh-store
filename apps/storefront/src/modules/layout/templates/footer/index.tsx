@@ -57,17 +57,6 @@ export default async function Footer() {
                   <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.15 1.17 2.07 2.3 2.34.8.21 1.67.14 2.42-.23.86-.41 1.48-1.22 1.68-2.15.11-.47.16-.95.16-1.43V.02z"/>
                 </svg>
               </a>
-              <a
-                href={socialLinks.pinterest}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Pinterest"
-                className="w-8 h-8 rounded-full border border-white/25 bg-white/5 text-stone-300 hover:text-white hover:border-[#C5A869] hover:bg-[#C5A869]/20 flex items-center justify-center transition-all duration-200"
-              >
-                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                  <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.291 1.199-.333 1.361-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
-                </svg>
-              </a>
             </div>
           </div>
 
@@ -257,7 +246,15 @@ export default async function Footer() {
         {/* Bottom Bar: Copyright on left, Payment badges on right */}
         <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-stone-400">
           <div className="text-center md:text-left leading-relaxed">
-            &copy; 2026 NAQSH Apparel (Private) Limited. All rights reserved. &bull; Where Identity Begins.
+            NAQSH &copy;2026 | Developed by{" "}
+            <a
+              href="https://afyradigital.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold underline text-stone-200 hover:text-[#C5A869] transition-colors"
+            >
+              Afyra Digital
+            </a>
           </div>
 
           {/* Payment Badges styled cleanly like Image 2 */}

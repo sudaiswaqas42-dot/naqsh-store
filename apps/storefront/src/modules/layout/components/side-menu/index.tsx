@@ -12,7 +12,6 @@ const menuSections = [
       { name: "Shop All Fabrics", href: "/store" },
       { name: "Women", href: "/categories/women" },
       { name: "Men", href: "/categories/men" },
-      { name: "Kids", href: "/categories/kids" },
       { name: "Accessories", href: "/categories/accessories" },
       { name: "Sale & Clearance", href: "/categories/sale" },
     ],
