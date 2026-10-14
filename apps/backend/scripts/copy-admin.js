@@ -198,6 +198,118 @@ function patchCustomStyles(dir) {
     --border-base: #1D4C3A !important;
     --border-strong: #B6975A !important;
     --border-interactive: #B6975A !important;
+
+    /* NAQSH Luxury Status Tags & Dots (Fix for pink dots -> Site luxury schema) */
+    --tag-green-icon: #34D399 !important;
+    --tag-green-text: #A7F3D0 !important;
+    --tag-green-bg: #0E3324 !important;
+    --tag-green-border: #18523A !important;
+
+    --tag-orange-icon: #D4BE8D !important;
+    --tag-orange-text: #F5EFE3 !important;
+    --tag-orange-bg: #332A15 !important;
+    --tag-orange-border: #574624 !important;
+
+    --tag-red-icon: #C53030 !important;
+    --tag-red-text: #FCA5A5 !important;
+    --tag-red-bg: #2B1214 !important;
+    --tag-red-border: #4D1D22 !important;
+
+    --tag-neutral-icon: #A3B8AC !important;
+    --tag-neutral-text: #FAF9F6 !important;
+    --tag-neutral-bg: #1A382C !important;
+    --tag-neutral-border: #2A5241 !important;
+  }
+
+  /* Table & Badge Status Dots Override (Eliminates pink #F87171, enforces NAQSH brand crimson) */
+  .bg-ui-tag-red-icon,
+  [class*="bg-ui-tag-red-icon"],
+  div.bg-ui-tag-red-icon,
+  span.bg-ui-tag-red-icon,
+  [class*="[&_div]:bg-ui-tag-red-icon"] div {
+    background-color: #9E3B42 !important;
+  }
+  .dark .bg-ui-tag-red-icon,
+  .dark [class*="bg-ui-tag-red-icon"],
+  .dark div.bg-ui-tag-red-icon,
+  .dark span.bg-ui-tag-red-icon,
+  .dark [class*="[&_div]:bg-ui-tag-red-icon"] div {
+    background-color: #C53030 !important;
+  }
+
+  /* NAQSH Luxury Refresh Buttons */
+  .naqsh-refresh-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 6px 14px !important;
+    background-color: #14382B !important;
+    color: #FAF9F6 !important;
+    border: 1px solid #B6975A !important;
+    border-radius: 6px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    line-height: 1.2 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+    user-select: none !important;
+    text-decoration: none !important;
+  }
+  .naqsh-refresh-btn:hover {
+    background-color: #1D4C3A !important;
+    border-color: #D4BE8D !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 0 10px rgba(182, 151, 90, 0.35) !important;
+    transform: translateY(-1px) !important;
+  }
+  .naqsh-refresh-btn:active {
+    background-color: #0F2D22 !important;
+    transform: translateY(0) !important;
+  }
+  .naqsh-refresh-btn svg {
+    width: 14px !important;
+    height: 14px !important;
+    color: #B6975A !important;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  .naqsh-refresh-btn:hover svg {
+    transform: rotate(180deg) !important;
+    color: #D4BE8D !important;
+  }
+  .naqsh-refresh-btn.is-refreshing svg {
+    animation: naqsh-spin 0.8s linear infinite !important;
+  }
+  @keyframes naqsh-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .naqsh-floating-refresh {
+    position: fixed !important;
+    bottom: 24px !important;
+    right: 24px !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 9px 16px !important;
+    background: linear-gradient(135deg, #0F2D22, #14382B) !important;
+    color: #FAF9F6 !important;
+    border: 1.5px solid #B6975A !important;
+    border-radius: 9999px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 12px rgba(182, 151, 90, 0.25) !important;
+    cursor: pointer !important;
+    transition: all 0.25s ease !important;
+  }
+  .naqsh-floating-refresh:hover {
+    background: linear-gradient(135deg, #14382B, #1D4C3A) !important;
+    border-color: #D4BE8D !important;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5), 0 0 18px rgba(182, 151, 90, 0.4) !important;
+    transform: translateY(-2px) !important;
   }
 
   .dark aside a,
@@ -501,6 +613,108 @@ function patchCustomStyles(dir) {
   document.addEventListener('pointerdown', () => setTimeout(fixMenuVisibility, 10));
   document.addEventListener('click', () => setTimeout(fixMenuVisibility, 10));
   setInterval(fixMenuVisibility, 300);
+
+  // Enforce NAQSH Brand Status Dot Colors (Eliminate pink #f87171)
+  function fixStatusDots() {
+    document.querySelectorAll('.bg-ui-tag-red-icon, [class*="bg-ui-tag-red-icon"]').forEach(dot => {
+      dot.style.setProperty('background-color', '#C53030', 'important');
+    });
+    // Check any dots/badges that might have inline or computed pink
+    document.querySelectorAll('div.rounded-sm, span.rounded-sm, div.rounded-full').forEach(dot => {
+      const bg = window.getComputedStyle(dot).backgroundColor;
+      if (bg === 'rgb(248, 113, 113)' || bg === '#f87171' || bg === 'rgb(254, 202, 202)') {
+        dot.style.setProperty('background-color', '#C53030', 'important');
+      }
+    });
+  }
+
+  // Refresh mechanism
+  function triggerAdminRefresh(btn) {
+    if (btn) {
+      btn.classList.add('is-refreshing');
+      const span = btn.querySelector('span');
+      if (span) span.textContent = 'Refreshing...';
+    }
+    sessionStorage.setItem('naqsh-just-refreshed', 'true');
+    setTimeout(() => {
+      window.location.reload();
+    }, 250);
+  }
+
+  function injectRefreshControls() {
+    // 1. Table header "Export" button injection (Orders page - Image 1!)
+    document.querySelectorAll('button').forEach(btn => {
+      const text = (btn.textContent || '').trim();
+      if (text === 'Export' && !btn.parentElement.querySelector('#naqsh-table-refresh-btn')) {
+        const refreshBtn = document.createElement('button');
+        refreshBtn.id = 'naqsh-table-refresh-btn';
+        refreshBtn.type = 'button';
+        refreshBtn.className = 'naqsh-refresh-btn';
+        refreshBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg><span>Refresh Page</span>';
+        refreshBtn.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          triggerAdminRefresh(refreshBtn);
+        };
+        btn.parentElement.insertBefore(refreshBtn, btn);
+      }
+    });
+
+    // 2. Top navigation bar header injection
+    const header = document.querySelector('header, [role="banner"], [data-header], .sticky.top-0');
+    if (header && !document.getElementById('naqsh-topbar-refresh-btn')) {
+      const rightArea = header.querySelector('div.flex.items-center:last-child') || header;
+      const topRefreshBtn = document.createElement('button');
+      topRefreshBtn.id = 'naqsh-topbar-refresh-btn';
+      topRefreshBtn.type = 'button';
+      topRefreshBtn.className = 'naqsh-refresh-btn';
+      topRefreshBtn.style.marginRight = '8px';
+      topRefreshBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg><span>Refresh</span>';
+      topRefreshBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        triggerAdminRefresh(topRefreshBtn);
+      };
+      if (rightArea.firstChild) {
+        rightArea.insertBefore(topRefreshBtn, rightArea.firstChild);
+      } else {
+        rightArea.appendChild(topRefreshBtn);
+      }
+    }
+
+    // 3. Floating Quick Refresh button
+    if (!document.getElementById('naqsh-floating-refresh-btn')) {
+      const floatBtn = document.createElement('button');
+      floatBtn.id = 'naqsh-floating-refresh-btn';
+      floatBtn.type = 'button';
+      floatBtn.className = 'naqsh-floating-refresh';
+      floatBtn.title = 'Refresh current page and live data (Shift+R)';
+      floatBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:#B6975A;"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg><span>Refresh Page</span>';
+      floatBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        triggerAdminRefresh(floatBtn);
+      };
+      document.body.appendChild(floatBtn);
+    }
+  }
+
+  // Keyboard shortcut: Shift + R to refresh admin page
+  document.addEventListener('keydown', function(e) {
+    if (e.shiftKey && (e.key === 'R' || e.key === 'r')) {
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable)) {
+        return;
+      }
+      e.preventDefault();
+      triggerAdminRefresh(document.getElementById('naqsh-floating-refresh-btn'));
+    }
+  });
+
+  setInterval(() => {
+    fixStatusDots();
+    injectRefreshControls();
+  }, 400);
 
   // Unregister any stale ServiceWorker so changes are active immediately
   if ('serviceWorker' in navigator) {
