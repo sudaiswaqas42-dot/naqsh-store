@@ -23,7 +23,7 @@ export default function ShopDepartments({ section }: { section?: HomepageSection
   ).filter((card: any) => !/kids|children/i.test(card.name) && !/kids|children/i.test(card.slug))
 
   return (
-    <section className="content-container py-10 sm:py-14" aria-label="Shop by department">
+    <section className="hidden lg:block content-container py-10 sm:py-14" aria-label="Shop by department">
       {section?.title && (
         <div className="mb-6 text-center">
           <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-accent">Curated Collections</p>

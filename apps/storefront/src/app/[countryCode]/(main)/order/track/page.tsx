@@ -160,7 +160,7 @@ export default function OrderTrackPage() {
               </div>
 
               {(orderData.tracking?.tracking_number || orderData.tracking_number) ? (
-                <div className="text-right">
+                <div className="w-full text-left lg:w-auto lg:text-right">
                   <div className="text-xs text-stone-500">Courier Partner</div>
                   <div className="font-semibold text-brand text-sm">
                     {orderData.tracking?.carrier || orderData.carrier || "Courier Delivery"}
@@ -169,7 +169,7 @@ export default function OrderTrackPage() {
                     Tracking ID: {orderData.tracking?.tracking_number || orderData.tracking_number}
                   </div>
                 </div>
-              ) : <p className="max-w-xs text-sm font-medium text-red-600 sm:text-right">Your courier and tracking ID will appear here once your order has been dispatched.</p>}
+              ) : <p className="max-w-xs text-sm font-medium text-red-600 lg:text-right">Your courier and tracking ID will appear here once your order has been dispatched.</p>}
             </div>
 
             {orderData.custom_status_label === "Returned" && (
@@ -305,7 +305,7 @@ export default function OrderTrackPage() {
                     </div>
                   </div>
 
-                  <div className="text-right">
+                  <div className="w-full text-left lg:w-auto lg:text-right">
                     <span className="text-xs font-semibold text-brand">
                       Rs. {(item.unit_price || 6950).toLocaleString()}
                     </span>

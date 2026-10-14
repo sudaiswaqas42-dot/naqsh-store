@@ -50,7 +50,7 @@ const manageHomepageStep = createStep(
             !existing.some(
               (section: any) =>
                 section.id === item.id &&
-                !["sale_discounts", "social_links"].includes(section.key)
+                !["sale_discounts", "social_links", "cod_settings"].includes(section.key)
             )
         )
       )
@@ -81,7 +81,7 @@ const manageHomepageStep = createStep(
       })
     }
     const current = await service.retrieveHomepageSection(input.id)
-    if (["sale_discounts", "social_links"].includes(current.key))
+    if (["sale_discounts", "social_links", "cod_settings"].includes(current.key))
       throw new MedusaError(
         MedusaError.Types.INVALID_DATA,
         "Use the dedicated settings editor"

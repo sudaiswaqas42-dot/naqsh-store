@@ -1,6 +1,7 @@
 "use client"
 
-import { useRef, useState, useEffect } from "react"
+import { useState } from "react"
+import { useLoopingRail } from "@lib/hooks/use-looping-rail"
 import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
@@ -71,13 +72,6 @@ const FABRIC_CATEGORIES: FabricCategory[] = [
 ]
 
 export default function FabricCategoryStrip({ section }: { section?: any }) {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(true)
-  const [isHovered, setIsHovered] = useState(false)
-  const [isDragging, setIsDragging] = useState(false)
-  const [startX, setStartX] = useState(0)
-  const [scrollLeftState, setScrollLeftState] = useState(0)
   const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({})
 
   // Dynamic categories from Admin if configured, else default to curated list
@@ -92,80 +86,11 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
         }))
       : FABRIC_CATEGORIES
 
-  const [active, setActive] = useState(0)
-  const position = useRef(0)
-
-  const jump = (index: number) => {
-    const element = scrollRef.current
-    if (!element || element.children.length < 2) return
-    const stride = (element.children[1] as HTMLElement).offsetLeft - (element.children[0] as HTMLElement).offsetLeft
-    position.current = index
-    setActive(index)
-    element.scrollTo({
-      left: index * stride,
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
-    })
-  }
-
-  useEffect(() => {
-    if (isHovered || isDragging || categories.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-    let frame = 0
-    let previous = 0
-    const tick = (time: number) => {
-      const element = scrollRef.current
-      if (element && element.children.length >= categories.length * 2) {
-        const first = element.children[0] as HTMLElement
-        const middle = element.children[categories.length] as HTMLElement
-        const cycle = middle.offsetLeft - first.offsetLeft
-        if (cycle > 0) {
-          if (element.scrollLeft >= cycle * 2) {
-            element.scrollLeft -= cycle
-          } else if (element.scrollLeft <= 0) {
-            element.scrollLeft += cycle
-          }
-          if (previous && !document.hidden) {
-            const delta = Math.min(time - previous, 50) * 0.035
-            element.scrollLeft += delta
-            const stride = cycle / categories.length
-            setActive(Math.floor((element.scrollLeft % cycle) / stride) % categories.length)
-          }
-        }
-      }
-      previous = time
-      frame = requestAnimationFrame(tick)
-    }
-    frame = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frame)
-  }, [isHovered, isDragging, categories.length])
-
-  // Mouse Drag-to-Scroll Handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!scrollRef.current) return
-    setIsDragging(true)
-    setStartX(e.pageX - scrollRef.current.offsetLeft)
-    setScrollLeftState(scrollRef.current.scrollLeft)
-  }
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !scrollRef.current) return
-    e.preventDefault()
-    const x = e.pageX - scrollRef.current.offsetLeft
-    const walk = (x - startX) * 1.5
-    scrollRef.current.scrollLeft = scrollLeftState - walk
-  }
-
-  const stopDragging = () => {
-    setIsDragging(false)
-  }
+  const { rail, active, jump, interactions } = useLoopingRail(categories.length, 35)
 
   return (
     <section
       className="bg-stone-50/80 border-y border-stone-200/90 py-12 my-6 overflow-hidden relative font-sans select-none"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => {
-        setIsHovered(false)
-        stopDragging()
-      }}
     >
       <div className="content-container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
@@ -194,7 +119,9 @@ export default function FabricCategoryStrip({ section }: { section?: any }) {
 
           {/* Horizontal Sliding Track (Bigger Circles) - Continuous Infinite Motion */}
           <div
-            className="naqsh-categories-marquee-track pb-6 pt-3 px-2 select-none"
+            ref={rail}
+            {...interactions}
+            className="relative flex gap-6 overflow-x-auto no-scrollbar pb-6 pt-3 px-2 select-none"
           >
             {[...categories, ...categories, ...categories, ...categories].map((cat, idx) => (
               <LocalizedClientLink

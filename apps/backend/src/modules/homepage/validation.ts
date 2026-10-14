@@ -15,7 +15,7 @@ export const sectionTypes = [
   "cards_grid",
   "custom_cards",
 ]
-const internalKeys = ["sale_discounts", "social_links"]
+const internalKeys = ["sale_discounts", "social_links", "cod_settings"]
 
 export function validateSection(input: any, creating = false) {
   if (!input || typeof input !== "object" || Array.isArray(input))

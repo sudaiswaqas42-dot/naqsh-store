@@ -142,7 +142,7 @@ export async function syncAndHydrateHomepageSections(
     }
 
     // Filter out internal non-display keys like sale_discounts from the layout sections list
-    return allSections.filter((s: any) => !["sale_discounts", "social_links"].includes(s.key))
+    return allSections.filter((s: any) => !["sale_discounts", "social_links", "cod_settings"].includes(s.key))
   } catch (err) {
     console.error("Error syncing homepage sections:", err)
     throw err

@@ -10,6 +10,7 @@ import WishlistButton from "@modules/layout/components/wishlist-button"
 import CartTriggerButton from "@modules/layout/components/cart-trigger-button"
 import CartDrawer from "@modules/cart/templates/cart-drawer"
 import MegaNav from "@modules/layout/components/mega-nav"
+import MobileSearch from "@modules/layout/components/mobile-search"
 import StoreHeader from "@modules/layout/components/store-header"
 
 import NaqshLogo from "@modules/common/components/naqsh-logo"
@@ -31,8 +32,9 @@ export default async function Nav() {
         <div className="content-container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="naqsh-header-row grid grid-cols-[1fr_auto_1fr] lg:grid-cols-[auto_minmax(180px,1fr)_auto] items-center min-h-20 gap-x-4 gap-y-3 py-3">
             {/* Left: Mobile Menu & Quick Catalog Link */}
-            <div className="flex items-center gap-4 order-1 lg:hidden">
+            <div className="flex items-center gap-0 order-1 lg:hidden">
               <SideMenu />
+              <MobileSearch />
               <LocalizedClientLink
                 href="/store"
                 className="hidden xl:inline-block text-[11px] font-semibold uppercase tracking-[0.2em] text-[#1A1A1A]/80 hover:text-[#1A1A1A] transition-colors"
@@ -99,7 +101,7 @@ export default async function Nav() {
               {/* Slide-in Cart Drawer Trigger */}
               <Suspense fallback={<LocalizedClientLink href="/cart" className="p-2 text-xs">Bag</LocalizedClientLink>}><CartControl /></Suspense>
             </div>
-            <div className="order-4 col-span-3 lg:order-2 lg:col-span-1 w-full lg:max-w-md lg:justify-self-center"><SearchAutocomplete /></div>
+            <div className="hidden lg:block order-4 col-span-3 lg:order-2 lg:col-span-1 w-full lg:max-w-md lg:justify-self-center"><SearchAutocomplete /></div>
           </div>
 
           {/* Desktop Mega Navigation */}

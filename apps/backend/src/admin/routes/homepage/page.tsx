@@ -2,6 +2,7 @@ import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { SquaresPlus } from "@medusajs/icons"
 import { Container, Heading, Text, Button, Input } from "@medusajs/ui"
 import { useEffect, useState } from "react"
+import CodSettings from "../../components/cod-settings"
 import HomepageEditor from "../../components/homepage-editor"
 import InstagramManager from "../../components/instagram-manager"
 
@@ -93,6 +94,7 @@ const HomepageAdminPage = () => {
           ["products", "Prices & promotions"],
           ["instagram", "Instagram"],
           ["social", "Social links"],
+          ["cod", "COD / JazzCash"],
         ].map(([id, label]) => (
           <Button
             key={id}
@@ -103,6 +105,7 @@ const HomepageAdminPage = () => {
           </Button>
         ))}
       </nav>
+      {tab === "cod" && <CodSettings />}
       <div hidden={tab !== "sections"}>
         <HomepageEditor />
       </div>

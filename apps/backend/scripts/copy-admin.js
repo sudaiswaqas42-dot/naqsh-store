@@ -80,13 +80,23 @@ function patchUploadLimit(dir) {
 
 if (sourceDir) {
   console.log(`Found admin build at: ${sourceDir}`);
+  console.log('[copy-admin] Patching bundles for 50MB file upload limit and custom layout styles...');
+  patchUploadLimit(sourceDir);
+  patchCustomStyles(sourceDir);
+
   for (const dest of destinations) {
     try {
       if (path.resolve(sourceDir) !== path.resolve(dest)) {
         fs.mkdirSync(dest, { recursive: true });
+        // Clean out stale assets directory before copying to prevent accumulating thousands of dead hashed chunks
+        const destAssets = path.join(dest, 'assets');
+        if (fs.existsSync(destAssets)) {
+          fs.rmSync(destAssets, { recursive: true, force: true });
+        }
         fs.cpSync(sourceDir, dest, { recursive: true, force: true });
         console.log(`Copied admin build to: ${dest}`);
       }
+      patchCustomStyles(dest);
       // Ensure brand logo is available for loader in every destination
       const brandLogoLight = path.resolve(__dirname, '../src/admin/assets/naqsh-logo-light.png');
       const brandLogoDark = path.resolve(__dirname, '../src/admin/assets/naqsh-logo.png');
@@ -514,7 +524,7 @@ function patchCustomStyles(dir) {
 (function() {
   // One-time automatic refresh per session / deployment version to clear stale bundle caches
   try {
-    const REFRESH_KEY = 'naqsh-admin-refreshed-v20261014-final';
+    const REFRESH_KEY = 'naqsh-admin-refreshed-v20261014-cod-update';
     if (!sessionStorage.getItem(REFRESH_KEY)) {
       sessionStorage.setItem(REFRESH_KEY, '1');
       window.location.reload();
@@ -832,15 +842,5 @@ function patchCustomStyles(dir) {
   }
 }
 
-// Enforce 50MB limit and custom styles in all destinations and sourceDir
-console.log('[copy-admin] Patching bundles for 50MB file upload limit and custom layout styles...');
-if (sourceDir) {
-  patchUploadLimit(sourceDir);
-  patchCustomStyles(sourceDir);
-}
-for (const dest of destinations) {
-  patchUploadLimit(dest);
-  patchCustomStyles(dest);
-}
 console.log('[copy-admin] Admin bundles ready with 50MB file upload support & custom styles.');
 

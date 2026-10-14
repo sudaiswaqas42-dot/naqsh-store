@@ -181,7 +181,7 @@ export default function ImageGallery({ images, isSoldOut }: ImageGalleryProps) {
               setIsLightboxOpen(true)
             }}
             aria-label="Open Fullscreen Lightbox"
-            className="absolute bottom-3 right-3 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-stone-800 shadow-md border border-stone-300 flex items-center justify-center transition-all opacity-90 hover:opacity-100 active:scale-95 z-10"
+            className="absolute bottom-10 lg:bottom-3 right-3 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-stone-800 shadow-md border border-stone-300 flex items-center justify-center transition-all opacity-90 hover:opacity-100 active:scale-95 z-10"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />

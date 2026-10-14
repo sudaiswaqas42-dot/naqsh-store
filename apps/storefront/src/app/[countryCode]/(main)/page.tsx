@@ -63,7 +63,7 @@ async function ProductSection({ countryCode, sortBy, title, section }: { country
   } else {
     products = (await getCatalog(countryCode, { sortBy })).products.slice(0, 8)
   }
-  return <section className="content-container py-12 sm:py-16">
+  return <section className={"content-container py-12 sm:py-16 " + (sortBy === "best-selling" ? "naqsh-best-sellers" : "")}>
     <div className="mb-7 flex items-end justify-between gap-4"><div><p className="text-[10px] uppercase tracking-[0.25em] text-accent">{sortBy === "newest" ? "Just landed" : "Customer favourites"}</p><h2 className="mt-2 font-serif text-3xl text-brand sm:text-4xl">{title}</h2></div><LocalizedClientLink href={"/store?sortBy=" + sortBy} className="text-xs underline underline-offset-4">View all</LocalizedClientLink></div>
     {products.length ? <div className="grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 lg:grid-cols-4 sm:gap-x-6">{products.map(product => <NaqshProductCard key={product.id} product={product} />)}</div> : <p className="py-8 text-sm text-stone-500">New pieces will be available here soon.</p>}
   </section>

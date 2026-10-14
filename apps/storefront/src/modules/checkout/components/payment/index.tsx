@@ -7,6 +7,7 @@ import ErrorMessage from "@modules/checkout/components/error-message"
 import PaymentContainer, {
   StripePaymentContainer,
 } from "@modules/checkout/components/payment-container"
+import CodNotice from "../cod-notice"
 import Divider from "@modules/common/components/divider"
 import {
   Button,
@@ -33,19 +34,7 @@ const Payment = ({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [paymentComplete, setPaymentComplete] = useState(false)
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
-    activeSession?.provider_id ?? (availablePaymentMethods.length === 1 ? availablePaymentMethods[0].id : (availablePaymentMethods.find(m => /manual|system_default|cod/i.test(m.id))?.id || ""))
-  )
-
-  useEffect(() => {
-    if (!selectedPaymentMethod && availablePaymentMethods.length > 0) {
-      const codMethod = availablePaymentMethods.find(m => /manual|system_default|cod/i.test(m.id))
-      const target = codMethod?.id || (availablePaymentMethods.length === 1 ? availablePaymentMethods[0].id : "")
-      if (target) {
-        setSelectedPaymentMethod(target)
-      }
-    }
-  }, [availablePaymentMethods, selectedPaymentMethod])
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("")
 
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -87,6 +76,7 @@ const Payment = ({
   }
 
   const handleSubmit = async () => {
+    if (!selectedPaymentMethod && !paidByGiftcard) return
     setIsLoading(true)
     try {
       const shouldInputPaymentDetails =
@@ -176,6 +166,7 @@ const Payment = ({
                   </div>
                 ))}
               </RadioGroup>
+              {/manual|system_default|cod/i.test(selectedPaymentMethod) && <CodNotice />}
             </>
           )}
 

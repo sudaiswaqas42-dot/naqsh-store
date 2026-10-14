@@ -5,6 +5,7 @@ import OptionSelect from "@modules/products/components/product-actions/option-se
 import { selectableOptions } from "@lib/util/selectable-options"
 import { useParams, usePathname, useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
+import ProductFavorite from "../product-favorite"
 import ProductPrice from "../product-price"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { useToast } from "@lib/context/toast-context"
@@ -352,6 +353,8 @@ export default function ProductActions({
                 : "Buy Now"}
             </span>
           </button>
+
+          <ProductFavorite product={product} />
 
           {/* Validation Notice & Helper */}
           {!allOptionsSelected ? (

@@ -110,6 +110,8 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
   const [isDocumentHidden, setIsDocumentHidden] = useState(false)
   const transitioning = useRef(false)
   const touchStartX = useRef<number>(0)
+  const touchStartY = useRef(0)
+  const swiped = useRef(false)
   const touchEndX = useRef<number>(0)
   const campaignRef = useRef<HTMLDivElement>(null)
   const activeSlideRef = useRef<HTMLDivElement>(null)
@@ -172,33 +174,34 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
     return () => document.removeEventListener("visibilitychange", updateVisibility)
   }, [])
 
-  // Advance from the actual end of the reveal, with no separate dwell timer.
+  // Allow time to read the completed slide before advancing.
   useEffect(() => {
     if (completedSlide !== current || isPaused || isDocumentHidden || slides.length < 2) return
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-    setCompletedSlide(null)
-    setPrevIndex(current)
-    setDirection("next")
-    setCurrent(index => (index + 1) % slides.length)
+    const timer = setTimeout(() => {
+      setCompletedSlide(null)
+      setPrevIndex(current)
+      setDirection("next")
+      setCurrent(index => (index + 1) % slides.length)
+    }, 3500)
+    return () => clearTimeout(timer)
   }, [completedSlide, current, isPaused, isDocumentHidden, slides.length])
 
-  // Keep manual navigation from interrupting a reveal.
+  // Manual navigation can replace an in-progress reveal.
   const goToSlide = (index: number) => {
-    if (transitioning.current || index === current) return
+    if (index === current) return
     setPrevIndex(current)
     setDirection(index >= current ? "next" : "prev")
     setCurrent(index)
   }
 
   const nextSlide = () => {
-    if (transitioning.current) return
     setPrevIndex(current)
     setDirection("next")
     setCurrent((prev) => (prev + 1) % slides.length)
   }
 
   const prevSlide = () => {
-    if (transitioning.current) return
     setPrevIndex(current)
     setDirection("prev")
     setCurrent((prev) => (prev - 1 + slides.length) % slides.length)
@@ -206,6 +209,8 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
 
   // Touch handlers for mobile swipe
   const handleTouchStart = (e: React.TouchEvent) => {
+    swiped.current = false
+    touchStartY.current = e.targetTouches[0].clientY
     touchStartX.current = e.targetTouches[0].clientX
     touchEndX.current = e.targetTouches[0].clientX
   }
@@ -214,7 +219,11 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
     touchEndX.current = e.targetTouches[0].clientX
   }
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (event: React.TouchEvent) => {
+    const touch = event.changedTouches[0]
+    touchEndX.current = touch.clientX
+    if (Math.abs(touch.clientY - touchStartY.current) >= Math.abs(touch.clientX - touchStartX.current)) return
+    swiped.current = Math.abs(touch.clientX - touchStartX.current) > 60
     if (touchStartX.current - touchEndX.current > 60) {
       nextSlide()
     }
@@ -241,6 +250,7 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onClickCapture={event => { if (swiped.current) { event.preventDefault(); event.stopPropagation(); swiped.current = false } }}
       >
         {/* Quick Campaign Switcher Pills (Pakistani Top Brand style) */}
         <div ref={campaignRef} className="absolute top-6 left-6 sm:left-12 lg:left-16 z-30 hidden md:flex items-center gap-1.5 bg-black/50 backdrop-blur-md p-1 border border-white/20 shadow-lg">
@@ -333,13 +343,13 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
                       href="/store"
                       className="naqsh-hero-btn flex-1 sm:flex-initial text-center justify-center px-4 py-3.5 sm:px-8 sm:py-4 bg-white hover:bg-accent text-brand hover:text-white text-[11px] sm:text-xs font-bold uppercase tracking-widest transition-colors duration-300 shadow-xl hover:shadow-2xl rounded-none transform hover:-translate-y-0.5 flex items-center gap-2"
                     >
-                      <span>{slide.cta_text}</span>
+                      <span className="hidden lg:inline">{slide.cta_text}</span><span className="lg:hidden whitespace-nowrap">{slide.cta_text.replace(/^shop\s+/i, "")}</span>
                       <span>&rarr;</span>
                     </LocalizedClientLink>
 
                     <LocalizedClientLink
                       href="/store"
-                      className="naqsh-hero-btn flex-1 sm:flex-initial text-center justify-center px-4 py-3.5 sm:px-8 sm:py-4 bg-black/40 backdrop-blur-md border border-white/50 text-white hover:bg-white hover:text-brand hover:border-white text-[11px] sm:text-xs font-semibold uppercase tracking-widest transition-colors rounded-none"
+                      className="naqsh-hero-btn hidden lg:block flex-1 sm:flex-initial text-center justify-center px-4 py-3.5 sm:px-8 sm:py-4 bg-black/40 backdrop-blur-md border border-white/50 text-white hover:bg-white hover:text-brand hover:border-white text-[11px] sm:text-xs font-semibold uppercase tracking-widest transition-colors rounded-none"
                     >
                       Explore Catalog
                     </LocalizedClientLink>

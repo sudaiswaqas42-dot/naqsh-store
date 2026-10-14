@@ -5,6 +5,9 @@ import {
 import { validateReorder, validateSection } from "../validation"
 
 describe("Homepage publishing", () => {
+  test("reserves COD settings for the payment settings editor", () => {
+    expect(() => validateSection({ key: "cod_settings", type: "cards_grid", title: "Override" }, true)).toThrow()
+  })
   test("reading an intentionally empty homepage never recreates deleted sections", async () => {
     const service = {
       listHomepageSections: jest.fn().mockResolvedValue([]),
@@ -19,6 +22,7 @@ describe("Homepage publishing", () => {
       { id: "two", type: "hero_slider" },
       { key: "social_links" },
       { key: "sale_discounts" },
+      { key: "cod_settings" },
     ]
     const service = {
       listHomepageSections: jest.fn().mockResolvedValue(sections),

@@ -494,3 +494,21 @@ nextjs-portal {
   .naqsh-scroll-section.naqsh-reveal-pending { opacity: 1; transform: none; transition: none; }
   .naqsh-eye-blink { animation: none; }
 }
+
+/* Compact touch layouts apply in portrait and landscape. */
+@media (max-width: 1023px) {
+  .mobile-home-departments { display: none; }
+  .naqsh-header-row { position: relative; min-height: 64px; gap: 4px; }
+  .naqsh-header-row [data-testid="nav-store-link"] img { max-width: 145px; height: auto; }
+  .naqsh-home-hero .naqsh-hero-btn { flex: 0 1 auto; white-space: nowrap; letter-spacing: .08em; }
+  .naqsh-best-sellers { padding-top: 24px; padding-bottom: 24px; }
+  .naqsh-customer-reviews { padding-top: 32px; padding-bottom: 40px; }
+  .naqsh-customer-reviews .text-center.max-w-xl { margin-bottom: 24px; }
+  .product-buy-actions { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px; gap: 8px; }
+  .product-buy-actions > button { padding-inline: 6px; font-size: 10px; letter-spacing: .02em; }
+  .product-buy-actions > .col-span-2 { grid-column: 1 / -1; }
+  [data-testid="related-products-container"] { margin-block: 28px; }
+  .naqsh-related-products > div:first-child { margin-bottom: 24px; }
+  .naqsh-related-products > div:first-child > span { font-size: 24px; line-height: 1.25; margin-bottom: 8px; }
+  .naqsh-related-products > div:first-child > p { font-size: 14px; line-height: 1.5; }
+}

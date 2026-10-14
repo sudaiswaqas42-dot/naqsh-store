@@ -24,13 +24,13 @@ export default function JournalPreview({ section }: { section?: HomepageSection 
           <p className="text-[10px] uppercase tracking-[0.25em] text-accent">{section?.subtitle || "The NAQSH Journal"}</p>
           <h2 className="mt-2 font-serif text-3xl text-brand">{section?.title || "Stories & Style"}</h2>
         </div>
-        <LocalizedClientLink href="/blog" className="text-xs underline underline-offset-4">
+        <LocalizedClientLink href="/blog" className="hidden lg:block text-xs underline underline-offset-4">
           Read the blog
         </LocalizedClientLink>
       </div>
-      <div className="naqsh-journal-grid grid grid-cols-2 gap-4 sm:gap-6 sm:grid-cols-3">
+      <div className="naqsh-journal-grid grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
         {articles.map((article: any, idx: number) => (
-          <LocalizedClientLink key={article.link + idx} href={article.link} className="group">
+          <LocalizedClientLink key={article.link + idx} href={article.link} className={idx > 1 ? "group hidden lg:block" : "group"}>
             <img
               src={article.image}
               alt={article.title}
@@ -48,6 +48,7 @@ export default function JournalPreview({ section }: { section?: HomepageSection 
           </LocalizedClientLink>
         ))}
       </div>
+      <div className="mt-5 text-center lg:hidden"><LocalizedClientLink href="/blog" className="inline-block py-2 text-xs underline underline-offset-4">Read the blog</LocalizedClientLink></div>
     </section>
   )
 }

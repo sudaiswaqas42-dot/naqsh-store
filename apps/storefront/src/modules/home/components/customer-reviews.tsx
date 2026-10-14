@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import { useLoopingRail } from "@lib/hooks/use-looping-rail"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useToast } from "@lib/context/toast-context"
 
@@ -119,6 +120,8 @@ export default function CustomerReviews({ section, fullPage = false }: { section
       .catch((err) => console.error("Error loading reviews:", err))
   }, [])
 
+  const { rail, interactions } = useLoopingRail(fullPage ? 0 : Math.min(reviews.length, 9), 32)
+
   if (!section && !isActive) return null
   const displayReviews = fullPage ? reviews : reviews.slice(0, 9)
 
@@ -158,7 +161,7 @@ export default function CustomerReviews({ section, fullPage = false }: { section
   }
 
   return (
-    <section className="py-20 sm:py-24 bg-[#FAF9F6] text-stone-900 font-sans border-t border-[#EBE1D6] relative overflow-hidden select-none">
+    <section className="naqsh-customer-reviews py-20 sm:py-24 bg-[#FAF9F6] text-stone-900 font-sans border-t border-[#EBE1D6] relative overflow-hidden select-none">
       {/* Subtle brand ambient glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-[#B6975A]/5 rounded-full blur-[140px] pointer-events-none" />
 
@@ -227,7 +230,7 @@ export default function CustomerReviews({ section, fullPage = false }: { section
             <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-20 bg-gradient-to-r from-[#FAF9F6] to-transparent z-10" />
             <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-20 bg-gradient-to-l from-[#FAF9F6] to-transparent z-10" />
 
-            <div className="naqsh-reviews-marquee-track">
+            <div ref={rail} {...interactions} className="relative flex gap-6 overflow-x-auto no-scrollbar">
               {/* Repeated reviews list ensures uninterrupted continuous infinite motion */}
               {[...displayReviews, ...displayReviews, ...displayReviews, ...displayReviews].map((rev, idx) => (
                 <div

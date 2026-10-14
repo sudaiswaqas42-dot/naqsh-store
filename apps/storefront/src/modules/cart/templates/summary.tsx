@@ -1,5 +1,7 @@
 "use client"
 
+import { useState } from "react"
+import CodNotice from "@modules/checkout/components/cod-notice"
 import { Button, Heading } from "@modules/common/components/ui"
 
 import CartTotals from "@modules/common/components/cart-totals"
@@ -25,6 +27,7 @@ function getCheckoutStep(cart: HttpTypes.StoreCart) {
 }
 
 const Summary = ({ cart }: SummaryProps) => {
+  const [codSelected, setCodSelected] = useState(false)
   const step = getCheckoutStep(cart)
   let optimisticTotals = cart
 
@@ -48,12 +51,19 @@ const Summary = ({ cart }: SummaryProps) => {
       <DiscountCode cart={cart} />
       <Divider />
       <CartTotals totals={optimisticTotals} />
-      <LocalizedClientLink
+      <div className="rounded-xl border border-stone-200 p-4">
+        <label className="flex cursor-pointer items-center gap-3 text-sm font-medium">
+          <input type="checkbox" checked={codSelected} onChange={event => setCodSelected(event.target.checked)} className="h-5 w-5 accent-[#0F2D22]" />
+          Cash on Delivery (COD)
+        </label>
+        {codSelected && <CodNotice />}
+      </div>
+      {codSelected ? <LocalizedClientLink
         href={"/checkout?step=" + step}
         data-testid="checkout-button"
       >
         <Button className="w-full h-10">Go to checkout</Button>
-      </LocalizedClientLink>
+      </LocalizedClientLink> : <><Button className="w-full h-10" disabled>Go to checkout</Button><p className="text-xs text-stone-500">Select Cash on Delivery to continue.</p></>}
     </div>
   )
 }
