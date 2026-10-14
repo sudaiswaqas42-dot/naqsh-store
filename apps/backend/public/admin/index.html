@@ -13,8 +13,8 @@
             content="width=device-width, initial-scale=1"
         />
         <link rel="icon" href="data:," data-placeholder-favicon />
-      <script type="module" crossorigin src="/app/assets/index-D_4azHK8.js"></script>
-      <link rel="stylesheet" crossorigin href="/app/assets/index-BTFnVvtC.css">
+      <script type="module" crossorigin src="/app/assets/index-BlncmyGb.js"></script>
+      <link rel="stylesheet" crossorigin href="/app/assets/index-C_eyaXwf.css">
     <style id="naqsh-admin-styles">
   /* Fix Inventory Availability and Edit Drawer Layout */
   [role="dialog"] table,
@@ -138,79 +138,121 @@
     background-color: #C53030 !important;
   }
 
-  /* NAQSH Luxury Refresh Buttons */
-  .naqsh-refresh-btn {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    padding: 6px 14px !important;
-    background-color: #14382B !important;
-    color: #FAF9F6 !important;
-    border: 1px solid #B6975A !important;
-    border-radius: 6px !important;
-    font-size: 12px !important;
-    font-weight: 500 !important;
-    line-height: 1.2 !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
-    user-select: none !important;
-    text-decoration: none !important;
-  }
-  .naqsh-refresh-btn:hover {
-    background-color: #1D4C3A !important;
-    border-color: #D4BE8D !important;
-    color: #FFFFFF !important;
-    box-shadow: 0 0 10px rgba(182, 151, 90, 0.35) !important;
-    transform: translateY(-1px) !important;
-  }
-  .naqsh-refresh-btn:active {
-    background-color: #0F2D22 !important;
-    transform: translateY(0) !important;
-  }
-  .naqsh-refresh-btn svg {
-    width: 14px !important;
-    height: 14px !important;
-    color: #B6975A !important;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  }
-  .naqsh-refresh-btn:hover svg {
-    transform: rotate(180deg) !important;
-    color: #D4BE8D !important;
-  }
-  .naqsh-refresh-btn.is-refreshing svg {
-    animation: naqsh-spin 0.8s linear infinite !important;
-  }
-  @keyframes naqsh-spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .naqsh-floating-refresh {
+  /* NAQSH Luxury Brand Page Transition Loader (Frontend Site Match) */
+  #naqsh-page-loader {
     position: fixed !important;
-    bottom: 24px !important;
-    right: 24px !important;
-    z-index: 9999 !important;
+    inset: 0 !important;
+    z-index: 999999 !important;
     display: flex !important;
     align-items: center !important;
-    gap: 8px !important;
-    padding: 9px 16px !important;
-    background: linear-gradient(135deg, #0F2D22, #14382B) !important;
-    color: #FAF9F6 !important;
-    border: 1.5px solid #B6975A !important;
-    border-radius: 9999px !important;
-    font-size: 13px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.02em !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 12px rgba(182, 151, 90, 0.25) !important;
-    cursor: pointer !important;
-    transition: all 0.25s ease !important;
+    justify-content: center !important;
+    background-color: #081B14 !important;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.22s !important;
   }
-  .naqsh-floating-refresh:hover {
-    background: linear-gradient(135deg, #14382B, #1D4C3A) !important;
-    border-color: #D4BE8D !important;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5), 0 0 18px rgba(182, 151, 90, 0.4) !important;
-    transform: translateY(-2px) !important;
+
+  #naqsh-page-loader.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: all !important;
+  }
+
+  #naqsh-page-loader.fading {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .naqsh-loader-frame {
+    position: absolute !important;
+    inset: 20px !important;
+    border: 1px solid rgba(182, 151, 90, 0.22) !important;
+    pointer-events: none !important;
+  }
+  @media (min-width: 640px) {
+    .naqsh-loader-frame {
+      inset: 32px 44px !important;
+    }
+  }
+
+  .naqsh-loader-content {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    padding: 24px !important;
+    max-width: 520px !important;
+    width: 90% !important;
+  }
+
+  .naqsh-loader-subtitle {
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.38em !important;
+    text-transform: uppercase !important;
+    color: #B6975A !important;
+    margin-bottom: 14px !important;
+  }
+
+  .naqsh-loader-logo-wrap {
+    position: relative !important;
+    width: 260px !important;
+    max-width: 80vw !important;
+    height: 64px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .naqsh-loader-logo-img {
+    max-height: 56px !important;
+    width: auto !important;
+    max-width: 100% !important;
+    object-fit: contain !important;
+    filter: drop-shadow(0 2px 10px rgba(182, 151, 90, 0.3)) !important;
+  }
+
+  .naqsh-loader-line-track {
+    position: relative !important;
+    margin-top: 18px !important;
+    height: 2px !important;
+    width: 140px !important;
+    background-color: rgba(182, 151, 90, 0.2) !important;
+    border-radius: 9999px !important;
+    overflow: hidden !important;
+  }
+  @media (min-width: 640px) {
+    .naqsh-loader-line-track {
+      width: 200px !important;
+    }
+  }
+
+  .naqsh-loader-line-fill {
+    position: absolute !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 50% !important;
+    background: linear-gradient(90deg, transparent, #D4BE8D, #B6975A, transparent) !important;
+    border-radius: 9999px !important;
+    animation: naqsh-loader-anim 1.4s infinite cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  @keyframes naqsh-loader-anim {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(120%); }
+    100% { transform: translateX(250%); }
+  }
+
+  .naqsh-loader-footer-text {
+    margin-top: 14px !important;
+    font-size: 10px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.25em !important;
+    text-transform: uppercase !important;
+    color: #A3B8AC !important;
   }
 
   .dark aside a,
@@ -526,93 +568,121 @@
     });
   }
 
-  // Refresh mechanism
-  function triggerAdminRefresh(btn) {
-    if (btn) {
-      btn.classList.add('is-refreshing');
-      const span = btn.querySelector('span');
-      if (span) span.textContent = 'Refreshing...';
-    }
-    sessionStorage.setItem('naqsh-just-refreshed', 'true');
-    setTimeout(() => {
-      window.location.reload();
-    }, 250);
+  // NAQSH Luxury Brand Page Transition Loader (Matches Frontend Site BrandLoader)
+  let loaderActive = false;
+  let safetyTimer = null;
+  let fadeTimer = null;
+
+  function createPageLoader() {
+    let loader = document.getElementById('naqsh-page-loader');
+    if (loader) return loader;
+
+    loader = document.createElement('div');
+    loader.id = 'naqsh-page-loader';
+    loader.setAttribute('role', 'status');
+    loader.setAttribute('aria-label', 'Loading NAQSH Admin');
+
+    // Find if a logo already exists in DOM
+    const existingLogo = document.querySelector('img[alt="NAQSH"]');
+    const logoSrc = (existingLogo && existingLogo.src) ? existingLogo.src : '/app/naqsh-logo-light.png';
+
+    loader.innerHTML = '<div aria-hidden="true" class="naqsh-loader-frame"></div>' +
+      '<div class="naqsh-loader-content">' +
+      '<p class="naqsh-loader-subtitle">NAQSH LUXURY ATELIER</p>' +
+      '<div class="naqsh-loader-logo-wrap" aria-hidden="true">' +
+      '<img class="naqsh-loader-logo-img" src="' + logoSrc + '" alt="NAQSH" />' +
+      '</div>' +
+      '<div class="naqsh-loader-line-track">' +
+      '<div class="naqsh-loader-line-fill"></div>' +
+      '</div>' +
+      '<span class="naqsh-loader-footer-text">Preparing workspace...</span>' +
+      '</div>';
+
+    document.body.appendChild(loader);
+    return loader;
   }
 
-  function injectRefreshControls() {
-    // 1. Table header "Export" button injection (Orders page - Image 1!)
-    document.querySelectorAll('button').forEach(btn => {
-      const text = (btn.textContent || '').trim();
-      if (text === 'Export' && !btn.parentElement.querySelector('#naqsh-table-refresh-btn')) {
-        const refreshBtn = document.createElement('button');
-        refreshBtn.id = 'naqsh-table-refresh-btn';
-        refreshBtn.type = 'button';
-        refreshBtn.className = 'naqsh-refresh-btn';
-        refreshBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg><span>Refresh Page</span>';
-        refreshBtn.onclick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          triggerAdminRefresh(refreshBtn);
-        };
-        btn.parentElement.insertBefore(refreshBtn, btn);
-      }
-    });
+  function showPageLoader() {
+    const loader = createPageLoader();
+    if (!loader) return;
+    if (safetyTimer) clearTimeout(safetyTimer);
+    if (fadeTimer) clearTimeout(fadeTimer);
 
-    // 2. Top navigation bar header injection
-    const header = document.querySelector('header, [role="banner"], [data-header], .sticky.top-0');
-    if (header && !document.getElementById('naqsh-topbar-refresh-btn')) {
-      const rightArea = header.querySelector('div.flex.items-center:last-child') || header;
-      const topRefreshBtn = document.createElement('button');
-      topRefreshBtn.id = 'naqsh-topbar-refresh-btn';
-      topRefreshBtn.type = 'button';
-      topRefreshBtn.className = 'naqsh-refresh-btn';
-      topRefreshBtn.style.marginRight = '8px';
-      topRefreshBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg><span>Refresh</span>';
-      topRefreshBtn.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        triggerAdminRefresh(topRefreshBtn);
-      };
-      if (rightArea.firstChild) {
-        rightArea.insertBefore(topRefreshBtn, rightArea.firstChild);
-      } else {
-        rightArea.appendChild(topRefreshBtn);
-      }
-    }
+    loader.classList.remove('fading');
+    loader.classList.add('active');
+    loaderActive = true;
 
-    // 3. Floating Quick Refresh button
-    if (!document.getElementById('naqsh-floating-refresh-btn')) {
-      const floatBtn = document.createElement('button');
-      floatBtn.id = 'naqsh-floating-refresh-btn';
-      floatBtn.type = 'button';
-      floatBtn.className = 'naqsh-floating-refresh';
-      floatBtn.title = 'Refresh current page and live data (Shift+R)';
-      floatBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:#B6975A;"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg><span>Refresh Page</span>';
-      floatBtn.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        triggerAdminRefresh(floatBtn);
-      };
-      document.body.appendChild(floatBtn);
+    // Safety timeout: never let it stay stuck
+    safetyTimer = setTimeout(() => {
+      hidePageLoader();
+    }, 2800);
+  }
+
+  function hidePageLoader() {
+    const loader = document.getElementById('naqsh-page-loader');
+    if (!loader || !loaderActive) return;
+
+    loader.classList.add('fading');
+    fadeTimer = setTimeout(() => {
+      loader.classList.remove('active');
+      loader.classList.remove('fading');
+      loaderActive = false;
+    }, 220);
+  }
+
+  // Intercept route changes via pushState, replaceState & popstate (SPA navigation)
+  let lastUrl = window.location.href;
+  function handleUrlChange() {
+    const current = window.location.href;
+    if (current !== lastUrl) {
+      lastUrl = current;
+      showPageLoader();
+      setTimeout(hidePageLoader, 420);
     }
   }
 
-  // Keyboard shortcut: Shift + R to refresh admin page
-  document.addEventListener('keydown', function(e) {
-    if (e.shiftKey && (e.key === 'R' || e.key === 'r')) {
-      const activeEl = document.activeElement;
-      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable)) {
-        return;
-      }
-      e.preventDefault();
-      triggerAdminRefresh(document.getElementById('naqsh-floating-refresh-btn'));
-    }
-  });
+  const origPushState = history.pushState;
+  history.pushState = function() {
+    origPushState.apply(this, arguments);
+    handleUrlChange();
+  };
 
-  setInterval(() => {
-    fixStatusDots();
-    injectRefreshControls();
-  }, 400);
+  const origReplaceState = history.replaceState;
+  history.replaceState = function() {
+    origReplaceState.apply(this, arguments);
+    handleUrlChange();
+  };
+
+  window.addEventListener('popstate', handleUrlChange);
+
+  // Intercept clicks on internal navigation links (sidebar links, table rows, breadcrumbs)
+  document.addEventListener('click', function(e) {
+    const target = e.target instanceof Element ? e.target.closest('a') : null;
+    if (!target || !target.href) return;
+
+    try {
+      const url = new URL(target.href, window.location.href);
+      const isSameOrigin = url.origin === window.location.origin;
+      const isAppPath = url.pathname.startsWith('/app');
+      const isDifferent = (url.pathname !== window.location.pathname) || (url.search !== window.location.search);
+
+      if (isSameOrigin && isAppPath && isDifferent && !target.target && !target.hasAttribute('download') && !url.hash && e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        showPageLoader();
+        setTimeout(hidePageLoader, 480);
+      }
+    } catch (err) {}
+  }, true);
+
+  // Initial load transition
+  if (document.readyState === 'loading') {
+    showPageLoader();
+    window.addEventListener('DOMContentLoaded', () => setTimeout(hidePageLoader, 350));
+  } else {
+    showPageLoader();
+    setTimeout(hidePageLoader, 350);
+  }
+
+  setInterval(fixStatusDots, 400);
 
   // Unregister any stale ServiceWorker so changes are active immediately
   if ('serviceWorker' in navigator) {
