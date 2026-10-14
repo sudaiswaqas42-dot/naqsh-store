@@ -423,18 +423,22 @@ export async function placeOrder(cartId?: string) {
     ...(await getAuthHeaders()),
   }
 
-  const cartRes = await sdk.store.cart
-    .complete(id, {}, headers)
-    .then(async (cartRes) => {
-      const cartCacheTag = await getCacheTag("carts")
-      revalidateTag(cartCacheTag)
-      return cartRes
-    })
-    .catch(medusaError)
+  let cartRes: any
+  try {
+    cartRes = await sdk.store.cart.complete(id, {}, headers)
+    const cartCacheTag = await getCacheTag("carts")
+    revalidateTag(cartCacheTag)
+  } catch (err: any) {
+    const message =
+      err?.response?.data?.message ||
+      err?.message ||
+      "Unable to complete order. Please check shipping or payment details."
+    throw new Error(typeof message === "string" ? message : JSON.stringify(message))
+  }
 
   if (cartRes?.type === "order") {
     const countryCode =
-      cartRes.order.shipping_address?.country_code?.toLowerCase()
+      cartRes.order.shipping_address?.country_code?.toLowerCase() || "pk"
 
     const orderCacheTag = await getCacheTag("orders")
     revalidateTag(orderCacheTag)
@@ -443,7 +447,12 @@ export async function placeOrder(cartId?: string) {
     redirect(`/${countryCode}/order/${cartRes?.order.id}/confirmed`)
   }
 
-  return cartRes.cart
+  if (cartRes?.type === "cart") {
+    const errorMsg = cartRes.error?.message || "Unable to complete order with the selected details."
+    throw new Error(errorMsg)
+  }
+
+  return cartRes?.cart
 }
 
 /**

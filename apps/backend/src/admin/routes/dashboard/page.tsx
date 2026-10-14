@@ -1,4 +1,5 @@
 import BrandLogo from "../../components/brand-logo"
+import "../../one-time-refresh"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { ChartBar, ArrowPath, ExclamationCircle, Sparkles } from "@medusajs/icons"
 import { Container, Heading, Text, Badge, Button, Table } from "@medusajs/ui"

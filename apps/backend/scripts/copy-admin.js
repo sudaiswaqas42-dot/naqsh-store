@@ -345,6 +345,16 @@ function patchCustomStyles(dir) {
 
       const customScript = `<script id="naqsh-admin-enhancements">
 (function() {
+  // One-time automatic refresh per session / deployment version to clear stale bundle caches
+  try {
+    const REFRESH_KEY = 'naqsh-admin-refreshed-v20261014-final';
+    if (!sessionStorage.getItem(REFRESH_KEY)) {
+      sessionStorage.setItem(REFRESH_KEY, '1');
+      window.location.reload();
+      return;
+    }
+  } catch (e) {}
+
   const UNSTITCHED_COLORS = [
     "Black", "White", "Off White", "Cream", "Navy Blue", "Royal Blue", "Sky Blue",
     "Emerald Green", "Bottle Green", "Olive Green", "Mint Green", "Sea Green",

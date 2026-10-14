@@ -33,6 +33,9 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         "metadata",
         "fulfillments.*",
         "items.*",
+        "items.detail.*",
+        "returns.*",
+        "returns.items.*",
         "payment_collections.*",
         "payment_collections.payments.*",
       ],
@@ -121,10 +124,31 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
     const resolveStatus = (orderObj: any): string => {
       if (orderObj.status === "canceled") return "Cancelled"
+
+      // 1. Return check (Native returns, courier returns, or returned line items)
+      const returns = Array.isArray(orderObj.returns) ? orderObj.returns : []
+      const hasNativeReturn = returns.some((r: any) => !r.canceled_at)
+      const hasCourierReturn = Boolean(
+        orderObj.metadata?.courier_returns &&
+        Object.keys(orderObj.metadata.courier_returns).length > 0
+      )
+      const its = Array.isArray(orderObj.items) ? orderObj.items : []
+      const hasReturnedItems = its.some((it: any) =>
+        Number(it.detail?.return_received_quantity || 0) > 0 ||
+        Number(it.detail?.return_requested_quantity || 0) > 0 ||
+        Number(it.detail?.returned_quantity || 0) > 0
+      )
+      const isExplicitReturned =
+        orderObj.metadata?.custom_status === "Returned" ||
+        orderObj.status === "returned"
+
+      if (hasNativeReturn || hasCourierReturn || hasReturnedItems || isExplicitReturned) {
+        return "Returned"
+      }
+
       if (orderObj.metadata?.custom_status) return orderObj.metadata.custom_status as string
 
       const fuls = Array.isArray(orderObj.fulfillments) ? orderObj.fulfillments : []
-      const its = Array.isArray(orderObj.items) ? orderObj.items : []
 
       const isDelivered =
         fuls.some((f: any) => f.delivered_at && !f.canceled_at) ||
@@ -152,7 +176,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
       if (orderObj.status === "canceled") return "Cancelled"
       if (orderObj.payment_status === "captured" || orderObj.status === "pending") return "Confirmed"
-      return "Pending"
+      return "Processing"
     }
 
     const resolvePaymentStatus = (ord: any): string => {
@@ -214,8 +238,11 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       const ordTime = ordDate.getTime()
       const total = Number(ord.total) || 0
 
-      // Only count non-cancelled in revenue
-      if (ord.status !== "canceled") {
+      const customStatus = resolveStatus(ord)
+      const isReturned = customStatus === "Returned" || customStatus === "Refunded"
+
+      // Only count non-cancelled and non-returned in net revenue
+      if (ord.status !== "canceled" && !isReturned) {
         totalSales += total
         if (ordTime >= todayStart) {
           todaySales += total
@@ -230,8 +257,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         }
       }
 
-      const customStatus = resolveStatus(ord)
-      if (customStatus === "Returned" || customStatus === "Refunded") {
+      if (isReturned) {
         returnedCount++
       } else if (ord.status === "canceled" || customStatus === "Cancelled") {
         cancelledCount++

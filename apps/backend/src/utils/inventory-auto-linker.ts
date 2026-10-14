@@ -76,6 +76,26 @@ export async function runInventoryAutoLinker(customConnectionString?: string): P
       details.push(`${invTitle} (${invSku})`)
     }
 
+    // 5. Ensure all products are linked to the default shipping profile
+    const defaultProfileRes = await client.query("SELECT id FROM shipping_profile ORDER BY created_at ASC LIMIT 1")
+    const defaultProfileId = defaultProfileRes.rows[0]?.id || "sp_01M3EW9896C03QNVZNMB37DV0K"
+
+    const unlinkedProducts = await client.query(`
+      SELECT p.id
+      FROM product p
+      LEFT JOIN product_shipping_profile psp ON psp.product_id = p.id
+      WHERE psp.id IS NULL
+    `)
+
+    for (const pRow of unlinkedProducts.rows) {
+      const pspId = `prodsp_${pRow.id.replace('prod_', '')}`
+      await client.query(`
+        INSERT INTO product_shipping_profile (id, product_id, shipping_profile_id, created_at, updated_at)
+        VALUES ($1, $2, $3, NOW(), NOW())
+        ON CONFLICT (product_id, shipping_profile_id) DO NOTHING
+      `, [pspId, pRow.id, defaultProfileId])
+    }
+
     return { linked: unlinked.rows.length, details }
   } finally {
     await client.end().catch(() => {})

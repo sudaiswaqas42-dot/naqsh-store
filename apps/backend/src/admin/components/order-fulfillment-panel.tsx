@@ -50,12 +50,22 @@ export default function OrderFulfillmentPanel({
     fulfillment?.delivered_at || order.fulfillment_status === "delivered"
   )
   const isReturned = Boolean(
-    fulfillment && order.metadata?.courier_returns?.[fulfillment.id]
+    (fulfillment && order.metadata?.courier_returns?.[fulfillment.id]) ||
+    order.metadata?.custom_status === "Returned" ||
+    (Array.isArray(order.returns) && order.returns.some((r: any) => !r.canceled_at)) ||
+    (Array.isArray(order.items) &&
+      order.items.some(
+        (it: any) =>
+          Number(it.detail?.return_received_quantity || 0) > 0 ||
+          Number(it.detail?.return_requested_quantity || 0) > 0
+      ))
   )
 
   const [statusStep, setStatusStep] = useState<string>(
     (order.metadata?.custom_status as string) ||
-      (isDelivered
+      (isReturned
+        ? "Returned"
+        : isDelivered
         ? "Delivered"
         : isShipped
         ? "Shipped"
@@ -449,9 +459,8 @@ export default function OrderFulfillmentPanel({
                 <Button
                   variant="secondary"
                   size="small"
-                  disabled={busy || isDelivered}
+                  disabled={busy}
                   onClick={() => setReturnDrawerOpen(true)}
-                  title={isDelivered ? "Courier return is disabled for delivered parcels" : undefined}
                 >
                   Courier Return
                 </Button>

@@ -1,4 +1,5 @@
 import OrderFulfillmentPanel from "../components/order-fulfillment-panel"
+import "../one-time-refresh"
 import "../styles/brand.css"
 import { defineWidgetConfig } from "@medusajs/admin-sdk"
 import { Check, ArrowDownTray, PencilSquare, DocumentText } from "@medusajs/icons"
@@ -23,6 +24,18 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
     if (metadata.custom_status) return metadata.custom_status as string
     const fulfillments = Array.isArray(order?.fulfillments) ? order.fulfillments : []
     const items = Array.isArray(order?.items) ? order.items : []
+
+    const isReturned =
+      metadata.custom_status === "Returned" ||
+      (Array.isArray(order?.returns) && order.returns.some((r: any) => !r.canceled_at)) ||
+      items.some(
+        (it: any) =>
+          Number(it.detail?.return_received_quantity || 0) > 0 ||
+          Number(it.detail?.return_requested_quantity || 0) > 0
+      ) ||
+      fulfillments.some((f: any) => metadata?.courier_returns?.[f.id])
+
+    if (isReturned) return "Returned"
 
     const isDelivered =
       fulfillments.some((f: any) => f.delivered_at && !f.canceled_at) ||

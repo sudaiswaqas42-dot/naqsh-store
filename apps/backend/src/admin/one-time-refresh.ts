@@ -1,7 +1,7 @@
 // This entry is loaded globally, including direct links to order details.
 if (typeof window !== "undefined") {
   try {
-    const key = "naqsh-admin-refreshed-v1"
+    const key = "naqsh-admin-refreshed-v20261014-final"
     if (!window.sessionStorage.getItem(key)) {
       window.sessionStorage.setItem(key, "1")
       window.location.reload()
