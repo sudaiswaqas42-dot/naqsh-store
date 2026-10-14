@@ -308,11 +308,11 @@ nextjs-portal {
   .mobile-home-departments a { padding: 10px 4px; border-radius: 14px; background: #eeece8; color: #23362f; text-align: center; font-size: 12px; font-weight: 500; border: 1px solid transparent; transition: all 0.2s ease; }
   .mobile-home-departments a:hover, .mobile-home-departments a:active { background: #122f24; color: white; border-color: #122f24; }
   .naqsh-home-hero { width: 100%; margin: 0; border-radius: 0; }
-  .naqsh-home-hero-stage { height: 460px; }
+  .naqsh-home-hero-stage { height: 580px; min-height: 580px; }
   .naqsh-home-hero .content-container { padding: 24px 20px; }
-  .naqsh-home-hero h1 { max-width: 85%; margin-bottom: 12px; font-size: 28px; line-height: 1.15; letter-spacing: -0.01em; }
-  .naqsh-home-hero p { max-width: 88%; font-size: 11px; line-height: 1.5; }
-  .naqsh-home-hero a { padding: 10px 14px; font-size: 10px; }
+  .naqsh-home-hero h1 { max-width: 100%; margin-bottom: 12px; font-size: 26px; line-height: 1.15; letter-spacing: -0.01em; word-break: normal; hyphens: none; }
+  .naqsh-home-hero p { max-width: 95%; font-size: 11px; line-height: 1.5; }
+  .naqsh-home-hero a { padding: 12px 14px; font-size: 10px; }
   .naqsh-home-hero .animate-marquee { font-size: 8px; padding-block: 5px; }
   .naqsh-home-hero button[aria-label="Previous slide"], .naqsh-home-hero button[aria-label="Next slide"] { display: none; }
 }
@@ -324,19 +324,61 @@ nextjs-portal {
 @keyframes naqsh-notification-lifetime { 0% { opacity: 0; transform: translateY(8px); } 12%, 78% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(4px); } }
 @media (max-width: 767px) { .naqsh-notification-layer { bottom: calc(104px + env(safe-area-inset-bottom)); } }
 @media (prefers-reduced-motion: reduce) { .naqsh-notification { animation: none; } }
-.naqsh-reveal-pending { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
-.naqsh-reveal-pending.naqsh-reveal-visible { opacity: 1; transform: translateY(0); }
-@keyframes naqsh-letter { from { opacity: 0; transform: translateX(-8px); filter: blur(1.5px); } to { opacity: 1; transform: translateX(0); filter: blur(0); } }
-.naqsh-banner-letter { display: inline-block; animation: naqsh-letter .35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Luxury Scroll Reveal (from website.html) */
+.fade-up, .naqsh-scroll-section, .naqsh-reveal-pending {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.fade-up.visible,
+.fade-up.naqsh-reveal-visible,
+.naqsh-scroll-section.visible,
+.naqsh-scroll-section.naqsh-reveal-visible,
+.naqsh-reveal-pending.naqsh-reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-in {
+  opacity: 0;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity;
+}
+.fade-in.visible,
+.fade-in.naqsh-reveal-visible {
+  opacity: 1;
+}
+
+/* Right to Left Word by Word Hero Reveal Fallback */
+@keyframes naqsh-word-reveal {
+  from {
+    opacity: 0;
+    transform: translateX(45px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+.naqsh-banner-word {
+  display: inline-block;
+  animation: naqsh-word-reveal 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
 .naqsh-home-hero .content-container a { pointer-events: auto; }
 .product-buy-now { order: 41; }
 @media (max-width: 767px) and (orientation: portrait) {
   .naqsh-home-hero { width: 100%; margin: 0; border-radius: 0; }
-  .naqsh-home-hero-stage { height: 440px; }
+  .naqsh-home-hero-stage { height: 580px; min-height: 580px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .naqsh-reveal-pending { opacity: 1; transform: none; transition: none; }
-  .naqsh-banner-letter { animation: none; }
+  .fade-up, .naqsh-scroll-section, .naqsh-reveal-pending { opacity: 1; transform: none; transition: none; }
+  .fade-in { opacity: 1; transition: none; }
+  .naqsh-banner-word { animation: none; }
 }
 
 @keyframes naqsh-eye-breathe {

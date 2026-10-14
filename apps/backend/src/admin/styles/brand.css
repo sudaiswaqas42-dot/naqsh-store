@@ -1,59 +1,57 @@
 :root {
-  /* NAQSH Luxury Brand Color Palette - Light Theme */
+  /* NAQSH Luxury Brand Color Palette - Light Theme (Image 3) */
+  /* Forest Green #0F2D22 (Primary), Sand Beige #EBE1D6 (Secondary), Charcoal #1A1A1A (Text), Muted Gold #B6975A (Accent), Ivory #FAF9F6 (Background) */
   --bg-base: #FAF9F6 !important;           /* Ivory - Site background */
   --bg-subtle: #F5EFE9 !important;         /* Sand Light - Sidebar / secondary surfaces */
   --bg-component: #FFFFFF !important;      /* Clean White - Cards, tables, modals */
   --bg-component-hover: #FAF9F6 !important;
   --bg-field: #FFFFFF !important;          /* Clean White - Inputs, selects, search */
   --bg-field-hover: #F5EFE9 !important;
+  --bg-field-component: #FFFFFF !important;
+  --bg-field-component-hover: #F5EFE9 !important;
   --bg-base-hover: #F5EFE9 !important;
   --bg-base-pressed: #EBE1D6 !important;
-  --bg-subtle-hover: #EBE1D6 !important;
-  --bg-subtle-pressed: #E5DACD !important;
+  --bg-subtle-hover: #EBE1D6 !important;   /* Sand Beige - Sidebar hover */
+  --bg-subtle-pressed: #DFD5C7 !important;
 
-  --fg-base: #0F2D22 !important;           /* NAQSH Brand Forest Green (Deep Text) */
-  --fg-subtle: #2D4A3E !important;         /* Elegant Dark Greenish Grey */
+  --fg-base: #1A1A1A !important;           /* Charcoal - Primary text (Image 3) */
+  --fg-subtle: #0F2D22 !important;         /* Forest Green - Subtitles & brand icons */
   --fg-muted: #5E756C !important;          /* Muted Sage */
   --fg-interactive: #0F2D22 !important;    /* Primary brand actions */
-  --fg-interactive-hover: #B6975A !important; /* Gold hover */
+  --fg-interactive-hover: #B6975A !important; /* Muted Gold hover */
   --fg-on-color: #FAF9F6 !important;
   --fg-on-inverted: #FAF9F6 !important;
 
-  --border-base: #EBE1D6 !important;       /* Sand border matching site */
-  --border-strong: #B6975A !important;     /* Gold accent border */
+  --border-base: #EBE1D6 !important;       /* Sand Beige border */
+  --border-strong: #B6975A !important;     /* Muted Gold accent border */
   --border-interactive: #0F2D22 !important;/* Focus rings */
 
-  --button-inverted: #0F2D22 !important;   /* Primary dark forest buttons */
+  --button-inverted: #0F2D22 !important;   /* Primary Forest Green buttons */
   --button-inverted-hover: #184233 !important;
   --button-neutral: #FFFFFF !important;
   --button-neutral-hover: #F5EFE9 !important;
 
-  /* Status Tags (Image 2 - NAQSH Theme) */
-  /* Fulfilled / Delivered / Captured -> Brand Forest Green */
+  /* Status Tags (NAQSH Theme) */
   --tag-green-icon: #0F2D22 !important;
   --tag-green-text: #0F2D22 !important;
   --tag-green-bg: #EBF2EE !important;
   --tag-green-border: #C8DCD1 !important;
 
-  /* Authorized / Shipped / In-Progress -> Brand Muted Gold */
   --tag-orange-icon: #B6975A !important;
   --tag-orange-text: #8A6F3B !important;
   --tag-orange-bg: #FBF8F1 !important;
   --tag-orange-border: #E8DAC0 !important;
 
-  /* Not fulfilled / Canceled / Alert -> Luxury Rose/Ruby */
   --tag-red-icon: #9E3B42 !important;
   --tag-red-text: #7A282E !important;
   --tag-red-bg: #FBF0F1 !important;
   --tag-red-border: #F2CCD0 !important;
 
-  /* Neutral / Grey */
   --tag-neutral-icon: #758A80 !important;
   --tag-neutral-text: #3D544A !important;
   --tag-neutral-bg: #F5EFE9 !important;
   --tag-neutral-border: #EBE1D6 !important;
 
-  /* Blue -> Mapped to Brand Forest Green */
   --tag-blue-icon: #0F2D22 !important;
   --tag-blue-text: #0F2D22 !important;
   --tag-blue-bg: #EBF2EE !important;
@@ -61,20 +59,32 @@
 }
 
 .dark {
-  --bg-base: #0F2D22 !important;
-  --bg-subtle: #081B14 !important;
-  --bg-component: #14382B !important;
-  --bg-field: #081B14 !important;
+  /* NAQSH Luxury Brand Color Palette - Dark Theme (Image 3) */
+  /* Forest Green #0F2D22 base, Muted Gold #B6975A accent, Ivory #FAF9F6 text */
+  --bg-base: #0F2D22 !important;           /* Forest Green - Primary surface */
+  --bg-subtle: #081B14 !important;         /* Deep Forest - Sidebar */
+  --bg-subtle-hover: #184233 !important;   /* Rich Forest Green Hover - NEVER CREAM OR WHITE! */
+  --bg-subtle-pressed: #225643 !important;
+  --bg-component: #14382B !important;      /* Component surface */
+  --bg-component-hover: #1D4C3A !important;
+  --bg-field: #081B14 !important;          /* Input fields */
   --bg-field-hover: #184233 !important;
+  --bg-field-component: #14382B !important;
+  --bg-field-component-hover: #184233 !important;
   --bg-base-hover: #184233 !important;
   --bg-base-pressed: #225643 !important;
-  --fg-base: #FAF9F6 !important;
-  --fg-subtle: #D6C7B7 !important;
-  --fg-muted: #A3B8AC !important;
-  --fg-interactive: #B6975A !important;
+
+  --fg-base: #FAF9F6 !important;           /* Ivory - Primary text */
+  --fg-subtle: #EBE1D6 !important;         /* Sand Beige - Secondary text */
+  --fg-muted: #A3B8AC !important;          /* Muted Sage */
+  --fg-interactive: #B6975A !important;    /* Muted Gold */
   --fg-interactive-hover: #D4BE8D !important;
-  --border-base: #25493B !important;
-  --border-strong: #B6975A !important;
+  --fg-on-color: #0F2D22 !important;
+  --fg-on-inverted: #0F2D22 !important;
+
+  --border-base: #1D4C3A !important;       /* Subtle Forest border */
+  --border-strong: #B6975A !important;     /* Muted Gold border */
+  --border-interactive: #B6975A !important;
 
   /* Dark mode buttons with crystal-clear high contrast */
   --button-neutral: #14382B !important;
@@ -102,6 +112,123 @@
   --tag-neutral-text: #FAF9F6 !important;
   --tag-neutral-bg: #1A382C !important;
   --tag-neutral-border: #2A5241 !important;
+}
+
+/* ============================================================
+   SIDEBAR NAVIGATION & HOVER STATES (FIX FOR GHOSTING ON HOVER)
+   ============================================================ */
+
+aside a,
+nav a,
+aside [role="menuitem"],
+[data-sidebar] a,
+[data-sidebar-item] {
+  transition: background-color 0.15s ease, color 0.15s ease !important;
+}
+
+/* Light mode sidebar */
+aside a:hover,
+nav a:hover,
+aside [role="menuitem"]:hover,
+[data-sidebar] a:hover,
+aside button:hover,
+nav button:hover {
+  background-color: #EBE1D6 !important;
+  color: #1A1A1A !important;
+}
+
+aside a:hover *,
+nav a:hover *,
+[data-sidebar] a:hover * {
+  color: #1A1A1A !important;
+}
+
+/* Dark mode sidebar - crystal clear visibility, rich forest hover */
+.dark aside a,
+.dark nav a,
+.dark [data-sidebar] a,
+.dark aside button,
+.dark nav button,
+.dark [data-sidebar-item] {
+  color: #FAF9F6 !important;
+}
+
+.dark aside a:hover,
+.dark nav a:hover,
+.dark aside [role="menuitem"]:hover,
+.dark [data-sidebar] a:hover,
+.dark [data-sidebar-item]:hover,
+.dark aside button:hover,
+.dark nav button:hover,
+.dark a[class*="hover:bg-ui-bg-subtle"]:hover,
+.dark button[class*="hover:bg-ui-bg-subtle"]:hover {
+  background-color: #184233 !important;
+  color: #FAF9F6 !important;
+}
+
+.dark aside a:hover *,
+.dark nav a:hover *,
+.dark [data-sidebar] a:hover *,
+.dark [data-sidebar-item]:hover *,
+.dark aside button:hover *,
+.dark nav button:hover * {
+  color: #FAF9F6 !important;
+}
+
+.dark aside a:hover svg,
+.dark nav a:hover svg,
+.dark [data-sidebar] a:hover svg {
+  color: #B6975A !important;
+}
+
+/* Active sidebar item */
+aside a[aria-current="page"],
+nav a[aria-current="page"],
+aside a[data-state="active"],
+nav a[data-state="active"],
+[data-sidebar] a[aria-current="page"] {
+  background-color: #EBE1D6 !important;
+  color: #0F2D22 !important;
+  font-weight: 600 !important;
+}
+
+.dark aside a[aria-current="page"],
+.dark nav a[aria-current="page"],
+.dark aside a[data-state="active"],
+.dark nav a[data-state="active"],
+.dark [data-sidebar] a[aria-current="page"] {
+  background-color: #14382B !important;
+  color: #FAF9F6 !important;
+  font-weight: 600 !important;
+  border-left: 3px solid #B6975A !important;
+}
+
+/* Dark mode tooltips and shortcut indicators */
+.dark [role="tooltip"],
+.dark [data-radix-popper-content-wrapper] [role="tooltip"],
+.dark [data-radix-tooltip-content] {
+  background-color: #081B14 !important;
+  color: #FAF9F6 !important;
+  border: 1px solid #B6975A !important;
+}
+
+.dark [role="tooltip"] *,
+.dark [data-radix-tooltip-content] * {
+  color: #FAF9F6 !important;
+}
+
+/* Fallback protection: If ANY element in dark mode receives a light background, force dark text */
+.dark [class*="bg-white"],
+.dark [class*="bg-[#FAF9F6]"],
+.dark [class*="bg-[#EBE1D6]"],
+.dark [class*="bg-[#E8E1D6]"] {
+  color: #1A1A1A !important;
+}
+.dark [class*="bg-white"] *,
+.dark [class*="bg-[#FAF9F6]"] *,
+.dark [class*="bg-[#EBE1D6]"] *,
+.dark [class*="bg-[#E8E1D6]"] * {
+  color: #1A1A1A !important;
 }
 
 /* ============================================================

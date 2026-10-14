@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from "react"
+import { gsap } from "gsap"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 interface Slide {
@@ -83,29 +84,111 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
   })
 
   const [current, setCurrent] = useState(0)
+  const [prevIndex, setPrevIndex] = useState(0)
+  const [direction, setDirection] = useState<"next" | "prev">("next")
   const [isPaused, setIsPaused] = useState(false)
   const [progress, setProgress] = useState(0)
   const touchStartX = useRef<number>(0)
   const touchEndX = useRef<number>(0)
+  const activeSlideRef = useRef<HTMLDivElement>(null)
+
+  // GSAP Right to Left reveal animation on slide change
+  useEffect(() => {
+    if (!activeSlideRef.current) return
+    const container = activeSlideRef.current
+
+    const ctx = gsap.context(() => {
+      // 1. Tag Pill
+      const tag = container.querySelector(".naqsh-hero-tag")
+      if (tag) {
+        gsap.fromTo(
+          tag,
+          { x: 45, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.6, ease: "power3.out" }
+        )
+      }
+
+      // 2. Eyebrow
+      const eyebrow = container.querySelector(".naqsh-hero-eyebrow")
+      if (eyebrow) {
+        gsap.fromTo(
+          eyebrow,
+          { x: 45, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.65, delay: 0.06, ease: "power3.out" }
+        )
+      }
+
+      // 3. Word-by-Word Title Reveal from Right to Left
+      const words = container.querySelectorAll(".naqsh-hero-word")
+      if (words && words.length) {
+        gsap.fromTo(
+          words,
+          { x: 55, opacity: 0, filter: "blur(2px)" },
+          {
+            x: 0,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: 0.75,
+            stagger: 0.07,
+            delay: 0.12,
+            ease: "power3.out",
+          }
+        )
+      }
+
+      // 4. Subtitle
+      const sub = container.querySelector(".naqsh-hero-sub")
+      if (sub) {
+        gsap.fromTo(
+          sub,
+          { x: 40, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.75, delay: 0.32, ease: "power3.out" }
+        )
+      }
+
+      // 5. Buttons
+      const btns = container.querySelectorAll(".naqsh-hero-btn")
+      if (btns && btns.length) {
+        gsap.fromTo(
+          btns,
+          { x: 45, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.7, stagger: 0.1, delay: 0.42, ease: "power3.out" }
+        )
+      }
+    }, activeSlideRef)
+
+    return () => ctx.revert()
+  }, [current])
 
   useEffect(() => {
     if (isPaused || slides.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-    const timer = setInterval(() => { setCurrent(index => (index + 1) % slides.length); setProgress(0) }, 5000)
+    const timer = setInterval(() => {
+      setPrevIndex(current)
+      setDirection("next")
+      setCurrent(index => (index + 1) % slides.length)
+      setProgress(0)
+    }, 5000)
     return () => clearInterval(timer)
-  }, [slides.length, isPaused])
+  }, [slides.length, isPaused, current])
 
   // Reset progress when slide changes manually
   const goToSlide = (index: number) => {
+    setPrevIndex(current)
+    setDirection(index >= current ? "next" : "prev")
     setCurrent(index)
     setProgress(0)
   }
 
   const nextSlide = () => {
+    setPrevIndex(current)
+    setDirection("next")
     setCurrent((prev) => (prev + 1) % slides.length)
     setProgress(0)
   }
 
   const prevSlide = () => {
+    setPrevIndex(current)
+    setDirection("prev")
     setCurrent((prev) => (prev - 1 + slides.length) % slides.length)
     setProgress(0)
   }
@@ -127,6 +210,21 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
     if (touchStartX.current - touchEndX.current < -60) {
       prevSlide()
     }
+  }
+
+  // Helper for mobile horizontal slide feel vs desktop luxury crossfade
+  const getMobileSlideClass = (index: number) => {
+    if (index === current) {
+      return "translate-x-0 opacity-100 z-10 md:translate-x-0"
+    }
+    if (index === prevIndex) {
+      return direction === "next"
+        ? "-translate-x-full opacity-0 z-0 pointer-events-none md:translate-x-0"
+        : "translate-x-full opacity-0 z-0 pointer-events-none md:translate-x-0"
+    }
+    return direction === "next"
+      ? "translate-x-full opacity-0 z-0 pointer-events-none md:translate-x-0"
+      : "-translate-x-full opacity-0 z-0 pointer-events-none md:translate-x-0"
   }
 
   if (!slides.length) return null
@@ -161,8 +259,6 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
           ))}
         </div>
 
-
-
         {/* Slides rendering */}
         {slides.map((slide, index) => {
           const isActive = index === current
@@ -170,9 +266,7 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
             <div
               key={index}
               inert={!isActive}
-              className={`absolute inset-0 transition-opacity duration-300 ease-in-out ${
-                isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
-              }`}
+              className={`absolute inset-0 transition-transform md:transition-opacity duration-600 ease-in-out ${getMobileSlideClass(index)}`}
             >
               {/* Background Image with Ken-Burns scale effect on active slide */}
               <div className="absolute inset-0 overflow-hidden bg-stone-900">
@@ -198,45 +292,72 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
 
               {/* Text & Content Container */}
               <LocalizedClientLink href={slide.cta_link} aria-label={slide.title} tabIndex={isActive ? 0 : -1} className="absolute inset-0 z-10" />
-              <div className="pointer-events-none relative h-full content-container mx-auto px-6 sm:px-12 lg:px-16 flex flex-col justify-center items-start text-white max-w-4xl z-20">
-                {/* Floating Campaign Tag */}
-                {slide.tag && (
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-accent text-brand text-[10px] sm:text-xs font-bold uppercase tracking-[0.25em] mb-4 shadow-md backdrop-blur-xs">
-                    <span className="w-1.5 h-1.5 rounded-full bg-brand animate-ping" />
-                    <span>{slide.tag}</span>
+
+              {/* Responsive Slide Content: Top-left tag on mobile, bottom-aligned content */}
+              <div
+                ref={isActive ? activeSlideRef : undefined}
+                className="pointer-events-none relative h-full content-container mx-auto px-5 sm:px-12 lg:px-16 flex flex-col justify-between sm:justify-center items-start text-white max-w-5xl z-20 pt-8 pb-18 sm:py-0"
+              >
+                {/* Floating Campaign Tag (Left Corner) */}
+                <div className="self-start">
+                  {slide.tag && (
+                    <div className="naqsh-hero-tag inline-flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-1.5 bg-accent text-brand text-[10px] sm:text-xs font-bold uppercase tracking-[0.22em] shadow-md backdrop-blur-xs">
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand animate-ping" />
+                      <span>{slide.tag}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bottom Content Container (Aligned & Centralized on mobile) */}
+                <div className="w-full flex flex-col items-start justify-end mt-auto sm:mt-0">
+                  {slide.eyebrow && (
+                    <span className="naqsh-hero-eyebrow text-[11px] sm:text-xs uppercase tracking-[0.32em] text-accent font-semibold mb-2 drop-shadow-sm">
+                      {slide.eyebrow}
+                    </span>
+                  )}
+
+                  {/* Title: Word-by-word reveal, stays in ONE single line on tablet & desktop */}
+                  <h1
+                    aria-label={slide.title}
+                    className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-normal tracking-wide text-white leading-tight mb-3 sm:mb-4 drop-shadow-lg max-w-full lg:max-w-4xl break-normal hyphens-none whitespace-normal sm:whitespace-nowrap"
+                  >
+                    <span className="inline-flex flex-wrap sm:flex-nowrap items-baseline">
+                      {slide.title.split(" ").map((word, wIdx) => (
+                        <span key={wIdx} className="inline-block overflow-hidden mr-[0.28em] last:mr-0 align-baseline">
+                          <span
+                            className={`naqsh-hero-word inline-block will-change-transform ${
+                              isActive ? "naqsh-banner-word" : "opacity-0"
+                            }`}
+                            style={{ animationDelay: `${0.1 + wIdx * 0.08}s` }}
+                          >
+                            {word}
+                          </span>
+                        </span>
+                      ))}
+                    </span>
+                  </h1>
+
+                  <p className="naqsh-hero-sub text-xs sm:text-base text-stone-200 font-light leading-relaxed mb-6 sm:mb-8 max-w-xl drop-shadow-md">
+                    {slide.sub}
+                  </p>
+
+                  {/* Action Buttons: Clean side-by-side on mobile */}
+                  <div className="flex flex-row items-center gap-2.5 sm:gap-4 w-full sm:w-auto">
+                    <LocalizedClientLink
+                      href={slide.cta_link}
+                      className="naqsh-hero-btn flex-1 sm:flex-initial text-center justify-center px-4 py-3.5 sm:px-8 sm:py-4 bg-white hover:bg-accent text-brand hover:text-white text-[11px] sm:text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-xl hover:shadow-2xl rounded-none transform hover:-translate-y-0.5 flex items-center gap-2"
+                    >
+                      <span>{slide.cta_text}</span>
+                      <span>&rarr;</span>
+                    </LocalizedClientLink>
+
+                    <LocalizedClientLink
+                      href="/store"
+                      className="naqsh-hero-btn flex-1 sm:flex-initial text-center justify-center px-4 py-3.5 sm:px-8 sm:py-4 bg-black/40 backdrop-blur-md border border-white/50 text-white hover:bg-white hover:text-brand hover:border-white text-[11px] sm:text-xs font-semibold uppercase tracking-widest transition-all rounded-none"
+                    >
+                      Explore Catalog
+                    </LocalizedClientLink>
                   </div>
-                )}
-
-                {slide.eyebrow && (
-                  <span className="text-xs uppercase tracking-[0.35em] text-accent font-semibold mb-2 drop-shadow-sm">
-                    {slide.eyebrow}
-                  </span>
-                )}
-
-                <h1 key={isActive ? `active-slide-${current}` : `idle-${index}`} aria-label={slide.title} className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal tracking-wide text-white leading-tight mb-4 drop-shadow-lg max-w-2xl">
-                  <span aria-hidden="true">{Array.from(slide.title).map((letter, idx) => <span key={idx} className={isActive ? "naqsh-banner-letter" : ""} style={{ animationDelay: `${idx * 0.02}s` }}>{letter === " " ? "\u00a0" : letter}</span>)}</span>
-                </h1>
-
-                <p className="text-xs sm:text-base text-stone-200 font-light leading-relaxed mb-8 max-w-xl drop-shadow-md">
-                  {slide.sub}
-                </p>
-
-                {/* Action Buttons */}
-                <div className="flex flex-wrap items-center gap-4">
-                  <LocalizedClientLink
-                    href={slide.cta_link}
-                    className="px-8 py-4 bg-white hover:bg-accent text-brand hover:text-white text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-xl hover:shadow-2xl rounded-none transform hover:-translate-y-0.5 flex items-center gap-2"
-                  >
-                    <span>{slide.cta_text}</span>
-                    <span>&rarr;</span>
-                  </LocalizedClientLink>
-
-                  <LocalizedClientLink
-                    href="/store"
-                    className="px-8 py-4 bg-black/40 backdrop-blur-md border border-white/50 text-white hover:bg-white hover:text-brand hover:border-white text-xs font-semibold uppercase tracking-widest transition-all rounded-none"
-                  >
-                    Explore Catalog
-                  </LocalizedClientLink>
                 </div>
               </div>
             </div>
@@ -266,7 +387,7 @@ export default function NaqshHeroSlider({ section }: HeroSliderProps) {
         </button>
 
         {/* Slide Progress Indicator Circles with filling animation */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2.5 sm:gap-3">
+        <div className="absolute bottom-5 sm:bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2.5 sm:gap-3">
           {slides.map((_, idx) => (
             <button
               key={idx}

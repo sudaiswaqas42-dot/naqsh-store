@@ -10,8 +10,8 @@
             content="width=device-width, initial-scale=1"
         />
         <link rel="icon" href="data:," data-placeholder-favicon />
-      <script type="module" crossorigin src="/app/assets/index-DhDCcMMw.js"></script>
-      <link rel="stylesheet" crossorigin href="/app/assets/index-BI2hXwyu.css">
+      <script type="module" crossorigin src="/app/assets/index-DdUSBZbn.js"></script>
+      <link rel="stylesheet" crossorigin href="/app/assets/index-Dix7pCB8.css">
     <style id="naqsh-admin-styles">
   /* Fix Inventory Availability and Edit Drawer Layout */
   [role="dialog"] table,
@@ -73,6 +73,91 @@
     border-color: #047857 !important;
     outline: none !important;
     box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.15) !important;
+  }
+
+  /* NAQSH Color Scheme & Sidebar Hover Fix */
+  .dark {
+    --bg-base: #0F2D22 !important;
+    --bg-subtle: #081B14 !important;
+    --bg-subtle-hover: #184233 !important;
+    --bg-subtle-pressed: #225643 !important;
+    --bg-component: #14382B !important;
+    --bg-component-hover: #1D4C3A !important;
+    --bg-field: #081B14 !important;
+    --bg-field-hover: #184233 !important;
+    --bg-field-component: #14382B !important;
+    --bg-field-component-hover: #184233 !important;
+    --bg-base-hover: #184233 !important;
+    --bg-base-pressed: #225643 !important;
+    --fg-base: #FAF9F6 !important;
+    --fg-subtle: #EBE1D6 !important;
+    --fg-interactive: #B6975A !important;
+    --fg-interactive-hover: #D4BE8D !important;
+    --border-base: #1D4C3A !important;
+    --border-strong: #B6975A !important;
+    --border-interactive: #B6975A !important;
+  }
+
+  .dark aside a,
+  .dark nav a,
+  .dark [data-sidebar] a,
+  .dark aside button,
+  .dark nav button,
+  .dark [data-sidebar-item] {
+    color: #FAF9F6 !important;
+  }
+
+  .dark aside a:hover,
+  .dark nav a:hover,
+  .dark [data-sidebar] a:hover,
+  .dark [data-sidebar-item]:hover,
+  .dark aside button:hover,
+  .dark nav button:hover,
+  .dark a[class*="hover:bg-ui-bg-subtle"]:hover,
+  .dark button[class*="hover:bg-ui-bg-subtle"]:hover {
+    background-color: #184233 !important;
+    color: #FAF9F6 !important;
+  }
+
+  .dark aside a:hover *,
+  .dark nav a:hover *,
+  .dark [data-sidebar] a:hover *,
+  .dark [data-sidebar-item]:hover *,
+  .dark aside button:hover *,
+  .dark nav button:hover * {
+    color: #FAF9F6 !important;
+  }
+
+  .dark aside a:hover svg,
+  .dark nav a:hover svg,
+  .dark [data-sidebar] a:hover svg {
+    color: #B6975A !important;
+  }
+
+  .dark [role="tooltip"],
+  .dark [data-radix-popper-content-wrapper] [role="tooltip"],
+  .dark [data-radix-tooltip-content] {
+    background-color: #081B14 !important;
+    color: #FAF9F6 !important;
+    border: 1px solid #B6975A !important;
+  }
+
+  .dark [role="tooltip"] *,
+  .dark [data-radix-tooltip-content] * {
+    color: #FAF9F6 !important;
+  }
+
+  .dark [class*="bg-white"],
+  .dark [class*="bg-[#FAF9F6]"],
+  .dark [class*="bg-[#EBE1D6]"],
+  .dark [class*="bg-[#E8E1D6]"] {
+    color: #1A1A1A !important;
+  }
+  .dark [class*="bg-white"] *,
+  .dark [class*="bg-[#FAF9F6]"] *,
+  .dark [class*="bg-[#EBE1D6]"] *,
+  .dark [class*="bg-[#E8E1D6]"] * {
+    color: #1A1A1A !important;
   }
 
   /* Make inventory drawer / modal container look spacious and clean */
@@ -144,28 +229,46 @@
     input.focus();
   }
 
-  function isColorOrOptionInput(input) {
-    if (!input || input.type === 'hidden' || input.type === 'checkbox' || input.type === 'radio') return false;
-    const name = (input.name || '').toLowerCase();
-    const id = (input.id || '').toLowerCase();
+  // STRICTLY target only the "Values" field (e.g. placeholder with "Red, Blue, Green")
+  // NEVER target the "Product options" combobox (where user chooses Color / Size property)
+  function isColorValueInput(input) {
+    if (!input || input.tagName !== 'INPUT' || input.type === 'hidden' || input.type === 'checkbox' || input.type === 'radio') return false;
+
+    // Never target the Option Type/Property combobox
+    const role = input.getAttribute('role') || '';
+    if (role === 'combobox') {
+      const ariaLabel = (input.getAttribute('aria-label') || '').toLowerCase();
+      const placeholder = (input.placeholder || '').toLowerCase();
+      if (!placeholder.includes('red, blue') && !placeholder.includes('values')) {
+        return false;
+      }
+    }
+
     const placeholder = (input.placeholder || '').toLowerCase();
-    const ariaLabel = (input.getAttribute('aria-label') || '').toLowerCase();
-    const formGroup = input.closest('div, label, [role="group"]');
-    const groupText = formGroup ? (formGroup.innerText || '').toLowerCase() : '';
-    return placeholder.includes('color') || placeholder.includes('value') || placeholder.includes('tag') ||
-           name.includes('color') || name.includes('value') || id.includes('color') || id.includes('value') ||
-           ariaLabel.includes('color') || groupText.includes('option value') || groupText.includes('variations') || groupText.includes('color');
+    // Medusa Admin "Values" field explicitly has placeholder "Red, Blue, Green"
+    if (placeholder.includes('red') || placeholder.includes('blue') || placeholder.includes('green')) {
+      return true;
+    }
+
+    // Check closest container text: Must be specifically under "Values", not "Product options"
+    const container = input.closest('div');
+    const containerText = (container?.parentElement?.innerText || container?.innerText || '').toLowerCase();
+    if (containerText.includes('select which values to use') || (containerText.includes('values') && !containerText.includes('define the options'))) {
+      return true;
+    }
+
+    return false;
   }
 
   document.addEventListener('input', function(e) {
-    if (e.target && e.target.tagName === 'INPUT' && isColorOrOptionInput(e.target)) {
+    if (e.target && isColorValueInput(e.target)) {
       activeInput = e.target;
       renderOptions(e.target.value, e.target);
     }
   });
 
   document.addEventListener('focusin', function(e) {
-    if (e.target && e.target.tagName === 'INPUT' && isColorOrOptionInput(e.target)) {
+    if (e.target && isColorValueInput(e.target)) {
       activeInput = e.target;
       if (e.target.value) renderOptions(e.target.value, e.target);
     }

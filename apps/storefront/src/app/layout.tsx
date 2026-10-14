@@ -6,6 +6,15 @@ export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
   title: "NAQSH — Pakistani Luxury Fashion & Apparel",
   description: "Handcrafted lawn, pure silks, and artisanal Pakistani couture tailored for modern sensibilities.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon.png", type: "image/png" },
+    ],
+    apple: [
+      { url: "/favicon.png" },
+    ],
+  },
 }
 
 import Providers from "./providers"
@@ -14,6 +23,9 @@ export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" data-mode="light">
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

@@ -177,6 +177,91 @@ function patchCustomStyles(dir) {
     box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.15) !important;
   }
 
+  /* NAQSH Color Scheme & Sidebar Hover Fix */
+  .dark {
+    --bg-base: #0F2D22 !important;
+    --bg-subtle: #081B14 !important;
+    --bg-subtle-hover: #184233 !important;
+    --bg-subtle-pressed: #225643 !important;
+    --bg-component: #14382B !important;
+    --bg-component-hover: #1D4C3A !important;
+    --bg-field: #081B14 !important;
+    --bg-field-hover: #184233 !important;
+    --bg-field-component: #14382B !important;
+    --bg-field-component-hover: #184233 !important;
+    --bg-base-hover: #184233 !important;
+    --bg-base-pressed: #225643 !important;
+    --fg-base: #FAF9F6 !important;
+    --fg-subtle: #EBE1D6 !important;
+    --fg-interactive: #B6975A !important;
+    --fg-interactive-hover: #D4BE8D !important;
+    --border-base: #1D4C3A !important;
+    --border-strong: #B6975A !important;
+    --border-interactive: #B6975A !important;
+  }
+
+  .dark aside a,
+  .dark nav a,
+  .dark [data-sidebar] a,
+  .dark aside button,
+  .dark nav button,
+  .dark [data-sidebar-item] {
+    color: #FAF9F6 !important;
+  }
+
+  .dark aside a:hover,
+  .dark nav a:hover,
+  .dark [data-sidebar] a:hover,
+  .dark [data-sidebar-item]:hover,
+  .dark aside button:hover,
+  .dark nav button:hover,
+  .dark a[class*="hover:bg-ui-bg-subtle"]:hover,
+  .dark button[class*="hover:bg-ui-bg-subtle"]:hover {
+    background-color: #184233 !important;
+    color: #FAF9F6 !important;
+  }
+
+  .dark aside a:hover *,
+  .dark nav a:hover *,
+  .dark [data-sidebar] a:hover *,
+  .dark [data-sidebar-item]:hover *,
+  .dark aside button:hover *,
+  .dark nav button:hover * {
+    color: #FAF9F6 !important;
+  }
+
+  .dark aside a:hover svg,
+  .dark nav a:hover svg,
+  .dark [data-sidebar] a:hover svg {
+    color: #B6975A !important;
+  }
+
+  .dark [role="tooltip"],
+  .dark [data-radix-popper-content-wrapper] [role="tooltip"],
+  .dark [data-radix-tooltip-content] {
+    background-color: #081B14 !important;
+    color: #FAF9F6 !important;
+    border: 1px solid #B6975A !important;
+  }
+
+  .dark [role="tooltip"] *,
+  .dark [data-radix-tooltip-content] * {
+    color: #FAF9F6 !important;
+  }
+
+  .dark [class*="bg-white"],
+  .dark [class*="bg-[#FAF9F6]"],
+  .dark [class*="bg-[#EBE1D6]"],
+  .dark [class*="bg-[#E8E1D6]"] {
+    color: #1A1A1A !important;
+  }
+  .dark [class*="bg-white"] *,
+  .dark [class*="bg-[#FAF9F6]"] *,
+  .dark [class*="bg-[#EBE1D6]"] *,
+  .dark [class*="bg-[#E8E1D6]"] * {
+    color: #1A1A1A !important;
+  }
+
   /* Make inventory drawer / modal container look spacious and clean */
   [role="dialog"] > div:last-child {
     padding: 24px !important;
