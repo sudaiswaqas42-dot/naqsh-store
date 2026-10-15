@@ -1,11 +1,16 @@
 import React from "react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import FooterNewsletter from "./footer-newsletter"
-import { getSocialLinks } from "@lib/data/homepage"
+import { getSocialLinks, getCodSettings } from "@lib/data/homepage"
+import { normalizeWhatsApp, getWhatsAppUrl } from "@lib/util/whatsapp"
 import NaqshLogo from "@modules/common/components/naqsh-logo"
 
 export default async function Footer() {
-  const socialLinks = await getSocialLinks()
+  const [socialLinks, codSettings] = await Promise.all([
+    getSocialLinks(),
+    getCodSettings(),
+  ])
+  const whatsapp = normalizeWhatsApp(codSettings?.whatsapp_number)
 
   return (
     <>
@@ -205,7 +210,20 @@ export default async function Footer() {
               </p>
               <p>
                 <span className="font-medium text-stone-200">WhatsApp Concierge:</span><br />
-                <span className="text-stone-300">+92 319 7365388</span>
+                {whatsapp.isValid ? (
+                  <a
+                    href={getWhatsAppUrl(whatsapp.digits, "Assalam-o-Alaikum NAQSH Team, I need assistance with an order or product.")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-stone-300 hover:text-white underline underline-offset-4 transition-colors"
+                  >
+                    {whatsapp.display}
+                  </a>
+                ) : (
+                  <LocalizedClientLink href="/contact" className="text-stone-300 underline underline-offset-4">
+                    Contact concierge support
+                  </LocalizedClientLink>
+                )}
               </p>
               <p>
                 <span className="font-medium text-stone-200">Hours:</span><br />

@@ -7,6 +7,8 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   res.json({ cod_settings: {
     account_name: section?.settings?.account_name || "",
     account_number: section?.settings?.account_number || "",
+    whatsapp_number: section?.settings?.whatsapp_number || "",
     shipping_advance: 250,
   } })
 }
+

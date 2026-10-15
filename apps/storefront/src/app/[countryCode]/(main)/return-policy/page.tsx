@@ -4,6 +4,7 @@ import React, { useState } from "react"
 import { useToast } from "@lib/context/toast-context"
 import NaqshLogo from "@modules/common/components/naqsh-logo"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { fetchCodSettingsClient, normalizeWhatsApp, getWhatsAppUrl } from "@lib/util/whatsapp"
 
 export default function ReturnPolicyPage() {
   const { showToast } = useToast()
@@ -17,6 +18,17 @@ export default function ReturnPolicyPage() {
   const [comments, setComments] = useState("")
   const [loading, setLoading] = useState(false)
   const [submittedRequest, setSubmittedRequest] = useState<any | null>(null)
+  const [whatsappNumber, setWhatsappNumber] = useState("")
+
+  React.useEffect(() => {
+    let cancelled = false
+    fetchCodSettingsClient().then(settings => {
+      if (!cancelled && settings?.whatsapp_number) {
+        setWhatsappNumber(settings.whatsapp_number)
+      }
+    })
+    return () => { cancelled = true }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -213,7 +225,21 @@ export default function ReturnPolicyPage() {
             </p>
             <div className="bg-[#FAF9F6] p-4 border border-stone-200 space-y-1.5 text-xs">
               <div><strong>Email:</strong> info@naqsh.pk</div>
-              <div><strong>Phone / WhatsApp:</strong> +92 300 1234567</div>
+              <div>
+                <strong>Phone / WhatsApp:</strong>{" "}
+                {(() => {
+                  const whatsapp = normalizeWhatsApp(whatsappNumber)
+                  return whatsapp.isValid ? (
+                    <a href={getWhatsAppUrl(whatsapp.digits)} target="_blank" rel="noreferrer" className="underline hover:text-black">
+                      {whatsapp.display}
+                    </a>
+                  ) : (
+                    <LocalizedClientLink href="/contact" className="underline hover:text-black">
+                      Contact Concierge
+                    </LocalizedClientLink>
+                  )
+                })()}
+              </div>
             </div>
             <p className="pt-1">Please provide:</p>
             <ul className="list-disc pl-5 space-y-1 text-stone-600">

@@ -1,8 +1,9 @@
 "use client"
 
 import { submitSupportMessage } from "@lib/data/customer-care"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useToast } from "@lib/context/toast-context"
+import { fetchCodSettingsClient, normalizeWhatsApp, getWhatsAppUrl } from "@lib/util/whatsapp"
 
 export default function ContactUsPage() {
   const { showToast } = useToast()
@@ -13,6 +14,18 @@ export default function ContactUsPage() {
   const [message, setMessage] = useState("")
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [whatsappNumber, setWhatsappNumber] = useState("")
+
+  useEffect(() => {
+    let cancelled = false
+    fetchCodSettingsClient().then(settings => {
+      if (!cancelled && settings?.whatsapp_number) {
+        setWhatsappNumber(settings.whatsapp_number)
+      }
+    })
+    return () => { cancelled = true }
+  }, [])
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -67,17 +80,25 @@ export default function ContactUsPage() {
 
               <div>
                 <strong className="text-stone-900 block font-sans">WhatsApp Concierge:</strong>
-                <a
-                  href="https://wa.me/923001234567"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-emerald-700 font-semibold hover:underline inline-flex items-center gap-1"
-                >
-                  <span>+92 300 1234567</span>
-                  <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">
-                    Active Now
-                  </span>
-                </a>
+                {(() => {
+                  const whatsapp = normalizeWhatsApp(whatsappNumber)
+                  if (!whatsapp.isValid) {
+                    return <span className="text-stone-600 font-sans">Mon - Sat: 9:00 AM - 9:00 PM PKT</span>
+                  }
+                  return (
+                    <a
+                      href={getWhatsAppUrl(whatsapp.digits, "Assalam-o-Alaikum NAQSH Team, I need assistance.")}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-emerald-700 font-semibold hover:underline inline-flex items-center gap-1"
+                    >
+                      <span>{whatsapp.display}</span>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">
+                        Active Now
+                      </span>
+                    </a>
+                  )
+                })()}
               </div>
 
               <div>

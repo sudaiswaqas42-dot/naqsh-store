@@ -67,3 +67,32 @@ export async function getSocialLinks(): Promise<SocialLinks> {
   }
 }
 
+export type CodSettingsData = {
+  account_name: string
+  account_number: string
+  whatsapp_number?: string
+  shipping_advance: number
+}
+
+export async function getCodSettings(): Promise<CodSettingsData> {
+  const fallback: CodSettingsData = {
+    account_name: "",
+    account_number: "",
+    whatsapp_number: "",
+    shipping_advance: 250,
+  }
+  try {
+    const res = await sdk.client.fetch<{ cod_settings: CodSettingsData }>(
+      "/store/cod-settings",
+      {
+        method: "GET",
+        next: { revalidate: 30, tags: ["cod-settings"] },
+      }
+    )
+    return res.cod_settings || fallback
+  } catch (err) {
+    return fallback
+  }
+}
+
+

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { fetchCodSettingsClient, normalizeWhatsApp, getWhatsAppUrl } from "@lib/util/whatsapp"
 
 export default function OrderTrackPage() {
   const searchParams = useSearchParams()
@@ -14,6 +15,17 @@ export default function OrderTrackPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [orderData, setOrderData] = useState<any | null>(null)
+  const [whatsappNumber, setWhatsappNumber] = useState("")
+
+  useEffect(() => {
+    let cancelled = false
+    fetchCodSettingsClient().then(settings => {
+      if (!cancelled && settings?.whatsapp_number) {
+        setWhatsappNumber(settings.whatsapp_number)
+      }
+    })
+    return () => { cancelled = true }
+  }, [])
 
   const handleTrack = async (e?: React.FormEvent, customId?: string, customEmail?: string) => {
     if (e) e.preventDefault()
@@ -257,15 +269,22 @@ export default function OrderTrackPage() {
                 <p className="text-stone-500 text-[11px] leading-relaxed">
                   Our dedicated concierge team is available 24/7 on WhatsApp to assist with address updates, carrier coordination, and doorstep exchanges.
                 </p>
-                <a
-                  href="https://wa.me/923001234567"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:underline pt-1"
-                >
-                  <span>Chat on WhatsApp</span>
-                  <span>&rarr;</span>
-                </a>
+                {(() => {
+                  const whatsapp = normalizeWhatsApp(whatsappNumber)
+                  const message = `Assalam-o-Alaikum NAQSH Team, I need assistance with Order #${orderData?.display_id || displayId}.`
+                  const href = whatsapp.isValid ? getWhatsAppUrl(whatsapp.digits, message) : "/contact"
+                  return (
+                    <a
+                      href={href}
+                      target={whatsapp.isValid ? "_blank" : undefined}
+                      rel={whatsapp.isValid ? "noreferrer" : undefined}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:underline pt-1"
+                    >
+                      <span>Chat on WhatsApp</span>
+                      <span>&rarr;</span>
+                    </a>
+                  )
+                })()}
               </div>
             </div>
           </div>

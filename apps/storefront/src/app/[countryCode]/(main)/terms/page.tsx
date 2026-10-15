@@ -1,6 +1,8 @@
 import { Metadata } from "next"
 import NaqshLogo from "@modules/common/components/naqsh-logo"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { getCodSettings } from "@lib/data/homepage"
+import { normalizeWhatsApp, getWhatsAppUrl } from "@lib/util/whatsapp"
 
 export const metadata: Metadata = {
   title: "Terms & Conditions — NAQSH",
@@ -8,7 +10,9 @@ export const metadata: Metadata = {
     "Review the Terms & Conditions of NAQSH. Understand policies regarding orders, pricing, delivery, returns, and intellectual property across Pakistan.",
 }
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const codSettings = await getCodSettings()
+  const whatsapp = normalizeWhatsApp(codSettings?.whatsapp_number)
   return (
     <div className="bg-[#FAF9F6] text-[#1A1A1A] font-sans py-14 sm:py-20">
       <div className="content-container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
@@ -244,9 +248,15 @@ export default function TermsPage() {
               </div>
               <div>
                 <strong className="text-[#B6975A] font-semibold">Phone / WhatsApp:</strong>{" "}
-                <a href="https://wa.me/923001234567" target="_blank" rel="noreferrer" className="underline hover:text-white">
-                  +92 300 1234567
-                </a>
+                {whatsapp.isValid ? (
+                  <a href={getWhatsAppUrl(whatsapp.digits)} target="_blank" rel="noreferrer" className="underline hover:text-white">
+                    {whatsapp.display}
+                  </a>
+                ) : (
+                  <LocalizedClientLink href="/contact" className="underline hover:text-white">
+                    Contact Concierge
+                  </LocalizedClientLink>
+                )}
               </div>
               <div>
                 <strong className="text-[#B6975A] font-semibold">Website:</strong>{" "}

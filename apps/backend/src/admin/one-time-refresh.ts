@@ -1,7 +1,7 @@
 // This entry is loaded globally, including direct links to order details.
 if (typeof window !== "undefined") {
   try {
-    const key = "naqsh-admin-refreshed-v20261014-cod-update"
+    const key = "naqsh-admin-refreshed-v20261015-whatsapp-cod-settings"
     if (!window.sessionStorage.getItem(key)) {
       window.sessionStorage.setItem(key, "1")
       window.location.reload()

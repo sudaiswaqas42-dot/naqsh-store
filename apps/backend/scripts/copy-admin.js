@@ -524,7 +524,7 @@ function patchCustomStyles(dir) {
 (function() {
   // One-time automatic refresh per session / deployment version to clear stale bundle caches
   try {
-    const REFRESH_KEY = 'naqsh-admin-refreshed-v20261014-cod-update';
+    const REFRESH_KEY = 'naqsh-admin-refreshed-v20261015-whatsapp-cod-settings';
     if (!sessionStorage.getItem(REFRESH_KEY)) {
       sessionStorage.setItem(REFRESH_KEY, '1');
       window.location.reload();

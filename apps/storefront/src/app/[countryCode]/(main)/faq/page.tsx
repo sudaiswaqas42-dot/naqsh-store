@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { fetchCodSettingsClient, normalizeWhatsApp, getWhatsAppUrl } from "@lib/util/whatsapp"
 
 const faqSections = [
   {
@@ -72,10 +73,22 @@ const faqSections = [
 
 export default function FAQPage() {
   const [openItems, setOpenItems] = useState<Record<string, boolean>>({ "0-0": true })
+  const [whatsappNumber, setWhatsappNumber] = useState("")
+
+  useEffect(() => {
+    let cancelled = false
+    fetchCodSettingsClient().then(settings => {
+      if (!cancelled && settings?.whatsapp_number) {
+        setWhatsappNumber(settings.whatsapp_number)
+      }
+    })
+    return () => { cancelled = true }
+  }, [])
 
   const toggleItem = (key: string) => {
     setOpenItems((prev) => ({ ...prev, [key]: !prev[key] }))
   }
+
 
   return (
     <div className="content-container mx-auto px-4 sm:px-6 lg:px-8 py-14 max-w-4xl font-sans">
@@ -146,16 +159,22 @@ export default function FAQPage() {
           >
             Contact Concierge
           </LocalizedClientLink>
-          <a
-            href="https://wa.me/923001234567"
-            target="_blank"
-            rel="noreferrer"
-            className="px-6 py-2.5 bg-emerald-700 text-white text-xs font-semibold uppercase tracking-wider hover:bg-emerald-800 transition-colors"
-          >
-            WhatsApp Support
-          </a>
+          {(() => {
+            const whatsapp = normalizeWhatsApp(whatsappNumber)
+            return (
+              <a
+                href={whatsapp.isValid ? getWhatsAppUrl(whatsapp.digits, "Assalam-o-Alaikum NAQSH Team, I have a question regarding my order.") : "/contact"}
+                target={whatsapp.isValid ? "_blank" : undefined}
+                rel={whatsapp.isValid ? "noreferrer" : undefined}
+                className="px-6 py-2.5 bg-emerald-700 text-white text-xs font-semibold uppercase tracking-wider hover:bg-emerald-800 transition-colors"
+              >
+                WhatsApp Support
+              </a>
+            )
+          })()}
         </div>
       </div>
     </div>
   )
 }
+

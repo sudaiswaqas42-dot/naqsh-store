@@ -5,6 +5,7 @@ import { Metadata } from "next"
 
 import { retrieveCart } from "@lib/data/cart"
 import { retrieveCustomer } from "@lib/data/customer"
+import { getCodSettings } from "@lib/data/homepage"
 import { getBaseURL } from "@lib/util/env"
 import CartMismatchBanner from "@modules/layout/components/cart-mismatch-banner"
 import Footer from "@modules/layout/templates/footer"
@@ -40,7 +41,9 @@ async function CartNotices() {
   )
 }
 
-export default function PageLayout({ children }: { children: React.ReactNode }) {
+export default async function PageLayout({ children }: { children: React.ReactNode }) {
+  const codSettings = await getCodSettings().catch(() => null)
+
   return (
     <>
       <ScrollReveal />
@@ -50,9 +53,10 @@ export default function PageLayout({ children }: { children: React.ReactNode }) 
       <Suspense fallback={null}><CartNotices /></Suspense>
       {children}
       <Suspense fallback={<div className="min-h-40 bg-[#0F2D22]" />}><Footer /></Suspense>
-      <WhatsAppFloatingButton />
+      <WhatsAppFloatingButton initialNumber={codSettings?.whatsapp_number} />
       <RecentlyViewedPopup />
       <MobileShopNavigation />
     </>
   )
 }
+

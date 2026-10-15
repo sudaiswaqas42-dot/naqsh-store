@@ -94,7 +94,7 @@ const HomepageAdminPage = () => {
           ["products", "Prices & promotions"],
           ["instagram", "Instagram"],
           ["social", "Social links"],
-          ["cod", "COD / JazzCash"],
+          ["cod", "COD & WhatsApp"],
         ].map(([id, label]) => (
           <Button
             key={id}

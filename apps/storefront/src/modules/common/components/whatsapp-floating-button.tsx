@@ -1,15 +1,26 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { fetchCodSettingsClient, normalizeWhatsApp, getWhatsAppUrl } from "@lib/util/whatsapp"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
-export default function WhatsAppFloatingButton() {
+export default function WhatsAppFloatingButton({ initialNumber }: { initialNumber?: string }) {
   const [isOpen, setIsOpen] = useState(false)
+  const [phoneNumber, setPhoneNumber] = useState(initialNumber || "")
 
-  const phoneNumber = "923197365388"
-  const defaultMessage = encodeURIComponent(
-    "Assalam-o-Alaikum NAQSH Team! I need assistance with product availability, size guidance, or placing an order."
-  )
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${defaultMessage}`
+  useEffect(() => {
+    let cancelled = false
+    fetchCodSettingsClient().then(settings => {
+      if (!cancelled && settings?.whatsapp_number) {
+        setPhoneNumber(settings.whatsapp_number)
+      }
+    })
+    return () => { cancelled = true }
+  }, [])
+
+  const whatsapp = normalizeWhatsApp(phoneNumber)
+  const defaultMessage = "Assalam-o-Alaikum NAQSH Team! I need assistance with product availability, size guidance, or placing an order."
+  const whatsappUrl = whatsapp.isValid ? getWhatsAppUrl(whatsapp.digits, defaultMessage) : ""
 
   return (
     <div className="naqsh-whatsapp fixed bottom-6 right-6 z-50 flex flex-col items-end font-sans">
@@ -31,14 +42,24 @@ export default function WhatsAppFloatingButton() {
           <p className="text-[11px] text-stone-600 mb-3 font-light leading-relaxed">
             Need styling advice, fabric consultation, or order assistance? Chat directly with our Karachi boutique team on WhatsApp.
           </p>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full py-2 bg-[#25D366] hover:bg-[#20ba59] text-white rounded text-center block font-semibold text-[11px] uppercase tracking-wider transition-colors shadow-xs"
-          >
-            Start WhatsApp Chat →
-          </a>
+          {whatsapp.isValid ? (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-2 bg-[#25D366] hover:bg-[#20ba59] text-white rounded text-center block font-semibold text-[11px] uppercase tracking-wider transition-colors shadow-xs"
+            >
+              Start WhatsApp Chat →
+            </a>
+          ) : (
+            <LocalizedClientLink
+              href="/contact"
+              onClick={() => setIsOpen(false)}
+              className="w-full py-2 bg-[#25D366] hover:bg-[#20ba59] text-white rounded text-center block font-semibold text-[11px] uppercase tracking-wider transition-colors shadow-xs"
+            >
+              Contact Boutique Team →
+            </LocalizedClientLink>
+          )}
         </div>
       )}
 

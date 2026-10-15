@@ -11,6 +11,7 @@ import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { useToast } from "@lib/context/toast-context"
 import ProductAttributes from "../product-attributes"
 import { publicValue, formatSizeName } from "@lib/util/product-details"
+import { fetchCodSettingsClient, normalizeWhatsApp, getWhatsAppUrl } from "@lib/util/whatsapp"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -41,7 +42,18 @@ export default function ProductActions({
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
   const [openAccordion, setOpenAccordion] = useState<"desc" | "care" | null>("desc")
+  const [whatsappNumber, setWhatsappNumber] = useState("")
   const countryCode = useParams().countryCode as string
+
+  useEffect(() => {
+    let cancelled = false
+    fetchCodSettingsClient().then(settings => {
+      if (!cancelled && settings?.whatsapp_number) {
+        setWhatsappNumber(settings.whatsapp_number)
+      }
+    })
+    return () => { cancelled = true }
+  }, [])
 
   // Track recently viewed products for Task 5
   useEffect(() => {
@@ -512,19 +524,26 @@ export default function ProductActions({
 
         {/* WhatsApp Direct Product Inquiry Button */}
         <div className="product-inquiry pt-2">
-          <a
-            href={`https://wa.me/923197365388?text=${encodeURIComponent(
-              `Assalam-o-Alaikum NAQSH, I want to inquire about: ${product.title} (SKU: ${selectedVariant?.sku || product.handle}). Is this available for immediate dispatch?`
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full py-3 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs uppercase tracking-wider font-semibold flex items-center justify-center gap-2 transition-colors rounded-none"
-          >
-            <svg className="w-4 h-4 fill-emerald-600" viewBox="0 0 24 24">
-              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.587 1.771.865 2.791.865 3.182 0 5.768-2.587 5.768-5.766 0-3.18-2.586-5.751-5.768-5.751zm0-2.172c4.418 0 8 3.582 8 8s-3.582 8-8 8c-1.42 0-2.753-.37-3.908-1.018l-5.092 1.332 1.356-4.957c-.742-1.218-1.176-2.651-1.176-4.182 0-4.418 3.582-8 8-8z" />
-            </svg>
-            <span>Inquire on WhatsApp</span>
-          </a>
+          {(() => {
+            const whatsapp = normalizeWhatsApp(whatsappNumber)
+            const inquiryMsg = `Assalam-o-Alaikum NAQSH, I want to inquire about: ${product.title} (SKU: ${selectedVariant?.sku || product.handle}). Is this available for immediate dispatch?`
+            const href = whatsapp.isValid
+              ? getWhatsAppUrl(whatsapp.digits, inquiryMsg)
+              : `/contact?subject=${encodeURIComponent(`Product Inquiry: ${product.title}`)}`
+            return (
+              <a
+                href={href}
+                target={whatsapp.isValid ? "_blank" : undefined}
+                rel={whatsapp.isValid ? "noopener noreferrer" : undefined}
+                className="w-full py-3 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs uppercase tracking-wider font-semibold flex items-center justify-center gap-2 transition-colors rounded-none"
+              >
+                <svg className="w-4 h-4 fill-emerald-600" viewBox="0 0 24 24">
+                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.587 1.771.865 2.791.865 3.182 0 5.768-2.587 5.768-5.766 0-3.18-2.586-5.751-5.768-5.751zm0-2.172c4.418 0 8 3.582 8 8s-3.582 8-8 8c-1.42 0-2.753-.37-3.908-1.018l-5.092 1.332 1.356-4.957c-.742-1.218-1.176-2.651-1.176-4.182 0-4.418 3.582-8 8-8z" />
+                </svg>
+                <span>Inquire on WhatsApp</span>
+              </a>
+            )
+          })()}
         </div>
       </div>
 

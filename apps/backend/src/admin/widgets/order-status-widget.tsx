@@ -172,7 +172,7 @@ const OrderStatusWidget = ({ data: order }: { data: any }) => {
         </div>
 
         <div style="clear: both; margin-top: 60px; border-top: 1px solid var(--border-base); padding-top: 20px; text-align: center; font-size: 12px; color: #888;">
-          Thank you for choosing NAQSH. For inquiries or returns, visit naqsh.pk/order/track or WhatsApp +92 (319) 736-5388.
+          Thank you for choosing NAQSH. For inquiries or returns, visit naqsh.pk/order/track or contact our concierge support.
         </div>
       </body>
       </html>
